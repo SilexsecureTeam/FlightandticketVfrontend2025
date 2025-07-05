@@ -1,11 +1,11 @@
 @props([
-    'label' => 'Date',
-    'name' => 'date',
-    'placeholder' => 'Select a date',
-    'initialDate' => null,
-    'minDate' => null,
-    'type' => 'departure',
-    'wire' => null,
+'label' => 'Date',
+'name' => 'date',
+'placeholder' => 'Select a date',
+'initialDate' => null,
+'minDate' => null,
+'type' => 'departure',
+'wire' => null,
 ])
 
 <div x-data="datePickerComponent('{{ $minDate }}', '{{ $label }}', '{{ $type }}', '{{ $initialDate }}', '{{ $wire }}')" class="relative w-full">
@@ -17,7 +17,7 @@
         <div>
             <div class="text-white text-xs lg:text-base" x-text="label"></div>
             <input type="text" :name="name" placeholder="{{ $placeholder }}"
-                @click="pickerType === 'departure' ? showDeparturePicker = !showDeparturePicker : showReturnPicker = !showReturnPicker"
+                @click="showCalendarNow(pickerType)"
                 readonly x-model="pickerType === 'departure' ? departureDateFormatted : returnDateFormatted"
                 class="w-full placeholder:text-xs bg-transparent text-white text-xs lg:text-xl focus:outline-none cursor-pointer">
             <input type="hidden" :name="`${name}_hidden`"
@@ -243,6 +243,7 @@
                             this.selectedReturnDate = null;
                             this.returnDateFormatted = '';
                         }
+                        sessionStorage.setItem('storeDepartureDate', date);
                     } else {
                         // Ensure return date is not before departure date
                         if (this.selectedDepartureDate && date < this.selectedDepartureDate) return;
@@ -250,6 +251,8 @@
                         this.selectedReturnDate = date;
                         this.returnDateFormatted = this.formatDate(date);
                         this.showReturnPicker = false;
+
+                        sessionStorage.removeItem('storeDepartureDate')
                     }
 
                     // If Livewire integration is enabled
@@ -276,7 +279,7 @@
 
                     // Create date objects with time set to midnight for accurate comparison
                     const compareDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-                    const today = new Date();
+                    const today = sessionStorage.getItem("storeDepartureDate") ? new Date(sessionStorage.getItem("storeDepartureDate")) : new Date();
                     today.setHours(0, 0, 0, 0);
 
                     // For departure dates, check against minDate or today
@@ -296,14 +299,14 @@
                             this.selectedDepartureDate.getDate(),
                             0, 0, 0, 0
                         );
-                        return compareDate < departureCompareDate;
+                        return compareDate < today;
                     }
 
                     const minCompareDate = this.minDate ?
                         new Date(this.minDate.getFullYear(), this.minDate.getMonth(), this.minDate.getDate(), 0, 0,
                             0, 0) :
                         today;
-                    return compareDate < minCompareDate;
+                    return compareDate < today;
                 },
 
                 isSelected(date, type) {
@@ -327,10 +330,18 @@
                 isToday(date) {
                     if (!date) return false;
 
-                    const today = new Date();
+                    const today = sessionStorage.getItem("storeDepartureDate") ? new Date(sessionStorage.getItem("storeDepartureDate")) : new Date();
                     return date.getDate() === today.getDate() &&
                         date.getMonth() === today.getMonth() &&
                         date.getFullYear() === today.getFullYear();
+                },
+                showCalendarNow(pickerType) {
+                    pickerType === 'departure' ? this.showDeparturePicker = !this.showDeparturePicker : this.showReturnPicker = !this.showReturnPicker
+
+                    if (pickerType === 'return') {
+                        this.currentMonth = sessionStorage.getItem("storeDepartureDate") ? new Date(sessionStorage.getItem("storeDepartureDate")) : new Date()
+                        this.generateCalendarDates("return");
+                    }
                 }
             };
         };

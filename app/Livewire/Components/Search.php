@@ -36,7 +36,7 @@ class Search extends Component
     public $maxPrice;
     public $max = 250;
     #[Url]
-    public $searchId ;
+    public $searchId;
     public $searchQueryFrom = '';
     public $searchQueryTo = '';
     public $fromDisplayName = '';
@@ -73,12 +73,12 @@ class Search extends Component
 
     public $popularCities =
     [
-            [
-                'city' => 'Abuja',
-                'country' => 'Nigeria ',
-                'city_country' => 'Abuja, Nigeria',
-                'airport' => 'Nnamdi Azikiwe International Airport',
-                'airport_code' => 'ABV'
+        [
+            'city' => 'Abuja',
+            'country' => 'Nigeria ',
+            'city_country' => 'Abuja, Nigeria',
+            'airport' => 'Nnamdi Azikiwe International Airport',
+            'airport_code' => 'ABV'
         ],
         [
             'city' => 'Lagos',
@@ -162,10 +162,18 @@ class Search extends Component
     public $minDate;
 
 
-    public function mount($editMode = false, $from = null, $to = null, $fromDisplayName = null, $toDisplayName = null, 
-                         $departureDate = null, $returnDate = null, $tripType = 'round', $initialPassengers = null, 
-                         $cabinClass = 'ECONOMY')
-    {
+    public function mount(
+        $editMode = false,
+        $from = null,
+        $to = null,
+        $fromDisplayName = null,
+        $toDisplayName = null,
+        $departureDate = null,
+        $returnDate = null,
+        $tripType = 'round',
+        $initialPassengers = null,
+        $cabinClass = 'ECONOMY'
+    ) {
         // Enable debugging for this method
         \Log::info('Search component mount called', [
             'editMode' => $editMode,
@@ -178,7 +186,7 @@ class Search extends Component
         // Ensure arrays are initialized
         $this->fromAirlines = [];
         $this->toAirlines = [];
-        
+
         // Set values if in edit mode
         if ($editMode) {
             // Store values directly in properties
@@ -190,7 +198,7 @@ class Search extends Component
             $this->returnDate = $returnDate;
             $this->tripType = $tripType;
             $this->cabinClass = $cabinClass;
-            
+
             // Initialize passengers from provided values or defaults
             if ($initialPassengers) {
                 $this->passengers = [
@@ -199,11 +207,11 @@ class Search extends Component
                     'infant' => $initialPassengers['infant'] ?? 0
                 ];
             }
-            
+
             // IMPORTANT: Set search queries for the input fields
             $this->searchQueryFrom = $fromDisplayName;
             $this->searchQueryTo = $toDisplayName;
-            
+
             // Log the state after setting values
             \Log::info('Search component initialized with edit values', [
                 'from' => $this->from,
@@ -216,17 +224,17 @@ class Search extends Component
         }
     }
 
-    
 
-    
-    
+
+
+
 
     public function dateSelected($date, $type)
     {
         // Ensure the date is formatted as YYYY-MM-DD (ISO 8601 format)
-        $this->selectedDate = Carbon::parse($date)->format('Y-m-d'); 
-        $this->formattedDate = Carbon::parse($date)->format('D, d M Y'); 
-    
+        $this->selectedDate = Carbon::parse($date)->format('Y-m-d');
+        $this->formattedDate = Carbon::parse($date)->format('D, d M Y');
+
         // Logic to update dates based on type
         if ($type === 'departure') {
             $this->departureDate = $this->selectedDate;
@@ -235,7 +243,7 @@ class Search extends Component
         }
     }
 
-    
+
 
     public function updateTripType()
     {
@@ -285,7 +293,7 @@ class Search extends Component
             $this->multiCityFlights = [];
         }
     }
-    
+
 
     public function updatedMultiCityFlights($value, $key)
     {
@@ -295,14 +303,14 @@ class Search extends Component
             $index = $parts[0];
             $field = $parts[1];
             $query = $value;
-            
+
             // Always show dropdown when typing
             if ($field === 'fromQuery') {
                 $this->showFromDropdown = $index;
             } else {
                 $this->showToDropdown = $index;
             }
-            
+
             // Search if query is 2 or more characters
             if (strlen($query) >= 2) {
                 $this->searchAirlines($query, $field === 'fromQuery' ? 'from' : 'to');
@@ -360,15 +368,15 @@ class Search extends Component
         } else {
             $this->toAirlines = [];
         }
-    
+
         if (strlen($query) >= 2) {
             $airlines = Airport::where('visible', true)
-                ->where(function($q) use ($query) {
+                ->where(function ($q) use ($query) {
                     $q->where('airport', 'like', "%$query%")
-                      ->orWhere('airport_code', 'like', "%$query%")
-                      ->orWhere('city', 'like', "%$query%")
-                      ->orWhere('city_country', 'like', "%$query%")
-                      ->orWhere('country', 'like', "%$query%");
+                        ->orWhere('airport_code', 'like', "%$query%")
+                        ->orWhere('city', 'like', "%$query%")
+                        ->orWhere('city_country', 'like', "%$query%")
+                        ->orWhere('country', 'like', "%$query%");
                 })
                 ->orderByRaw("
                     CASE
@@ -382,7 +390,7 @@ class Search extends Component
                 ", ["$query%", "$query%", "$query%", "$query%", "$query%"])
                 ->limit(10)
                 ->get();
-    
+
             if ($type === 'from') {
                 $this->fromAirlines = $airlines->toArray();
             } else {
@@ -393,7 +401,7 @@ class Search extends Component
 
 
 
-        public function setAirportCode($airportCode, $displayName,$city, $field)
+    public function setAirportCode($airportCode, $displayName, $city, $field)
     {
         if ($field === 'from') {
             $this->from = $airportCode;
@@ -436,18 +444,18 @@ class Search extends Component
         try {
             // Convert the date from MM/DD/YYYY to YYYY-MM-DD format (ISO 8601)
             $formattedDate = Carbon::parse($date)->format('Y-m-d');
-            
+
             // Convert index to integer if it's a string
             $index = (int) $index;
-            
+
             // Ensure the index exists in the array
             if (!isset($this->multiCityFlights[$index])) {
                 return;
             }
-            
+
             // Set the date in the multiCityFlights array
             $this->multiCityFlights[$index]['departureDate'] = $formattedDate;
-            
+
             // If this is not the last flight, update the next flight's from field
             if (isset($this->multiCityFlights[$index + 1])) {
                 $this->multiCityFlights[$index + 1]['from'] = $this->multiCityFlights[$index]['to'];
@@ -512,7 +520,7 @@ class Search extends Component
                 foreach ($this->multiCityFlights as $index => $flight) {
                     // Ensure date is in ISO 8601 format (YYYY-MM-DD)
                     $departureDate = Carbon::parse($flight['departureDate'])->format('Y-m-d');
-                    
+
                     $originDestinations[] = [
                         'id' => (string)($index + 1),
                         'originLocationCode' => $flight['from'],
@@ -525,7 +533,7 @@ class Search extends Component
             } else {
                 // Ensure date is in ISO 8601 format (YYYY-MM-DD)
                 $departureDate = Carbon::parse($validatedData['departureDate'])->format('Y-m-d');
-                
+
                 $originDestinations[] = [
                     'id' => '1',
                     'originLocationCode' => $validatedData['from'],
@@ -538,7 +546,7 @@ class Search extends Component
                 if ($this->tripType === 'round' && $validatedData['returnDate']) {
                     // Ensure date is in ISO 8601 format (YYYY-MM-DD)
                     $returnDate = Carbon::parse($validatedData['returnDate'])->format('Y-m-d');
-                    
+
                     $originDestinations[] = [
                         'id' => '2',
                         'originLocationCode' => $validatedData['to'],
@@ -559,7 +567,7 @@ class Search extends Component
                     'fareOptions' => ['STANDARD'],
                 ];
             }
-            
+
             // Handle Child Passengers
             if (!empty($validatedData['passengers']['child'])) {
                 for ($i = 1; $i <= $validatedData['passengers']['child']; $i++) {
@@ -570,13 +578,13 @@ class Search extends Component
                     ];
                 }
             }
-            
+
             // Handle Infant Passengers (Each Infant Must be Associated with an Adult)
             if (!empty($validatedData['passengers']['infant'])) {
                 for ($i = 1; $i <= $validatedData['passengers']['infant']; $i++) {
                     // Find an adult to associate the infant with (first available adult)
                     $associatedAdultId = (string)$i; // Linking to first few adults in order
-            
+
                     $travelers[] = [
                         'id' => (string)(count($travelers) + 1), // Ensure unique IDs
                         'travelerType' => 'HELD_INFANT',
@@ -585,8 +593,8 @@ class Search extends Component
                     ];
                 }
             }
-            
-  
+
+
 
             $client = new Client();
             $baseUrl = config('services.amadeus.base_url');
@@ -596,7 +604,7 @@ class Search extends Component
                 'originDestinations' => $originDestinations,
                 'travelers' => $travelers,
                 'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
-            
+
                 'searchCriteria' => [
                     'maxFlightOffers' => $validatedData['max'],
                     'flightFilters' => [
@@ -626,18 +634,19 @@ class Search extends Component
                     'Content-Type' => 'application/json',
                     'ama-client-ref' => $clientRef,
                 ],
-                'json' =>$payload
-               
-            ]);
-      
+                'json' => $payload
 
-          
+            ]);
+
             $data = json_decode($response->getBody()->getContents(), true);
-            $flightOffers = $data['data']?? [];
+            $flightOffers = $data['data'] ?? [];
             $dictionaries = $data['dictionaries'] ?? [];
 
+            // return dd($payload);
+            // return dd($data);
 
-             
+
+
             foreach ($flightOffers as &$flightOffer) {
                 foreach ($flightOffer['itineraries'] as &$itinerary) {
                     foreach ($itinerary['segments'] as &$segment) {
@@ -647,7 +656,7 @@ class Search extends Component
                         $segment['departure']['country'] = $departureDetails['country'];
                         $segment['departure']['airport'] = $departureDetails['airport'];
                         $segment['departure']['city_country'] = $departureDetails['city_country'];
-            
+
                         // Replace arrival iataCode with city details
                         $arrivalDetails = $this->getCityNameByIata($segment['arrival']['iataCode']);
                         $segment['arrival']['city'] = $arrivalDetails['city'];
@@ -661,31 +670,31 @@ class Search extends Component
                             'logo' => $airlineDetails['logo'],
                         ];
 
-                                            // Add the fixed markup value as commission
-                   $markupValue = $airlineDetails['markup']; // Fixed markup value
+                        // Add the fixed markup value as commission
+                        $markupValue = $airlineDetails['markup']; // Fixed markup value
 
-            // Add commission to the price array
-            $flightOffer['price']['commission'] = $markupValue;
+                        // Add commission to the price array
+                        $flightOffer['price']['commission'] = $markupValue;
                     }
                 }
             }
 
 
             $this->searchId = 'search_' . uniqid();
-    
+
             // Store large data in files
             $flightOffersFile = 'flight_searches/' . $this->searchId . '_offers.json';
             $dictionariesFile = 'flight_searches/' . $this->searchId . '_dictionaries.json';
-            
+
             // Ensure directory exists
             if (!Storage::exists('flight_searches')) {
                 Storage::makeDirectory('flight_searches');
             }
-            
+
             // Store large data in files
             Storage::put($flightOffersFile, json_encode($flightOffers));
             Storage::put($dictionariesFile, json_encode($dictionaries));
-            
+
             // Create search results array with only essential data in DB
             $categorizedData = [
                 'search_id' => $this->searchId,
@@ -705,85 +714,84 @@ class Search extends Component
 
             // Store in database
             FlightSearch::create($categorizedData);
-            
+
             // Redirect with just the search ID
             return redirect()->route('search.results', ['id' => $this->searchId]);
-            
-    // return redirect()->route('search.results');
-          
-        }catch (\Illuminate\Validation\ValidationException $e) {
+
+            // return redirect()->route('search.results');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
             session()->flash('errors', $e->errors());
-        }
-        catch (\GuzzleHttp\Exception\RequestException $e) {
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
             // Get the HTTP response from the exception
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 $statusCode = $response->getStatusCode(); // Get the HTTP status code
                 $errorBody = json_decode($response->getBody(), true); // Decode the JSON response
-        
+
                 // Extract error details
                 $errorMessage = $errorBody['errors'][0]['detail'] ?? 'Unknown error';
                 $errorCode = $errorBody['errors'][0]['code'] ?? 'N/A';
-        
-             
+
+
                 // Flash the error message to the user
                 session()->flash('error', "Error [$errorCode]: $errorMessage");
             } else {
                 // If no response is available, use the generic exception message
                 session()->flash('error', 'An unexpected error occurred: ' . $e->getMessage());
             }
-        }
-        
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             // dd( $e->getMessage() );
             session()->flash('error', 'An error occurred while searching for flights: ' . $e->getMessage());
         }
     }
 
-   public function getCityNameByIata($iataCode) {
-       $airline = Airport::where('airport_code', $iataCode)->first();
-   
-       if ($airline) {
-           return [
-               'city' => $airline->city ?? 'Unknown',
-               'country' => $airline->country ?? 'Unknown',
-               'airport' => $airline->airport ?? 'Unknown',
-               'city_country' => $airline->city_country ?? 'Unknown',
-           ];
-       }
-   
-       return [
-           'city' => 'Unknown',
-           'country' => 'Unknown',
-           'airport' => 'Unknown',
-           'city_country' => 'Unknown',
-       ];
-   }
+    public function getCityNameByIata($iataCode)
+    {
+        $airline = Airport::where('airport_code', $iataCode)->first();
 
-   public function getAirlineDetailsByCode($carrierCode) {
-    // Fetch airline details from the database
-    $airline = Airline::where('airline_code', $carrierCode)->first();
-    if ($airline) {
+        if ($airline) {
+            return [
+                'city' => $airline->city ?? 'Unknown',
+                'country' => $airline->country ?? 'Unknown',
+                'airport' => $airline->airport ?? 'Unknown',
+                'city_country' => $airline->city_country ?? 'Unknown',
+            ];
+        }
+
         return [
-            'name' => $airline->airline_name,
-            'logo' => $airline->logo ?? null, // Ensure there's a fallback if no logo exists
-            'markup' => $airline->markup ?? 0,
+            'city' => 'Unknown',
+            'country' => 'Unknown',
+            'airport' => 'Unknown',
+            'city_country' => 'Unknown',
         ];
     }
 
-    return [
-        'name' => 'Unknown',
-        'logo' => null,
-        'markup' => 0,
-    ];
-}
+    public function getAirlineDetailsByCode($carrierCode)
+    {
+        // Fetch airline details from the database
+        $airline = Airline::where('airline_code', $carrierCode)->first();
+        if ($airline) {
+            return [
+                'name' => $airline->airline_name,
+                'logo' => $airline->logo ?? null, // Ensure there's a fallback if no logo exists
+                'markup' => $airline->markup ?? 0,
+            ];
+        }
+
+        return [
+            'name' => 'Unknown',
+            'logo' => null,
+            'markup' => 0,
+        ];
+    }
 
 
 
     public function render()
     {
-        
+
         return view('livewire.components.search');
     }
 

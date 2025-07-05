@@ -45,52 +45,52 @@
 
     <div class="lg:mx-10 relative bg-black bg-opacity-80 z-20 rounded-3xl p-4 md:p-7 ">
         @if (session('error'))
-            <div class="mt-2 bg-red-100 border border-red-200 text-sm text-red-800 rounded-lg p-4  " role="alert">
-                {{ session('error') }}
-            </div>
+        <div class="mt-2 bg-red-100 border border-red-200 text-sm text-red-800 rounded-lg p-4  " role="alert">
+            {{ session('error') }}
+        </div>
         @endif
 
         {{-- Display validation error messages --}}
         @if (session('errors'))
-            <div class="bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4 mb-2  " role="alert"
-                tabindex="-1" aria-labelledby="hs-with-list-label">
-                <div class="flex">
-                    <div class="shrink-0">
-                        <svg class="shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24"
-                            height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="m15 9-6 6"></path>
-                            <path d="m9 9 6 6"></path>
-                        </svg>
+        <div class="bg-red-50 border border-red-200 text-sm text-red-800 rounded-lg p-4 mb-2  " role="alert"
+            tabindex="-1" aria-labelledby="hs-with-list-label">
+            <div class="flex">
+                <div class="shrink-0">
+                    <svg class="shrink-0 size-4 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m15 9-6 6"></path>
+                        <path d="m9 9 6 6"></path>
+                    </svg>
+                </div>
+                <div class="ms-4">
+                    <h3 id="hs-with-list-label" class="text-sm font-semibold">
+                        A problem has been occurred while submitting your data.
+                    </h3>
+                    <div class="mt-2 text-sm text-red-700 dark:text-red-400"
+                        wire:key="error-messages-{{ $this->id ?? 'default' }}">
+                        <ul class="list-disc space-y-1 ps-5">
+                            {{-- Check if session('errors') is an array --}}
+                            @if (is_array(session('errors')))
+                            {{-- Loop through and display each error --}}
+                            @foreach (session('errors') as $field => $messages)
+                            @foreach ($messages as $message)
+                            <li>{{ $message }}</li>
+                            @endforeach
+                            @endforeach
+                            @else
+                            {{-- If it's a MessageBag, use all() --}}
+                            @foreach (session('errors')->all() as $message)
+                            <li>{{ $message }}</li>
+                            @endforeach
+                            @endif
+                        </ul>
                     </div>
-                    <div class="ms-4">
-                        <h3 id="hs-with-list-label" class="text-sm font-semibold">
-                            A problem has been occurred while submitting your data.
-                        </h3>
-                        <div class="mt-2 text-sm text-red-700 dark:text-red-400"
-                            wire:key="error-messages-{{ $this->id ?? 'default' }}">
-                            <ul class="list-disc space-y-1 ps-5">
-                                {{-- Check if session('errors') is an array --}}
-                                @if (is_array(session('errors')))
-                                    {{-- Loop through and display each error --}}
-                                    @foreach (session('errors') as $field => $messages)
-                                        @foreach ($messages as $message)
-                                            <li>{{ $message }}</li>
-                                        @endforeach
-                                    @endforeach
-                                @else
-                                    {{-- If it's a MessageBag, use all() --}}
-                                    @foreach (session('errors')->all() as $message)
-                                        <li>{{ $message }}</li>
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </div>
 
-                    </div>
                 </div>
             </div>
+        </div>
         @endif
         <!-- Trip Type Selection -->
         <div class="flex relative justify-between flex-wrap gap-5 mb-3 md:gap-3 ">
@@ -353,28 +353,28 @@
                                     <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
                                     <div class="grid grid-cols-4 gap-2">
                                         @foreach ($popularCities as $city)
-                                            <button
-                                                wire:click="setAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'from')"
-                                                @click="showPopularFrom = false"
-                                                class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
-                                                <span class="text-primary">
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                        </path>
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
-                                                        </path>
-                                                    </svg>
-                                                </span>
-                                                <div class="flex flex-col">
-                                                    <span class="font-medium text-[10px]">{{ $city['city'] }}</span>
-                                                    <span
-                                                        class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
-                                                </div>
-                                            </button>
+                                        <button
+                                            wire:click="setAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'from')"
+                                            @click="showPopularFrom = false"
+                                            class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
+                                            <span class="text-primary">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                    </path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                            <div class="flex flex-col">
+                                                <span class="font-medium text-[10px]">{{ $city['city'] }}</span>
+                                                <span
+                                                    class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
+                                            </div>
+                                        </button>
                                         @endforeach
                                     </div>
                                 </div>
@@ -386,19 +386,19 @@
                                 class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
                                 <ul class="max-h-60 overflow-y-auto custom-scrollbar">
                                     @forelse ($fromAirlines as $airline)
-                                        <li wire:click="setAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}',  'from')"
-                                            @click="showPopularFrom = false"
-                                            class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
-                                            <div class="flex flex-col">
-                                                <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
-                                                <span
-                                                    class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
-                                            </div>
+                                    <li wire:click="setAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}',  'from')"
+                                        @click="showPopularFrom = false"
+                                        class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
                                             <span
-                                                class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
-                                        </li>
+                                                class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
+                                        </div>
+                                        <span
+                                            class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
+                                    </li>
                                     @empty
-                                        <li class="px-4 py-3 text-gray-500 text-center">No results found</li>
+                                    <li class="px-4 py-3 text-gray-500 text-center">No results found</li>
                                     @endforelse
                                 </ul>
                             </div>
@@ -450,23 +450,23 @@
                                     <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
                                     <div class="grid grid-cols-4 gap-2">
                                         @foreach ($popularCities as $city)
-                                            <button
-                                                wire:click="setAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'to')"
-                                                @click="showPopularTo = false"
-                                                class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
-                                                <span class="text-primary">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                    </svg>
-                                                </span>
-                                                <div class="flex flex-col">
-                                                    <span class="font-medium text-[10px]">{{ $city['city'] }}</span>
-                                                    <span
-                                                        class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
-                                                </div>
-                                            </button>
+                                        <button
+                                            wire:click="setAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'to')"
+                                            @click="showPopularTo = false"
+                                            class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
+                                            <span class="text-primary">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </span>
+                                            <div class="flex flex-col">
+                                                <span class="font-medium text-[10px]">{{ $city['city'] }}</span>
+                                                <span
+                                                    class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
+                                            </div>
+                                        </button>
                                         @endforeach
                                     </div>
                                 </div>
@@ -478,19 +478,19 @@
                                 class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
                                 <ul class="max-h-60 overflow-y-auto custom-scrollbar">
                                     @forelse ($toAirlines as $airline)
-                                        <li wire:click="setAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'to')"
-                                            @click="showPopularTo = false"
-                                            class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
-                                            <div class="flex flex-col">
-                                                <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
-                                                <span
-                                                    class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
-                                            </div>
+                                    <li wire:click="setAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'to')"
+                                        @click="showPopularTo = false"
+                                        class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
                                             <span
-                                                class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
-                                        </li>
+                                                class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
+                                        </div>
+                                        <span
+                                            class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
+                                    </li>
                                     @empty
-                                        <li class="px-4 py-3 text-gray-500 text-center">No results found</li>
+                                    <li class="px-4 py-3 text-gray-500 text-center">No results found</li>
                                     @endforelse
                                 </ul>
                             </div>
@@ -529,6 +529,7 @@
                             :initial-date="$departureDate ?? null" wire="true" />
 
                         <!-- Return Date (only visible for round trips) -->
+                        
                         <template x-if="tripType === 'round'" class="w-full">
                             <x-datepicker label="Return" name="return_date" placeholder="Pick Return Date"
                                 :initial-date="$returnDate ?? null" :min-date="$departureDate ?? null" type="return" wire="true" />
@@ -540,235 +541,235 @@
             <!-- Multi-City Form -->
             <div x-show="tripType === 'multi'" class="w-full mb-4 max-h-screen overflow-y-auto">
                 @foreach ($multiCityFlights as $index => $flight)
-                    <div class="mb-6 p-4 border border-white/10 rounded-lg bg-black/30">
-                        <!-- Flight Number Label -->
-                        <div class="mb-3 flex justify-between items-center">
-                            <h3 class="text-white font-medium text-lg">Flight {{ $index + 1 }}</h3>
+                <div class="mb-6 p-4 border border-white/10 rounded-lg bg-black/30">
+                    <!-- Flight Number Label -->
+                    <div class="mb-3 flex justify-between items-center">
+                        <h3 class="text-white font-medium text-lg">Flight {{ $index + 1 }}</h3>
 
-                            <!-- Remove Flight Button (don't show for first flight) -->
-                            @if ($index > 0)
-                                <button wire:click="removeFlight({{ $index }})" type="button"
-                                    class="text-red-500 hover:text-red-700 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            @endif
+                        <!-- Remove Flight Button (don't show for first flight) -->
+                        @if ($index > 0)
+                        <button wire:click="removeFlight({{ $index }})" type="button"
+                            class="text-red-500 hover:text-red-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                        @endif
+                    </div>
+
+                    <!-- From/To Cities and Date in a single row -->
+                    <div class="flex flex-col lg:flex-row gap-4 mb-4">
+                        <!-- From City -->
+                        <div class="w-full lg:w-1/3 relative">
+                            <div class="rounded-lg p-2 border border-white/10 shadow-lg">
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2 text-white mb-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        <span class="font-medium text-xs lg:text-base">Flying from</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="text"
+                                            wire:model.live.debounce.500ms="multiCityFlights.{{ $index }}.fromQuery"
+                                            placeholder="Search City, Airport, or Country" autocomplete="off"
+                                            @click="$wire.showFromDropdown = {{ $index }}"
+                                            class="w-full bg-transparent placeholder:text-xs text-white border-b border-white/20 pb-2 text-sm lg:text-base placeholder:text-white/50 focus:outline-none focus:border-primary transition-colors">
+
+                                        <!-- Clear button -->
+                                        <button
+                                            x-show="$wire.multiCityFlights[{{ $index }}].fromQuery.length > 0"
+                                            wire:click="clearMultiCityInput('from', {{ $index }})"
+                                            class="absolute right-0 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                                            type="button">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            <span class="sr-only">Clear input</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Popular Cities (shown when input is empty) -->
+                            <div x-show="$wire.showFromDropdown === {{ $index }} && !$wire.multiCityFlights[{{ $index }}].fromQuery"
+                                x-cloak
+                                class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
+                                <div class="mb-2 pb-2 border-b border-gray-100">
+                                    <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        @foreach ($popularCities as $city)
+                                        <button
+                                            wire:click="setMultiCityAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'from', {{ $index }})"
+                                            class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
+                                            <span class="text-primary">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                                    </path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+                                                    </path>
+                                                </svg>
+                                            </span>
+                                            <div class="flex flex-col">
+                                                <span
+                                                    class="font-medium text-[10px]">{{ $city['city'] }}</span>
+                                                <span
+                                                    class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
+                                            </div>
+                                        </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- From Dropdown (shown when typing) -->
+                            <div x-show="$wire.showFromDropdown === {{ $index }} && $wire.multiCityFlights[{{ $index }}].fromQuery"
+                                x-cloak
+                                class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
+                                <ul class="max-h-60 overflow-y-auto custom-scrollbar">
+                                    @forelse ($fromAirlines as $airline)
+                                    <li wire:click="setMultiCityAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'from', {{ $index }})"
+                                        class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
+                                            <span
+                                                class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
+                                        </div>
+                                        <span
+                                            class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
+                                    </li>
+                                    @empty
+                                    <li class="px-4 py-3 text-gray-500 text-center">
+                                        @if (strlen($multiCityFlights[$index]['fromQuery']) < 2)
+                                            Type at least 2 characters to search
+                                            @else
+                                            No results found
+                                            @endif
+                                            </li>
+                                            @endforelse
+                                </ul>
+                            </div>
                         </div>
 
-                        <!-- From/To Cities and Date in a single row -->
-                        <div class="flex flex-col lg:flex-row gap-4 mb-4">
-                            <!-- From City -->
-                            <div class="w-full lg:w-1/3 relative">
-                                <div class="rounded-lg p-2 border border-white/10 shadow-lg">
-                                    <div class="flex flex-col">
-                                        <div class="flex items-center gap-2 text-white mb-3">
-                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                            <span class="font-medium text-xs lg:text-base">Flying from</span>
-                                        </div>
-                                        <div class="relative">
-                                            <input type="text"
-                                                wire:model.live.debounce.500ms="multiCityFlights.{{ $index }}.fromQuery"
-                                                placeholder="Search City, Airport, or Country" autocomplete="off"
-                                                @click="$wire.showFromDropdown = {{ $index }}"
-                                                class="w-full bg-transparent placeholder:text-xs text-white border-b border-white/20 pb-2 text-sm lg:text-base placeholder:text-white/50 focus:outline-none focus:border-primary transition-colors">
+                        <!-- To City -->
+                        <div class="w-full lg:w-1/3 relative">
+                            <div class="rounded-lg p-2 border border-white/10 shadow-lg">
+                                <div class="flex flex-col">
+                                    <div class="flex items-center gap-2 text-white mb-3">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
+                                            </path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        </svg>
+                                        <span class="font-medium text-xs lg:text-base">Flying to</span>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="text"
+                                            wire:model.live.debounce.500ms="multiCityFlights.{{ $index }}.toQuery"
+                                            placeholder="Search City, Airport, or Country" autocomplete="off"
+                                            @click="$wire.showToDropdown = {{ $index }}"
+                                            class="w-full placeholder:text-xs bg-transparent text-white border-b border-white/20 pb-2 text-sm md:text-base placeholder:text-white/50 focus:outline-none focus:border-primary transition-colors">
 
-                                            <!-- Clear button -->
-                                            <button
-                                                x-show="$wire.multiCityFlights[{{ $index }}].fromQuery.length > 0"
-                                                wire:click="clearMultiCityInput('from', {{ $index }})"
-                                                class="absolute right-0 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                                                type="button">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                        <!-- Clear button -->
+                                        <button
+                                            x-show="$wire.multiCityFlights[{{ $index }}].toQuery.length > 0"
+                                            wire:click="clearMultiCityInput('to', {{ $index }})"
+                                            class="absolute right-0 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
+                                            type="button">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                            <span class="sr-only">Clear input</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Popular Cities (shown when input is empty) -->
+                            <div x-show="$wire.showToDropdown === {{ $index }} && !$wire.multiCityFlights[{{ $index }}].toQuery"
+                                x-cloak
+                                class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
+                                <div class="mb-2 pb-2 border-b border-gray-100">
+                                    <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
+                                    <div class="grid grid-cols-4 gap-2">
+                                        @foreach ($popularCities as $city)
+                                        <button
+                                            wire:click="setMultiCityAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'to', {{ $index }})"
+                                            class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
+                                            <span class="text-primary">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                 </svg>
-                                                <span class="sr-only">Clear input</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Popular Cities (shown when input is empty) -->
-                                <div x-show="$wire.showFromDropdown === {{ $index }} && !$wire.multiCityFlights[{{ $index }}].fromQuery"
-                                    x-cloak
-                                    class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
-                                    <div class="mb-2 pb-2 border-b border-gray-100">
-                                        <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
-                                        <div class="grid grid-cols-4 gap-2">
-                                            @foreach ($popularCities as $city)
-                                                <button
-                                                    wire:click="setMultiCityAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'from', {{ $index }})"
-                                                    class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
-                                                    <span class="text-primary">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                            </path>
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
-                                                            </path>
-                                                        </svg>
-                                                    </span>
-                                                    <div class="flex flex-col">
-                                                        <span
-                                                            class="font-medium text-[10px]">{{ $city['city'] }}</span>
-                                                        <span
-                                                            class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
-                                                    </div>
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- From Dropdown (shown when typing) -->
-                                <div x-show="$wire.showFromDropdown === {{ $index }} && $wire.multiCityFlights[{{ $index }}].fromQuery"
-                                    x-cloak
-                                    class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
-                                    <ul class="max-h-60 overflow-y-auto custom-scrollbar">
-                                        @forelse ($fromAirlines as $airline)
-                                            <li wire:click="setMultiCityAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'from', {{ $index }})"
-                                                class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
-                                                <div class="flex flex-col">
-                                                    <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
-                                                    <span
-                                                        class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
-                                                </div>
+                                            </span>
+                                            <div class="flex flex-col">
                                                 <span
-                                                    class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
-                                            </li>
-                                        @empty
-                                            <li class="px-4 py-3 text-gray-500 text-center">
-                                                @if (strlen($multiCityFlights[$index]['fromQuery']) < 2)
-                                                    Type at least 2 characters to search
-                                                @else
-                                                    No results found
-                                                @endif
-                                            </li>
-                                        @endforelse
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <!-- To City -->
-                            <div class="w-full lg:w-1/3 relative">
-                                <div class="rounded-lg p-2 border border-white/10 shadow-lg">
-                                    <div class="flex flex-col">
-                                        <div class="flex items-center gap-2 text-white mb-3">
-                                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                                </path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                            <span class="font-medium text-xs lg:text-base">Flying to</span>
-                                        </div>
-                                        <div class="relative">
-                                            <input type="text"
-                                                wire:model.live.debounce.500ms="multiCityFlights.{{ $index }}.toQuery"
-                                                placeholder="Search City, Airport, or Country" autocomplete="off"
-                                                @click="$wire.showToDropdown = {{ $index }}"
-                                                class="w-full placeholder:text-xs bg-transparent text-white border-b border-white/20 pb-2 text-sm md:text-base placeholder:text-white/50 focus:outline-none focus:border-primary transition-colors">
-
-                                            <!-- Clear button -->
-                                            <button
-                                                x-show="$wire.multiCityFlights[{{ $index }}].toQuery.length > 0"
-                                                wire:click="clearMultiCityInput('to', {{ $index }})"
-                                                class="absolute right-0 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors"
-                                                type="button">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                                </svg>
-                                                <span class="sr-only">Clear input</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Popular Cities (shown when input is empty) -->
-                                <div x-show="$wire.showToDropdown === {{ $index }} && !$wire.multiCityFlights[{{ $index }}].toQuery"
-                                    x-cloak
-                                    class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
-                                    <div class="mb-2 pb-2 border-b border-gray-100">
-                                        <h3 class="text-sm font-semibold text-gray-500 mb-2">Popular Cities</h3>
-                                        <div class="grid grid-cols-4 gap-2">
-                                            @foreach ($popularCities as $city)
-                                                <button
-                                                    wire:click="setMultiCityAirportCode('{{ $city['airport_code'] }}', '{{ $city['city_country'] }} ({{ $city['airport_code'] }})', '{{ $city['city'] }}', 'to', {{ $index }})"
-                                                    class="flex items-center gap-2 p-2 hover:bg-primary/10 rounded-lg transition-colors text-left">
-                                                    <span class="text-primary">
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                            viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                        </svg>
-                                                    </span>
-                                                    <div class="flex flex-col">
-                                                        <span
-                                                            class="font-medium text-[10px]">{{ $city['city'] }}</span>
-                                                        <span
-                                                            class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
-                                                    </div>
-                                                </button>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- To Dropdown (shown when typing) -->
-                                <div x-show="$wire.showToDropdown === {{ $index }} && $wire.multiCityFlights[{{ $index }}].toQuery"
-                                    x-cloak
-                                    class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
-                                    <ul class="max-h-60 overflow-y-auto custom-scrollbar">
-                                        @forelse ($toAirlines as $airline)
-                                            <li wire:click="setMultiCityAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'to', {{ $index }})"
-                                                class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
-                                                <div class="flex flex-col">
-                                                    <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
-                                                    <span
-                                                        class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
-                                                </div>
+                                                    class="font-medium text-[10px]">{{ $city['city'] }}</span>
                                                 <span
-                                                    class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
-                                            </li>
-                                        @empty
-                                            <li class="px-4 py-3 text-gray-500 text-center">
-                                                @if (strlen($multiCityFlights[$index]['toQuery']) < 2)
-                                                    Type at least 2 characters to search
-                                                @else
-                                                    No results found
-                                                @endif
-                                            </li>
-                                        @endforelse
-                                    </ul>
+                                                    class="text-[8px] text-gray-500">{{ $city['country'] }}</span>
+                                            </div>
+                                        </button>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- Date Picker -->
-                            <div class="w-full lg:w-1/3">
-                                <x-datepicker label="Flight {{ $index + 1 }} Date"
-                                    name="flight_{{ $index }}_date" placeholder="Pick Departure Date"
-                                    :initial-date="$flight['departureDate'] ?? null" :wire="$index" type="departure" />
+                            <!-- To Dropdown (shown when typing) -->
+                            <div x-show="$wire.showToDropdown === {{ $index }} && $wire.multiCityFlights[{{ $index }}].toQuery"
+                                x-cloak
+                                class="absolute z-10 w-full mt-2 bg-white text-black border border-gray-200 rounded-xl p-3 shadow-2xl">
+                                <ul class="max-h-60 overflow-y-auto custom-scrollbar">
+                                    @forelse ($toAirlines as $airline)
+                                    <li wire:click="setMultiCityAirportCode('{{ $airline['airport_code'] }}', '{{ $airline['city_country'] }} ({{ $airline['airport_code'] }})', '{{ $airline['city'] }}', 'to', {{ $index }})"
+                                        class="px-3 py-2.5 flex items-center justify-between hover:bg-primary/10 rounded-lg cursor-pointer transition-colors duration-150 mb-1">
+                                        <div class="flex flex-col">
+                                            <span class="font-medium text-sm">{{ $airline['airport'] }}</span>
+                                            <span
+                                                class="text-gray-500 text-xs">{{ $airline['city_country'] }}</span>
+                                        </div>
+                                        <span
+                                            class="bg-primary text-white font-medium px-2.5 py-1.5 rounded-md text-xs">{{ $airline['airport_code'] }}</span>
+                                    </li>
+                                    @empty
+                                    <li class="px-4 py-3 text-gray-500 text-center">
+                                        @if (strlen($multiCityFlights[$index]['toQuery']) < 2)
+                                            Type at least 2 characters to search
+                                            @else
+                                            No results found
+                                            @endif
+                                            </li>
+                                            @endforelse
+                                </ul>
                             </div>
+                        </div>
+
+                        <!-- Date Picker -->
+                        <div class="w-full lg:w-1/3">
+                            <x-datepicker label="Flight {{ $index + 1 }} Date"
+                                name="flight_{{ $index }}_date" placeholder="Pick Departure Date"
+                                :initial-date="$flight['departureDate'] ?? null" :wire="$index" type="departure" />
                         </div>
                     </div>
+                </div>
                 @endforeach
 
                 <!-- Add Flight Button -->
@@ -847,9 +848,9 @@
             // This script is now just for debugging purposes
             console.log("Search component initialized in edit mode");
             console.log("From: {{ $from }}");
-            console.log("To: {{ $to }}");
-            console.log("From Display: {{ $fromDisplayName }}");
-            console.log("To Display: {{ $toDisplayName }}");
-        @endif
-    });
+console.log("To: {{ $to }}");
+console.log("From Display: {{ $fromDisplayName }}");
+console.log("To Display: {{ $toDisplayName }}");
+@endif
+});
 </script> --}}

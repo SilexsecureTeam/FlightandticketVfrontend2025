@@ -71,8 +71,8 @@
                             @endphp
 
                             <!-- Filter by Airlines -->
-                            <div class="mb-6">
-                                <h3 class="text-base font-medium mb-4">Filter by Airlines</h3>
+                            <h3 class="text-base font-medium mb-4">Filter by Airlines</h3>
+                            <div class="mb-6 overflow-y-auto border" style="height: 45vh;">
                                 @if (isset($searchResults['dictionaries']['carriers']))
                                     <ul class="space-y-3">
                                         @foreach ($searchResults['dictionaries']['carriers'] as $code => $name)
@@ -236,7 +236,7 @@
     <div class=" relative w-full  flex flex-col md:flex-row min-h-screen">
 
         <!-- Sidebar (hidden on mobile) -->
-        <div class="hidden md:block w-[20%]  overflow-y-auto bg-white text-black h-screen p-1 border flex-shrink-0">
+        <div class="hidden md:block w-[20%] bg-white text-black p-1  flex-shrink-0">
             <div class="p-6 space-y-6">
                 <!-- Filter content (unchanged) -->
                 <h2 class="text-lg font-semibold">Filters</h2>
@@ -286,9 +286,9 @@
                         });
                     @endphp
 
-                    <!-- Filter by Airlines -->
-                    <div class="mb-6">
-                        <h3 class="text-base font-medium mb-4">Filter by Airlines</h3>
+                    <!-- Filter by Airlines -->                    
+                    <h3 class="text-base font-medium mb-4">Filter by Airlines</h3>
+                    <div class="mb-6 overflow-y-auto border" style="height: 45vh;">
                         @if (isset($searchResults['dictionaries']['carriers']))
                             <ul class="space-y-3">
                                 @foreach ($searchResults['dictionaries']['carriers'] as $code => $name)
