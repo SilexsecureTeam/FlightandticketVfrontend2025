@@ -222,7 +222,7 @@
 
             <div class="flex items-center justify-center text-center gap-1">
                 <img src="./images/copyright.svg" alt="copyright icon" class="w-5 h-5">
-                <p class="text-sm" >2024 Mymore Inc.</p>
+                <p class="text-sm" >2025 Mymore Inc.</p>
             </div>
         </section>
     </footer>
