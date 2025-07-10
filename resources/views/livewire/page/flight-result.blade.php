@@ -388,18 +388,15 @@
                             <div class="cell header-cell">All Airlines</div>
                             <div class="cell">—</div>
                             <div class="cell">{{$searchResults['cheapestFlight'][0]['currency'] . " ".$searchResults['cheapestFlight'][0]['price'][0]}}</div>
-                            <div class="cell">{{count($searchResults['cheapestFlight'][0]['price']) > 1 ? $searchResults['cheapestFlight'][0]['currency'] . " ". $searchResults['cheapflight'][0]['price'][1] : '-'}}</div>
+                            <div class="cell">{{count($searchResults['cheapestFlight'][0]['price']) > 1 ? $searchResults['cheapestFlight'][0]['currency'] . " ". $searchResults['cheapestFlight'][0]['price'][1] : '-'}}</div>
                         </div>
                         @foreach($searchResults['cheapestFlight'] as $cheapflight)
                         <div class="column" style="cursor: pointer;" onclick="toggleAirlineCheap('<?= $cheapflight['code'] ?>')">
                             <div class="cell header-cell">
-                                <div class="flex-shrink-0" style="text-align: center;">
-                                    <img src="{{ !empty($cheapflight['logo'])
+                                <img src="{{ !empty($cheapflight['logo'])
                                                                         ? 'https://main.mymoretravels.com/storage/' . $cheapflight['logo']
                                                                         : asset('images/default-airline-logo.png') }}"
-                                        alt="{{ $cheapflight['name'] }}"
-                                        class="object-contain w-12 h-12">
-                                </div>
+                                    alt="{{ $cheapflight['name'] }}" style="height: 20px; width: 20px; display:unset;">
                                 {{$cheapflight['name']}}
                             </div>
                             <div class="cell">—</div>
