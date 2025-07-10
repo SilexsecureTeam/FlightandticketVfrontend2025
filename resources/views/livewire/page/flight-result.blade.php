@@ -401,8 +401,13 @@
                                 {{$cheapflight['name']}}
                             </div>
                             <div class="cell">—</div>
+                            @if(is_array($cheapflight['price']))
                             <div class="cell">{{count($cheapflight['price']) > 0 ? $cheapflight['currency']. " ". $cheapflight['price'][0] : '-'}}</div>
                             <div class="cell">{{count($cheapflight['price']) > 1 ? $cheapflight['currency']. " ".$cheapflight['price'][1] : '-'}}</div>
+                            @else
+                            <div class="cell">—</div>
+                            <div class="cell">—</div>
+                            @endif
                         </div>
                         @endforeach
                     </div>

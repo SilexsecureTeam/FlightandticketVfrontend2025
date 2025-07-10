@@ -25,7 +25,7 @@
     <!--Start of Tawk.to Script-->
     <div class="floating-btns d-flex flex-column align-items-end">
         <a id="whatsappBtn" href="https://wa.me/2348022008793" target="_blank" class="floating-btn bg-black">
-            <i class="fab fa-whatsapp"></i>
+            <i class="fab fa-whatsapp" style="color: #25D366;"></i>
         </a>
 
         <a id="callBtn" href="tel:+2348022888712" class="floating-btn bg-primary">
