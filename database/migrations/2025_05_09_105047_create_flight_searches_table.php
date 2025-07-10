@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('search_id')->unique();
             $table->string('flight_offers_path')->nullable();
             $table->string('dictionaries_path')->nullable();
+            $table->json('cheapest')->nullable();
             $table->json('meta')->nullable();
             $table->json('passengers')->nullable();
             $table->string('from_city_name')->nullable();

@@ -641,14 +641,16 @@ class Search extends Component
             $data = json_decode($response->getBody()->getContents(), true);
             $flightOffers = $data['data'] ?? [];
             $dictionaries = $data['dictionaries'] ?? [];
+            $cheapest = [];
 
-            // return dd($payload);
-            // return dd($data);
-
-
-
+            // return dd(json_encode($payload));
+            // return dd(json_encode($flightOffers));
+            // return dd(json_encode($dictionaries['carriers']));
+            
+            
             foreach ($flightOffers as &$flightOffer) {
                 foreach ($flightOffer['itineraries'] as &$itinerary) {
+                    $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
                     foreach ($itinerary['segments'] as &$segment) {
                         // Replace departure iataCode with city details
                         $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
@@ -669,15 +671,31 @@ class Search extends Component
                             'name' => $airlineDetails['name'],
                             'logo' => $airlineDetails['logo'],
                         ];
+                        $segment['airline'] = [
+                            'name' => $airlineDetails['name'],
+                            'logo' => $airlineDetails['logo'],
+                        ];
 
                         // Add the fixed markup value as commission
                         $markupValue = $airlineDetails['markup']; // Fixed markup value
 
                         // Add commission to the price array
                         $flightOffer['price']['commission'] = $markupValue;
+                        $cheapestNew = [
+                            "name" => $airlineDetails['name'],
+                            "logo" => $airlineDetails['logo'],
+                            "code" => $segment['carrierCode'],
+                            "currency" => $flightOffer['price']['currency'],
+                            "price" => floatval($flightOffer['price']['total'] + $markupValue),
+                            "numberOfStops" => $numberOfStops
+                        ];
+
+                        $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
                     }
                 }
             }
+
+            // return dd($cheapest);
 
 
             $this->searchId = 'search_' . uniqid();
@@ -700,6 +718,7 @@ class Search extends Component
                 'search_id' => $this->searchId,
                 'trip_type' => $this->tripType,
                 'meta' => $data['meta'] ?? [],
+                'cheapest' => json_encode($cheapest),
                 'flight_offers_path' => $flightOffersFile,
                 'dictionaries_path' => $dictionariesFile,
                 'passengers' => $validatedData['passengers'],
@@ -777,6 +796,7 @@ class Search extends Component
                 'name' => $airline->airline_name,
                 'logo' => $airline->logo ?? null, // Ensure there's a fallback if no logo exists
                 'markup' => $airline->markup ?? 0,
+                'markstatus' => $airline->markstatus ?? "markup",
             ];
         }
 
@@ -784,6 +804,7 @@ class Search extends Component
             'name' => 'Unknown',
             'logo' => null,
             'markup' => 0,
+            'markstatus' => "markup"
         ];
     }
 
@@ -817,4 +838,63 @@ class Search extends Component
 
         return $rules;
     }
+
+    private function addOrReplaceByLowestPrice(array $flights, array $newFlight): array
+    {
+        $newPrice = (int) str_replace(',', '', $newFlight['price']);
+        $stopIndex = $newFlight['numberOfStops'] - 1;
+        $codeKey = strtolower($newFlight['code']);
+        $updated = false;
+
+        foreach ($flights as $index => $flight) {
+            if (strtolower($flight['code']) === $codeKey) {
+                // If price is not yet an array, convert it
+                if (!is_array($flight['price'])) {
+                    $flight['price'] = [(int) str_replace(',', '', $flight['price'])];
+                }
+
+                // Ensure the array is big enough to handle new stop index
+                if (!isset($flight['price'][$stopIndex])) {
+                    $flight['price'][$stopIndex] = $newPrice;
+                } else {
+                    // Replace only if new price is lower
+                    if ($newPrice < (int) $flight['price'][$stopIndex]) {
+                        $flight['price'][$stopIndex] = $newPrice;
+                    }
+                }
+
+                // Sort prices array to preserve index order
+                ksort($flight['price']);
+                $flights[$index]['price'] = $flight['price'];
+                $updated = true;
+                break;
+            }
+        }
+
+        if (!$updated) {
+            // New flight structure
+            $priceArray = [];
+            $priceArray[$stopIndex] = $newPrice;
+
+            $new = [
+                "name" => $newFlight['name'],
+                "logo" => $newFlight['logo'],
+                "code" => $newFlight['code'],
+                "currency" => $newFlight['currency'],
+                "price" => $priceArray
+            ];
+
+            $flights[] = $new;
+        }
+
+        // Sort final array by lowest price at index 0
+        usort($flights, function ($a, $b) {
+            $priceA = $a['price'][0] ?? PHP_INT_MAX;
+            $priceB = $b['price'][0] ?? PHP_INT_MAX;
+            return $priceA <=> $priceB;
+        });
+
+        return $flights;
+    }
+
 }

@@ -14,6 +14,7 @@ class FlightSearch extends Model
         'search_id',
         'flight_offers_path',
         'dictionaries_path',
+        'cheapest',
         'meta',
         'passengers',
         'from_city_name',

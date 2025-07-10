@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <a href="/search" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
+                <a href="{{ url()->previous()}}" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
 
 
             </div>

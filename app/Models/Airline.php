@@ -13,7 +13,8 @@ class Airline extends Model
         'airline_code',
         'airline_name',
         'logo',
-       
+        'markprice',
+        'markstatus'      
     ];
 
 }

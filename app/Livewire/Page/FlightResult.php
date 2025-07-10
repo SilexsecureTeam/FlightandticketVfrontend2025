@@ -47,6 +47,12 @@ class FlightResult extends Component
                     $dictionaries = json_decode($dictionaries, true);
                 }
 
+                // Handle dictionaries as either JSON string or array
+                $cheapestFlight = $flightSearch->cheapest;
+                if (is_string($cheapestFlight)) {
+                    $cheapestFlight = json_decode($cheapestFlight, true);
+                }
+
                 // Process airlines from dictionaries
                 $this->processAirlines($dictionaries);
 
@@ -56,6 +62,7 @@ class FlightResult extends Component
                     'meta' => $flightSearch->meta,
                     'flightOffers' => $flightOffers,
                     'dictionaries' => $dictionaries,
+                    'cheapestFlight' => $cheapestFlight,
                     'passengers' => $flightSearch->passengers,
                     'fromCityName' => $flightSearch->from_city_name,
                     'toCityName' => $flightSearch->to_city_name,
