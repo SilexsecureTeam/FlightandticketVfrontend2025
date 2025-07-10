@@ -373,6 +373,7 @@
                         </button>
                     </div>
                 </div>
+                @if(isset($searchResults['cheapestFlight']))
                 <div class="table-wrapper">
                     <!-- Fixed Left Column -->
                     <div class="fixed-column">
@@ -400,7 +401,7 @@
                                 {{$cheapflight['name']}}
                             </div>
                             <div class="cell">—</div>
-                            <div class="cell">{{$cheapflight['currency']. " ". $cheapflight['price'][0]}}</div>
+                            <div class="cell">{{count($cheapflight['price']) > 0 ? $cheapflight['currency']. " ". $cheapflight['price'][0] : '-'}}</div>
                             <div class="cell">{{count($cheapflight['price']) > 1 ? $cheapflight['currency']. " ".$cheapflight['price'][1] : '-'}}</div>
                         </div>
                         @endforeach
@@ -412,6 +413,7 @@
                     <button class="btn" onclick="scrollTable(-1)" id="prevBtn" disabled>⬅ Show less airlines</button>
                     <button class="btn" onclick="scrollTable(1)" id="nextBtn">Show more airlines ➡</button>
                 </div>
+                @endif
 
                 <div class=" space-y-4" id="flight-list">
                     @if (isset($searchResults['flightOffers']) && count($searchResults['flightOffers']))
