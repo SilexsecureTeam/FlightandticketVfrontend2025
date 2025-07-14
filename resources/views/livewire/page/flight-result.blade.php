@@ -377,7 +377,7 @@
                 <div class="table-wrapper">
                     <!-- Fixed Left Column -->
                     <div class="fixed-column">
-                        <div class="cell"></div>
+                        <div class="cell header-cell" style="color: #F0F8FF;">-</div>
                         <div class="cell">Non-stop</div>
                         <div class="cell">1 Stop</div>
                         <div class="cell">2 Stops</div>
@@ -388,9 +388,10 @@
                         <div class="column" style="cursor: pointer;" onclick="toggleAirlineCheap('')">
                             <div class="cell header-cell">All Airlines</div>
                             <div class="cell">—</div>
-                            <div class="cell">{{$searchResults['cheapestFlight'][0]['currency'] . " ".$searchResults['cheapestFlight'][0]['price'][0]}}</div>
-                            <div class="cell">{{count($searchResults['cheapestFlight'][0]['price']) > 1 ? $searchResults['cheapestFlight'][0]['currency'] . " ". $searchResults['cheapestFlight'][0]['price'][1] : '-'}}</div>
+                            <div class="cell">—</div>
+                            <div class="cell">—</div>
                         </div>
+                        @if(is_array($searchResults['cheapestFlight']))
                         @foreach($searchResults['cheapestFlight'] as $cheapflight)
                         <div class="column" style="cursor: pointer;" onclick="toggleAirlineCheap('<?= $cheapflight['code'] ?>')">
                             <div class="cell header-cell">
@@ -401,15 +402,17 @@
                                 {{$cheapflight['name']}}
                             </div>
                             <div class="cell">—</div>
+
                             @if(is_array($cheapflight['price']))
-                            <div class="cell">{{count($cheapflight['price']) > 0 ? $cheapflight['currency']. " ". $cheapflight['price'][0] : '-'}}</div>
-                            <div class="cell">{{count($cheapflight['price']) > 1 ? $cheapflight['currency']. " ".$cheapflight['price'][1] : '-'}}</div>
+                            <div class="cell">{{isset($cheapflight['price'][0]) ? $cheapflight['currency']. " ". $cheapflight['price'][0] : '-'}}</div>
+                            <div class="cell">{{isset($cheapflight['price'][1]) ? $cheapflight['currency']. " ".$cheapflight['price'][1] : '-'}}</div>
                             @else
                             <div class="cell">—</div>
                             <div class="cell">—</div>
                             @endif
                         </div>
                         @endforeach
+                        @endif
                     </div>
                 </div>
 
@@ -430,7 +433,13 @@
 
                         // Calculate total duration
                         $totalDurationInSeconds = 0;
+                        $stopNm = 0;
                         foreach ($flight['itineraries'] as $itinerary) {
+                        if($stopNm){
+                        $stopNm = count($itinerary['segments'])-1 == $stopNm ? $stopNm : 0;
+                        }else{
+                        $stopNm = count($itinerary['segments'])-1;
+                        }
                         foreach ($itinerary['segments'] as $segment) {
                         $durationParts = explode('PT', $segment['duration']);
                         if (isset($durationParts[1])) {
@@ -446,7 +455,7 @@
                         $flight['totalDuration'] = $totalDurationInSeconds;
                         @endphp
                         <div data-airline="{{ $flight['validatingAirlineCodes'][0] }}"
-                            data-total-stops="{{ $flight['itineraries'][0]['segments'] ? count($flight['itineraries'][0]['segments']) - 1 : 0 }}"
+                            data-total-stops="{{$stopNm}}"
                             data-price="{{ $flight['totalPrice'] }}"
                             data-duration="{{ $flight['totalDuration'] }}"
                             style="{{ $index >= 10 ? 'display: none;' : '' }}"
@@ -1425,90 +1434,6 @@
         scrollTable(0);
     });
 </script>
-<style>
-    .table-wrapper {
-        display: flex;
-        overflow-x: hidden;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        position: relative;
-    }
 
-    .fixed-column {
-        background-color: #f0f8ff;
-        flex: 0 0 140px;
-        border-right: 1px solid #ddd;
-    }
-
-    .fixed-column .cell {
-        font-weight: bold;
-        text-align: left;
-    }
-
-    .scrollable-columns {
-        display: flex;
-        transition: transform 0.4s ease-in-out;
-        min-width: 0;
-    }
-
-    .column {
-        min-width: 150px;
-        flex-shrink: 0;
-        border-right: 1px solid #ddd;
-        text-align: center;
-        background-color: #fff;
-    }
-
-    .cell {
-        padding: 15px;
-        border-bottom: 1px solid #eee;
-        font-size: 14px;
-    }
-
-    .header-cell {
-        font-weight: bold;
-    }
-
-    .nav-buttons {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 10px;
-    }
-
-    .btn {
-        background: #0047ab;
-        color: white;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 20px;
-        cursor: pointer;
-    }
-
-    .btn:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-    }
-
-    @media (max-width: 768px) {
-        .cell {
-            font-size: 12px;
-            padding: 10px;
-        }
-
-        .column {
-            min-width: 160px;
-        }
-
-        .fixed-column {
-            flex: 0 0 120px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .column {
-            min-width: 140px;
-        }
-    }
-</style>
 </div>
 </div>

@@ -6,6 +6,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>{{ $title ?? 'Mymore' }}</title>
+    <style>
+        .table-wrapper {
+            display: flex;
+            overflow-x: hidden;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            position: relative;
+            width: 75vw;
+        }
+
+        .fixed-column {
+            background-color: #f0f8ff;
+            flex: 0 0 140px;
+            border-right: 1px solid #ddd;
+        }
+
+        .fixed-column .cell {
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .scrollable-columns {
+            display: flex;
+            transition: transform 0.4s ease-in-out;
+            min-width: 0;
+        }
+
+        .column {
+            min-width: 150px;
+            flex-shrink: 0;
+            border-right: 1px solid #ddd;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .cell {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .header-cell {
+            font-weight: bold;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background: #97050C;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .cell {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .column {
+                min-width: 160px;
+            }
+
+            .fixed-column {
+                flex: 0 0 120px;
+            }
+
+            .table-wrapper {
+                width: 96vw;
+            }
+
+            .btn {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .column {
+                min-width: 140px;
+            }
+        }
+    </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
@@ -24,8 +118,8 @@
     <x-livewire-alert::scripts />
     <!--Start of Tawk.to Script-->
     <div class="floating-btns d-flex flex-column align-items-end">
-        <a id="whatsappBtn" href="https://wa.me/2348022008793" target="_blank" class="floating-btn bg-black">
-            <i class="fab fa-whatsapp" style="color: #25D366;"></i>
+        <a id="whatsappBtn" href="https://wa.me/2348022008793" target="_blank" class="floating-btn bg-primary">
+            <i class="fab fa-whatsapp"></i>
         </a>
 
         <a id="callBtn" href="tel:+2348022888712" class="floating-btn bg-primary">

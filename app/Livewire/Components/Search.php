@@ -646,8 +646,8 @@ class Search extends Component
             // return dd(json_encode($payload));
             // return dd(json_encode($flightOffers));
             // return dd(json_encode($dictionaries['carriers']));
-            
-            
+
+
             foreach ($flightOffers as &$flightOffer) {
                 foreach ($flightOffer['itineraries'] as &$itinerary) {
                     $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
@@ -896,5 +896,4 @@ class Search extends Component
 
         return $flights;
     }
-
 }
