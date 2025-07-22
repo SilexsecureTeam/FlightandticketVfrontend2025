@@ -79,89 +79,90 @@
                     </div>
                 </div>
 
-                <a href="{{ url()->previous()}}" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
-
-
-            </div>
-        </div>
-
-    </div>
-
-
-    <!-- Improved Main Content -->
-    <main class="nanum-gothic-regular block md:flex justify-around px-4 md:px-8 py-6 md:py-10 bg-gray-50 min-h-screen">
-        <!-- Left Column - Price Summary -->
-        <div class="md:w-[48%] w-full mb-8 md:mb-0">
-            <!-- Price Summary Card -->
-            <div
-                class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200/50 space-y-5 transition-all duration-300 hover:shadow-xl">
-                <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center">
-                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        Price Summary
-                    </h2>
-                    <div class="p-2 rounded-full bg-red-100 text-red-600">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                    </div>
+                <div wire:ignore>
+                    <a href="{{ url()->previous()}}" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
                 </div>
 
-                <div class="space-y-3">
-                    @php
-                    $travelerTypes = [];
-                    foreach ($bookingDetails['travelType'] as $traveler) {
-                    $type =
-                    strtolower($traveler['travelerType']) === 'held_infant'
-                    ? 'Infant'
-                    : ucfirst(strtolower($traveler['travelerType']));
-                    if (!isset($travelerTypes[$type])) {
-                    $travelerTypes[$type] = [
-                    'count' => 0,
-                    'price' => 0,
-                    'currency' => $traveler['price']['currency'],
-                    ];
-                    }
-                    $travelerTypes[$type]['count']++;
-                    $travelerTypes[$type]['price'] += floatval($traveler['price']['total']);
-                    }
-                    @endphp
+                </div>
+            </div>
 
-                    @foreach ($travelerTypes as $type => $data)
-                    <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
-                        <span class="font-medium flex items-center">
-                            @if ($type == 'Adult')
-                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+        </div>
+
+
+        <!-- Improved Main Content -->
+        <main class="nanum-gothic-regular block md:flex justify-around px-4 md:px-8 py-6 md:py-10 bg-gray-50 min-h-screen">
+            <!-- Left Column - Price Summary -->
+            <div class="md:w-[48%] w-full mb-8 md:mb-0">
+                <!-- Price Summary Card -->
+                <div
+                    class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200/50 space-y-5 transition-all duration-300 hover:shadow-xl">
+                    <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center">
+                            <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            @elseif($type == 'Child')
-                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            Price Summary
+                        </h2>
+                        <div class="p-2 rounded-full bg-red-100 text-red-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    stroke-width="2" stroke-linecap="round" />
                             </svg>
-                            @else
-                            <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
-                            @endif
-                            {{ $type }} x {{ $data['count'] }}
-                        </span>
-                        <span class="font-bold text-gray-800">{{ $data['currency'] }}
-                            {{ number_format($data['price'], 2) }}</span>
+                        </div>
                     </div>
-                    @endforeach
 
-                    {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
+                    <div class="space-y-3">
+                        @php
+                        $travelerTypes = [];
+                        foreach ($bookingDetails['travelType'] as $traveler) {
+                        $type =
+                        strtolower($traveler['travelerType']) === 'held_infant'
+                        ? 'Infant'
+                        : ucfirst(strtolower($traveler['travelerType']));
+                        if (!isset($travelerTypes[$type])) {
+                        $travelerTypes[$type] = [
+                        'count' => 0,
+                        'price' => 0,
+                        'currency' => $traveler['price']['currency'],
+                        ];
+                        }
+                        $travelerTypes[$type]['count']++;
+                        $travelerTypes[$type]['price'] += floatval($traveler['price']['total']);
+                        }
+                        @endphp
+
+                        @foreach ($travelerTypes as $type => $data)
+                        <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
+                            <span class="font-medium flex items-center">
+                                @if ($type == 'Adult')
+                                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                @elseif($type == 'Child')
+                                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                @else
+                                <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                @endif
+                                {{ $type }} x {{ $data['count'] }}
+                            </span>
+                            <span class="font-bold text-gray-800">{{ $data['currency'] }}
+                                {{ number_format($data['price'], 2) }}</span>
+                        </div>
+                        @endforeach
+
+                        {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
                         <span class="font-medium flex items-center">
                             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -169,8 +170,8 @@
                             Currency
                         </span>
                         <span class="font-bold text-gray-800">{{ $price['currency'] ?? 'NGN' }}</span>
-                </div> --}}
-                {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
+                    </div> --}}
+                    {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
                         <span class="font-medium flex items-center">
                             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -180,21 +181,21 @@
                             Base Fee
                         </span>
                         <span class="font-bold text-gray-800">{{ $price['currency'] ?? 'NGN' }}
-                {{ $price['base'] ?? 00.0 }} </span>
-            </div>
-            <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
-                <span class="font-medium flex items-center">
-                    <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
-                    </svg>
-                    Taxes & Fees
-                </span>
-                <span class="font-bold text-gray-800">{{ $price['currency'] ?? 'NGN' }}
-                    {{ number_format($price['grandTotal'] - $price['base'] ?? 0, 2) }}</span>
-            </div> --}}
-            {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
+                    {{ $price['base'] ?? 00.0 }} </span>
+                </div>
+                <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
+                    <span class="font-medium flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                        </svg>
+                        Taxes & Fees
+                    </span>
+                    <span class="font-bold text-gray-800">{{ $price['currency'] ?? 'NGN' }}
+                        {{ number_format($price['grandTotal'] - $price['base'] ?? 0, 2) }}</span>
+                </div> --}}
+                {{-- <div class="flex justify-between items-center text-gray-700 bg-gray-50 p-3 rounded-xl">
                         <span class="font-medium flex items-center">
                             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -202,36 +203,36 @@
                             Service charge
                         </span>
                         <span class="font-bold text-gray-800">{{ $price['currency'] ?? 'NGN' }} {{ number_format($price['commission'] ?? 0, 2) }}</span>
-        </div> --}}
+            </div> --}}
 
-</div>
-
-<!-- Total Amount Section -->
-<div class="flex justify-between items-center pt-4 mt-2 border-t border-gray-200 text-xl font-bold">
-    <span class="text-gray-800">Total Amount</span>
-    <span class="text-red-600 text-2xl">{{ $price['currency'] ?? 'NGN' }}
-        {{ number_format($price['grandTotal'] + $price['commission'] ?? 0) }}</span>
-</div>
-
-<div class="space-y-4 mt-4">
-    <div class="bg-red-50 border border-red-200 p-3 rounded-xl">
-        <p class="text-primary text-sm flex items-start gap-2">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    stroke-width="2" stroke-linecap="round" />
-            </svg>
-            <span>Book now! Price can change if you come back later.</span>
-        </p>
     </div>
 
-    <p class="text-center text-sm text-gray-500 pt-2">
-        By clicking continue, you agree to our
-        <a href="#" class="text-red-600 hover:underline font-medium">Terms</a>
-        and
-        <a href="#" class="text-red-600 hover:underline font-medium">Privacy Policy</a>
-    </p>
-</div>
+    <!-- Total Amount Section -->
+    <div class="flex justify-between items-center pt-4 mt-2 border-t border-gray-200 text-xl font-bold">
+        <span class="text-gray-800">Total Amount</span>
+        <span class="text-red-600 text-2xl">{{ $price['currency'] ?? 'NGN' }}
+            {{ number_format($price['grandTotal'] + $price['commission'] ?? 0) }}</span>
+    </div>
+
+    <div class="space-y-4 mt-4">
+        <div class="bg-red-50 border border-red-200 p-3 rounded-xl">
+            <p class="text-primary text-sm flex items-start gap-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <span>Book now! Price can change if you come back later.</span>
+            </p>
+        </div>
+
+        <p class="text-center text-sm text-gray-500 pt-2">
+            By clicking continue, you agree to our
+            <a href="#" class="text-red-600 hover:underline font-medium">Terms</a>
+            and
+            <a href="#" class="text-red-600 hover:underline font-medium">Privacy Policy</a>
+        </p>
+    </div>
 </div>
 </div>
 

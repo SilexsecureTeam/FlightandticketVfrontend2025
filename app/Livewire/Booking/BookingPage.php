@@ -37,6 +37,8 @@ class BookingPage extends Component
     public $markUp;
     public $paystackUrl;
 
+    public $searchResultsId;
+
     protected $rules = [
         'travelers' => 'required|array|min:1',
         'travelers.*.id' => 'required|string',
@@ -87,6 +89,7 @@ class BookingPage extends Component
     {
 
         $this->selectedFlight = session('selected_flight', []);
+        $this->searchResultsId = session('searchResultsId');
         // dd( $this->selectedFlight['price']['commission']);
 
         $markup = Markup::first(); // Get a single record

@@ -515,6 +515,7 @@ class Search extends Component
 
 
             $originDestinations = [];
+            $cabinRestrictions = [];
 
             if ($this->tripType === 'multi') {
                 foreach ($this->multiCityFlights as $index => $flight) {
@@ -529,6 +530,12 @@ class Search extends Component
                             'date' => $departureDate
                         ]
                     ];
+
+                    $cabinRestrictions[] = [
+                        'cabin' => $validatedData['cabinClass'],
+                        'coverage' => 'ALL_SEGMENTS',
+                        'originDestinationIds' => [(string)($index + 1)],
+                    ];                    
                 }
             } else {
                 // Ensure date is in ISO 8601 format (YYYY-MM-DD)
@@ -543,6 +550,12 @@ class Search extends Component
                     ]
                 ];
 
+                $cabinRestrictions[] = [
+                    'cabin' => $validatedData['cabinClass'],
+                    'coverage' => 'ALL_SEGMENTS',
+                    'originDestinationIds' => ["1"],
+                ];
+
                 if ($this->tripType === 'round' && $validatedData['returnDate']) {
                     // Ensure date is in ISO 8601 format (YYYY-MM-DD)
                     $returnDate = Carbon::parse($validatedData['returnDate'])->format('Y-m-d');
@@ -555,6 +568,13 @@ class Search extends Component
                             'date' => $returnDate
                         ]
                     ];
+
+                    $cabinRestrictions[] = [
+                        'cabin' => $validatedData['cabinClass'],
+                        'coverage' => 'ALL_SEGMENTS',
+                        'originDestinationIds' => ["2"],
+                    ];
+
                 }
             }
             $travelers = [];
@@ -594,8 +614,6 @@ class Search extends Component
                 }
             }
 
-
-
             $client = new Client();
             $baseUrl = config('services.amadeus.base_url');
 
@@ -608,13 +626,7 @@ class Search extends Component
                 'searchCriteria' => [
                     'maxFlightOffers' => $validatedData['max'],
                     'flightFilters' => [
-                        'cabinRestrictions' => [
-                            [
-                                'cabin' => $validatedData['cabinClass'],
-                                'coverage' => 'MOST_SEGMENTS',
-                                'originDestinationIds' => ['1'],
-                            ]
-                        ],
+                        'cabinRestrictions' => $cabinRestrictions,
                     ],
                     'additionalInformation' => [
                         'chargeableCheckedBags' => false,
@@ -643,7 +655,7 @@ class Search extends Component
             $dictionaries = $data['dictionaries'] ?? [];
             $cheapest = [];
 
-            // return dd(json_encode($payload));
+            // return dd($payload);
             // return dd(json_encode($flightOffers));
             // return dd(json_encode($dictionaries['carriers']));
 

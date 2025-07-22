@@ -16,7 +16,8 @@ class FlightResult extends Component
     public $searchParams; // For passing to edit component
     public $airlinesWithNames = [];
     public $selectedAirlines = [];
-    public $filteredFlightOffers = [];
+    public $filteredFlightOffers = []; 
+    public $searchResultsId;
 
     public function mount()
     {
@@ -24,6 +25,7 @@ class FlightResult extends Component
         $searchId = request()->get('id');
         
         if ($searchId) {
+            $this->searchResultsId = $searchId;
             try {
                 // Get data from database
                 $flightSearch = FlightSearch::where('search_id', $searchId)
@@ -56,6 +58,15 @@ class FlightResult extends Component
                 // Process airlines from dictionaries
                 $this->processAirlines($dictionaries);
 
+                // $flightOffersArr = [];
+                // foreach($flightOffers as $flightOffer){
+                //     //if(){
+                //         $flightOffersArr[] = $this->filterTravelerPricingsByCabin($flightOffer);
+                //     //}
+                // }
+
+                // return dd($flightOffersArr);
+
                 // Transform the data back to the expected format
                 $this->searchResults = [
                     'tripType' => $flightSearch->trip_type,
@@ -69,7 +80,7 @@ class FlightResult extends Component
                     'departureDate' => $flightSearch->departure_date,
                     'returnDate' => $flightSearch->return_date,
                 ];
-                
+                                
                 // Extract search data for edit form
                 $this->searchParams = [
                     'editMode' => true,
@@ -122,6 +133,31 @@ class FlightResult extends Component
         }
     }
 
+    protected function filterTravelerPricingsByCabin(array $flightOffer)
+    {
+        if (!isset($flightOffer['travelerPricings'])) {
+            return false;
+        }
+
+        $filtered = [];
+
+        foreach ($flightOffer['travelerPricings'] as $travelerPricing) {
+            if (!isset($travelerPricing['fareDetailsBySegment'])) {
+                continue;
+            }
+
+            $cabins = array_column($travelerPricing['fareDetailsBySegment'], 'cabin');
+            return $cabins;
+            // Check if all cabins are the same
+            if (count(array_unique($cabins)) === 1) {
+                return dd($cabins);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     protected function processAirlines($dictionaries)
     {
         if (isset($dictionaries['carriers']) && is_array($dictionaries['carriers'])) {
@@ -151,7 +187,8 @@ class FlightResult extends Component
             // Store only the selected flight in session, not the entire search result
             session([
                 'selected_flight' => $selectedFlight,
-                'selected_includes' => implode(',', $this->selectedIncludes)
+                'selected_includes' => implode(',', $this->selectedIncludes),
+                'searchResultsId' => $this->searchResultsId
             ]);
 
             return redirect()->route('booking.page');
