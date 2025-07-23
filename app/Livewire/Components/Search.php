@@ -690,15 +690,17 @@ class Search extends Component
 
                         // Add the fixed markup value as commission
                         $markupValue = $airlineDetails['markup']; // Fixed markup value
+                        $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
 
                         // Add commission to the price array
-                        $flightOffer['price']['commission'] = $markupValue;
+                        $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+                        $flightOffer['price']['commission'] = $markupValueSign;
                         $cheapestNew = [
                             "name" => $airlineDetails['name'],
                             "logo" => $airlineDetails['logo'],
                             "code" => $segment['carrierCode'],
                             "currency" => $flightOffer['price']['currency'],
-                            "price" => floatval($flightOffer['price']['total'] + $markupValue),
+                            "price" => floatval($flightOffer['price']['total'] + $markupValueSign),
                             "numberOfStops" => $numberOfStops
                         ];
 
