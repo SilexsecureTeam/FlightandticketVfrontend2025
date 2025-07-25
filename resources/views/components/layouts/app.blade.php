@@ -122,9 +122,9 @@
             <i class="fab fa-whatsapp"></i>
         </a>
 
-        <a id="callBtn" href="tel:+2348022888712" class="floating-btn bg-primary">
+        {{--<a id="callBtn" href="tel:+2348022888712" class="floating-btn bg-primary">
             <i class="fas fa-phone"></i>
-        </a>
+        </a>--}}
     </div>
     {{--<script type="text/javascript">
     var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
