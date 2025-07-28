@@ -655,7 +655,7 @@ class Search extends Component
             $dictionaries = $data['dictionaries'] ?? [];
             $cheapest = [];
 
-            // return dd($payload);
+            // return dd(json_encode($payload));
             // return dd(json_encode($flightOffers));
             // return dd(json_encode($dictionaries['carriers']));
 

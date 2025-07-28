@@ -162,8 +162,8 @@
         isEditOpen: false
     }" class="bg-black sticky overflow-y-auto h-fit mt-1 md:top-[2%] w-full z-[99]">
 
-        <div class="px-2 sm:px-3 md:px-6 py-1">
-            <div class="flex items-center justify-between space-x-2 ">
+        <div class="px-2 sm:px-3 md:px-6 py-4">
+            <div class="flex items-center justify-between space-x-2 md:px-6">
                 <!-- Title -->
                 <div class="text-xs md:text-sm font-bold text-white shrink-0">Flight Details</div>
 
@@ -206,7 +206,7 @@
                 <!-- Edit/Cancel Button -->
                 <div class="flex items-center justify-end">
                     <button @click="isEditOpen = !isEditOpen"
-                        class="p-1 md:p-1.5 bg-primary text-white rounded-lg flex items-center text-[10px] md:text-xs">
+                        class="px-4 md:px-4 py-2 md:py-2.5 bg-primary text-white rounded-lg flex items-center text-[10px] md:text-xs">
                         <template x-if="!isEditOpen">
                             <span>Edit</span>
                         </template>
@@ -404,8 +404,8 @@
                             <div class="cell">—</div>
 
                             @if(is_array($cheapflight['price']))
-                            <div class="cell">{{isset($cheapflight['price'][0]) ? $cheapflight['currency']. " ". $cheapflight['price'][0] : '-'}}</div>
-                            <div class="cell">{{isset($cheapflight['price'][1]) ? $cheapflight['currency']. " ".$cheapflight['price'][1] : '-'}}</div>
+                            <div class="cell">{{isset($cheapflight['price'][0]) ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][0], 2) : '-'}}</div>
+                            <div class="cell">{{isset($cheapflight['price'][1]) ? $cheapflight['currency']. " ".number_format((float) $cheapflight['price'][1], 2) : '-'}}</div>
                             @else
                             <div class="cell">—</div>
                             <div class="cell">—</div>
