@@ -26,6 +26,7 @@ return new class extends Migration
             $table->date('departure_date')->nullable();
             $table->date('return_date')->nullable();
             $table->string('trip_type')->nullable();
+            $table->string('cabinClass')->nullable();
             $table->timestamps();
             // Auto-delete after 24 hours
             $table->timestamp('expires_at')->nullable();

@@ -1,3 +1,153 @@
+<style>
+    .nav-header {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        background-color: #1a1a1a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .btn.active {
+        background-color: #c00;
+        border-color: #c00;
+        color: #fff;
+    }
+
+    .dropdown {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        background-color: #1a1a1a;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .passenger-box {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+
+    .form-section {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .form-box {
+        /* flex: 1 1 200px; */
+        /* background-color: #111; */
+        /* border: 1px solid #333;
+        border-radius: 10px; */
+        /* padding: 10px 14px;
+        position: relative; */
+    }
+
+    .form-box label {
+        display: block;
+        font-size: 14px;
+        color: #ccc;
+        margin-bottom: 4px;
+    }
+
+    .form-box .location {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .form-box .location span {
+        font-weight: bolder;
+        color: #fff;
+    }
+
+    .form-box .location i {
+        margin-right: 6px;
+    }
+
+    .form-box .remove {
+        background: none;
+        border: none;
+        color: #ccc;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .calendar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .calendar-icon {
+        font-size: 24px;
+        color: #CC0000;
+    }
+
+    .search-btn {
+        background-color: #c00;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        color: white;
+        font-size: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .displaynoe {
+        display: unset !important;
+    }
+
+    @media (max-width: 600px) {
+        .calendar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .search-btn {
+            margin-top: 10px;
+        }
+
+        .form-section {
+            flex-direction: column;
+        }
+
+        .dispNonme {
+            display: none !important;
+        }
+
+        .form-box .location span,
+        .form-box label {
+            font-size: 8px;
+        }
+
+        .form-box {
+            padding: 5px 2px;
+        }
+    }
+</style>
 <div x-data="{
     showFilters: false
 }">
@@ -99,7 +249,7 @@
                             <ul class="space-y-3">
                                 @foreach ($stopOptionsWithLabels as $option)
                                 <li>
-                                    <label class=" flex items-center text-[10px] gap-5">
+                                    <label class=" flex items-center text-[16px] gap-5">
                                         <input type="checkbox" value="{{ $option['value'] }}"
                                             onclick="toggleStopFilter(this)">
                                         {{ $option['label'] }}
@@ -129,9 +279,6 @@
                             </div>
                         </div> --}}
 
-
-
-
                     </div>
                 </div>
 
@@ -160,20 +307,22 @@
             { id: 'payment', label: 'Payment' }
         ],
         isEditOpen: false
-    }" class="bg-black sticky overflow-y-auto h-fit mt-1 md:top-[2%] w-full z-[99]">
+    }" class="bg-black sticky overflow-y-auto-rm h-fit mt-1 md:top-[2%] w-full z-[99]">
 
         <div class="px-2 sm:px-3 md:px-6 py-4">
             <div class="flex items-center justify-between space-x-2 md:px-6">
                 <!-- Title -->
-                <div class="text-xs md:text-sm font-bold text-white shrink-0">Flight Details</div>
+                <div :class="{ 'displaynoe': isEditOpen }" class="text-xs md:text-sm font-bold text-white shrink-0 hidden">
+                    Flight Details
+                </div>
 
                 <!-- Stepper container -->
-                <div class="flex-1 hidden md:inline relative py-3  max-w-md mx-auto">
+                <div x-show="isEditOpen" style="display: none" class="flex-1 hidden md:inline relative py-3  max-w-md mx-auto">
                     <div class="absolute inset-0 flex items-center justify-between px-1">
                         <div class="absolute h-[2px] bg-gray-700 w-full"></div>
                         <div class="absolute h-[2px] bg-primary transition-all duration-300"
                             :style="'width: ' + (steps.findIndex(step => step.id === currentStep) / (steps.length - 1) * 100) +
-                            '%'">
+                        '%'">
                         </div>
 
                         <div class="relative flex justify-between w-full">
@@ -182,19 +331,19 @@
                                     <!-- Step Circle -->
                                     <div class="w-3 h-3 rounded-full flex items-center justify-center transition-all duration-300 z-10 text-[10px] font-medium"
                                         :class="{
-                                            'bg-primary text-white': currentStep === step.id,
-                                            'bg-white text-black': steps.findIndex(s => s.id === currentStep) > index,
-                                            'bg-white text-gray-400': steps.findIndex(s => s.id === currentStep) < index
-                                        }">
+                                        'bg-primary text-white': currentStep === step.id,
+                                        'bg-white text-black': steps.findIndex(s => s.id === currentStep) > index,
+                                        'bg-white text-gray-400': steps.findIndex(s => s.id === currentStep) < index
+                                    }">
                                         <span x-text="index + 1"></span>
                                     </div>
                                     <!-- Step Label -->
                                     <div class="absolute -bottom-3 text-[8px] text-center w-full transition-all duration-300"
                                         :class="{
-                                            'text-primary': currentStep === step.id,
-                                            'text-white': steps.findIndex(s => s.id === currentStep) > index,
-                                            'text-white': steps.findIndex(s => s.id === currentStep) < index
-                                        }">
+                                        'text-primary': currentStep === step.id,
+                                        'text-white': steps.findIndex(s => s.id === currentStep) > index,
+                                        'text-white': steps.findIndex(s => s.id === currentStep) < index
+                                    }">
                                         <span x-text="step.label" class="inline-block"></span>
                                     </div>
                                 </div>
@@ -203,10 +352,52 @@
                     </div>
                 </div>
 
+                @if($searchParams['fromDisplayName'])
+                <div class="form-box" x-show="!isEditOpen">
+                    <label>Flying from</label>
+                    <div class="location">
+                        <span>{{$searchParams['fromDisplayName']}}</span>
+                    </div>
+                </div>
+                @endif
+                @if($searchParams['toDisplayName'])
+                <div class="form-box" x-show="!isEditOpen">
+                    <label>Flying to</label>
+                    <div class="location">
+                        <span>{{$searchParams['toDisplayName']}}</span>
+                    </div>
+                </div>
+                @endif
+                @if($searchParams['departureDate'])
+                <div class="dispNonme" x-show="!isEditOpen">
+                    <label>Departure</label>
+                    <div>
+                        <i class="fa-solid fa-calendar-days calendar-icon"></i>
+                        {{\Carbon\Carbon::parse($searchParams['departureDate'])->format('D, M d')}}
+                    </div>
+                </div>
+                @endif
+                @if($searchParams['returnDate'])
+                <div class="dispNonme" x-show="!isEditOpen">
+                    <label>Return</label>
+                    <div>
+                        <i class="fa-solid fa-calendar-days calendar-icon"></i>
+                        {{\Carbon\Carbon::parse($searchParams['returnDate'])->format('D, M d')}}
+                    </div>
+                </div>
+                @endif
+                <div class="passenger-box dispNonme" x-show="!isEditOpen">
+                    Adult {{$searchParams['passengers']['adult']}} &nbsp;&nbsp; Child {{$searchParams['passengers']['child']}} &nbsp;&nbsp; Infant {{$searchParams['passengers']['infant']}} &nbsp; | &nbsp; <strong>Total: {{$searchParams['passengers']['adult'] + $searchParams['passengers']['child'] + $searchParams['passengers']['infant']}}</strong>
+                </div>
+
+                <div class="btn-group dispNonme" x-show="!isEditOpen">
+                    <button class="btn active">Cabin: {{$searchParams['cabinClass']}}</button>
+                </div>
+
                 <!-- Edit/Cancel Button -->
                 <div class="flex items-center justify-end">
                     <button @click="isEditOpen = !isEditOpen"
-                        class="px-4 md:px-4 py-2 md:py-2.5 bg-primary text-white rounded-lg flex items-center text-[10px] md:text-xs">
+                        class="px-5 py-3 md:py-3 bg-primary text-white rounded-lg flex items-center text-[10px] md:text-xs">
                         <template x-if="!isEditOpen">
                             <span>Edit</span>
                         </template>
@@ -315,7 +506,7 @@
                     <ul class="space-y-3">
                         @foreach ($stopOptionsWithLabels as $option)
                         <li>
-                            <label class=" flex items-center text-[10px] gap-5">
+                            <label class=" flex items-center text-[16px] gap-5">
                                 <input type="checkbox" value="{{ $option['value'] }}"
                                     onclick="toggleStopFilter(this)">
                                 {{ $option['label'] }}
@@ -346,31 +537,63 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 w-full  justify-center items-center">
+        <div class="flex-1 w-full justify-center items-center">
             <!-- Header -->
-
-
-
 
             <!-- Property Grid -->
             <!-- Property Grid -->
             <div class="md:p-3 p-2  text-black">
                 <!-- Sort by Cheapest and Fastest -->
-                <div class="mb-6">
-                    <h3 class="text-base font-medium mb-4">Sort By</h3>
-                    <div class="flex space-x-4">
-                        <!-- Cheapest Button -->
-                        <!-- Cheapest Button -->
-                        <button onclick="sortFlights('cheapest')" id="cheapest-btn"
-                            class="px-4 py-2  rounded-md bg-primary text-white">
-                            Cheapest
-                        </button>
+                <button @click="isEditOpen = true" class="px-4 py-2 bg-blue-600 rounded">Open Modal</button>
+                <!-- Modal Overlay -->
+                <div
+                    x-show="isEditOpen"
+                    x-transition.opacity
+                    @click.self="isEditOpen = false"
+                    class="fixed inset-0 bg-black bg-opacity-50 z-40">
+                    <!-- Modal Content -->
+                    <div
+                        x-show="isEditOpen"
+                        x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="-translate-x-full"
+                        x-transition:enter-end="translate-x-0"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="translate-x-0"
+                        x-transition:leave-end="-translate-x-full"
+                        class="bg-white h-full w-full sm:w-1/2 fixed left-0 top-0 z-50 shadow-lg overflow-y-auto"
+                        @click.away="isEditOpen = false">
+                        <!-- Header -->
+                        <div class="flex justify-between items-center p-4 border-b">
+                            <h2 class="text-lg font-semibold">Edit Panel</h2>
+                            <button @click="isEditOpen = false" class="text-gray-500 hover:text-red-600 text-2xl font-bold">
+                                &times;
+                            </button>
+                        </div>
 
-                        <!-- Fastest Button -->
-                        <button onclick="sortFlights('fastest')" id="fastest-btn"
-                            class="px-4 py-2 rounded-md  text-black">
-                            Fastest
-                        </button>
+                        <!-- Content -->
+                        <div class="p-6">
+                            <p class="text-gray-700">This is the modal content. Click outside or on the × to close it.</p>
+                            <!-- Add your form or content here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6 flex justify-between pr-2">
+                    <div>
+                        <h3 class="text-base font-medium mb-4">Sort By</h3>
+                        <div class="flex space-x-4">
+                            <!-- Cheapest Button -->
+                            <!-- Cheapest Button -->
+                            <button onclick="sortFlights('cheapest')" id="cheapest-btn"
+                                class="px-4 py-2  rounded-md bg-primary text-white">
+                                Cheapest
+                            </button>
+
+                            <!-- Fastest Button -->
+                            <button onclick="sortFlights('fastest')" id="fastest-btn"
+                                class="px-4 py-2 rounded-md  text-black">
+                                Fastest
+                            </button>
+                        </div>
                     </div>
                 </div>
                 @if(isset($searchResults['cheapestFlight']))
@@ -508,7 +731,7 @@
                                                     <div class="flex-shrink-0 text-left w-[45%] md:w-auto">
                                                         <div
                                                             class="text-xs font-bold line-clamp-2 md:line-clamp-none">
-                                                            {{ $itinerary['segments'][0]['departure']['city_country'] }}
+                                                            {{ $itinerary['segments'][0]['departure']['city'] }}
                                                             ({{ $itinerary['segments'][0]['departure']['iataCode'] }})
                                                         </div>
                                                         <div class="text-sm text-gray-500">
@@ -570,7 +793,7 @@
                                                         @endphp
                                                         <div
                                                             class="text-xs font-bold line-clamp-2 md:line-clamp-none">
-                                                            {{ $lastSegment['arrival']['city_country'] }}
+                                                            {{ $lastSegment['arrival']['city'] }}
                                                             ({{ $lastSegment['arrival']['iataCode'] }})
                                                         </div>
                                                         <div class="text-sm text-gray-500">
@@ -751,7 +974,7 @@
                                                                     {{-- <div class="font-medium text-xs md:text-base">{{ $segment['departure']['city'] }} --}}
                                                                     <div
                                                                         class="font-medium text-xs md:text-base">
-                                                                        {{ $segment['departure']['city_country'] }}
+                                                                        {{ $segment['departure']['city'] }}
                                                                         ({{ $segment['departure']['iataCode'] }})
                                                                     </div>
                                                                     <div class="text-sm">Terminal
@@ -769,7 +992,7 @@
                                                                     </div>
                                                                     <div
                                                                         class="font-medium text-xs md:text-base">
-                                                                        {{ $segment['arrival']['city_country'] }}
+                                                                        {{ $segment['arrival']['city'] }}
                                                                         {{-- {{ $segment['arrival']['city'] }} --}}
                                                                         ({{ $segment['arrival']['iataCode'] }})
                                                                     </div>
@@ -1119,6 +1342,7 @@
                                     <!-- Additional Information -->
 
                                 </div>
+
                             </div>
 
                             <!-- Fare Rules Tab Content -->
@@ -1255,6 +1479,7 @@
 
 
             </div>
+
         </div>
 
     </div>

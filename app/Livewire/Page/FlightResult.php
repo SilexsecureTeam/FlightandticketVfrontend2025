@@ -75,12 +75,12 @@ class FlightResult extends Component
                     'dictionaries' => $dictionaries,
                     'cheapestFlight' => $cheapestFlight,
                     'passengers' => $flightSearch->passengers,
+                    'cabinClass' => $flightSearch->cabinClass,
                     'fromCityName' => $flightSearch->from_city_name,
                     'toCityName' => $flightSearch->to_city_name,
                     'departureDate' => $flightSearch->departure_date,
                     'returnDate' => $flightSearch->return_date,
                 ];
-                                
                 // Extract search data for edit form
                 $this->searchParams = [
                     'editMode' => true,
@@ -92,7 +92,7 @@ class FlightResult extends Component
                     'returnDate' => $flightSearch->return_date,
                     'tripType' => $flightSearch->trip_type,
                     'passengers' => $flightSearch->passengers,
-                    'cabinClass' => 'ECONOMY', // Default if not stored
+                    'cabinClass' => $flightSearch->cabinClass, // Default if not stored
                 ];
                 
                 // If codes are missing, try to extract them from itineraries

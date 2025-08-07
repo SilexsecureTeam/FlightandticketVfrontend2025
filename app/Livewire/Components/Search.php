@@ -736,6 +736,7 @@ class Search extends Component
                 'flight_offers_path' => $flightOffersFile,
                 'dictionaries_path' => $dictionariesFile,
                 'passengers' => $validatedData['passengers'],
+                'cabinClass' => $validatedData['cabinClass'],
                 'from_city_name' => $this->fromDisplayName,
                 'to_city_name' => $this->toDisplayName,
                 'from_code' => $this->from,
