@@ -544,39 +544,7 @@
             <!-- Property Grid -->
             <div class="md:p-3 p-2  text-black">
                 <!-- Sort by Cheapest and Fastest -->
-                <button @click="isEditOpen = true" class="px-4 py-2 bg-blue-600 rounded">Open Modal</button>
-                <!-- Modal Overlay -->
-                <div
-                    x-show="isEditOpen"
-                    x-transition.opacity
-                    @click.self="isEditOpen = false"
-                    class="fixed inset-0 bg-black bg-opacity-50 z-40">
-                    <!-- Modal Content -->
-                    <div
-                        x-show="isEditOpen"
-                        x-transition:enter="transition ease-out duration-300"
-                        x-transition:enter-start="-translate-x-full"
-                        x-transition:enter-end="translate-x-0"
-                        x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="translate-x-0"
-                        x-transition:leave-end="-translate-x-full"
-                        class="bg-white h-full w-full sm:w-1/2 fixed left-0 top-0 z-50 shadow-lg overflow-y-auto"
-                        @click.away="isEditOpen = false">
-                        <!-- Header -->
-                        <div class="flex justify-between items-center p-4 border-b">
-                            <h2 class="text-lg font-semibold">Edit Panel</h2>
-                            <button @click="isEditOpen = false" class="text-gray-500 hover:text-red-600 text-2xl font-bold">
-                                &times;
-                            </button>
-                        </div>
-
-                        <!-- Content -->
-                        <div class="p-6">
-                            <p class="text-gray-700">This is the modal content. Click outside or on the × to close it.</p>
-                            <!-- Add your form or content here -->
-                        </div>
-                    </div>
-                </div>
+                
                 <div class="mb-6 flex justify-between pr-2">
                     <div>
                         <h3 class="text-base font-medium mb-4">Sort By</h3>
