@@ -180,6 +180,7 @@ class FlightResult extends Component
 
     public function selectFlight($flightId)
     {
+        // return dd($flightId);
         // Find the selected flight using the ID
         $selectedFlight = collect($this->searchResults['flightOffers'])->firstWhere('id', $flightId);
 
