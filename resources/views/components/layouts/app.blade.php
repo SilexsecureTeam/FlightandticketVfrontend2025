@@ -146,7 +146,7 @@
             border: 1px solid #ccc;
             border-radius: 10px;
             padding: 8px 16px;
-            font-size: 14px;
+            font-size: 12px;
         }
 
         .form-section {
@@ -159,16 +159,16 @@
 
         .form-box {
             /* flex: 1 1 200px; */
-            /* background-color: #111; */
-            /* border: 1px solid #333;
-        border-radius: 10px; */
-            /* padding: 10px 14px;
-        position: relative; */
+            /* background-color: #111;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px 14px; */
+            /* position: relative; */
         }
 
         .form-box label {
             display: block;
-            font-size: 14px;
+            font-size: 12px;
             color: #ccc;
             margin-bottom: 4px;
         }
@@ -193,7 +193,7 @@
             border: none;
             color: #ccc;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 12px;
         }
 
         .calendar {
@@ -203,7 +203,7 @@
         }
 
         .calendar-icon {
-            font-size: 24px;
+            font-size: 20px;
             color: rgba(10, 10, 10, 1);
         }
 
