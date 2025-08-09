@@ -99,7 +99,7 @@
 
     .calendar-icon {
         font-size: 24px;
-        color: #CC0000;
+        color: rgba(10, 10, 10, 1);
     }
 
     .search-btn {
@@ -145,6 +145,64 @@
 
         .form-box {
             padding: 5px 2px;
+        }
+    }
+
+    /* Overlay */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        z-index: 10001000;
+    }
+
+    .modal-overlay.active {
+        display: block;
+    }
+
+    /* Modal */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        max-width: 600px;
+        width: 100%;
+        background: white;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 100100000;
+        overflow-y: auto;
+    }
+
+    .modal.active {
+        transform: translateX(0);
+    }
+
+    .modal-header {
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-closeBtn {
+        font-size: 24px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #888;
+    }
+
+    .modal-body {
+        padding: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .modal {
+            width: 100%;
         }
     }
 </style>
@@ -307,7 +365,7 @@
             { id: 'payment', label: 'Payment' }
         ],
         isEditOpen: false
-    }" class="bg-black sticky overflow-y-auto-rm h-fit mt-1 md:top-[2%] w-full z-[99]">
+    }" class="bg-red sticky overflow-y-auto-rm h-fit md:top-[2%] w-full z-[99]">
 
         <div class="px-2 sm:px-3 md:px-6 py-4">
             <div class="flex items-center justify-between space-x-2 md:px-6">
@@ -320,7 +378,7 @@
                 <div x-show="isEditOpen" style="display: none" class="flex-1 hidden md:inline relative py-3  max-w-md mx-auto">
                     <div class="absolute inset-0 flex items-center justify-between px-1">
                         <div class="absolute h-[2px] bg-gray-700 w-full"></div>
-                        <div class="absolute h-[2px] bg-primary transition-all duration-300"
+                        <div class="absolute h-[2px] bg-black transition-all duration-300"
                             :style="'width: ' + (steps.findIndex(step => step.id === currentStep) / (steps.length - 1) * 100) +
                         '%'">
                         </div>
@@ -397,7 +455,7 @@
                 <!-- Edit/Cancel Button -->
                 <div class="flex items-center justify-end">
                     <button @click="isEditOpen = !isEditOpen"
-                        class="px-5 py-3 md:py-3 bg-primary text-white rounded-lg flex items-center text-[10px] md:text-xs">
+                        class="px-5 py-3 md:py-3 bg-black text-white rounded-lg flex items-center text-[10px] md:text-xs">
                         <template x-if="!isEditOpen">
                             <span>Edit</span>
                         </template>
@@ -544,7 +602,19 @@
             <!-- Property Grid -->
             <div class="md:p-3 p-2  text-black">
                 <!-- Sort by Cheapest and Fastest -->
-                
+
+                <!-- Modal Structure -->
+                <div class="modal-overlay" id="modalOverlay"></div>
+
+                <div class="modal" id="modal">
+                    <div class="modal-header">
+                        <h3>Edit Panel</h3>
+                        <button class="modal-close" id="modalCloseBtn">&times;</button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <!-- Dynamic content goes here -->
+                    </div>
+                </div>
                 <div class="mb-6 flex justify-between pr-2">
                     <div>
                         <h3 class="text-base font-medium mb-4">Sort By</h3>
@@ -821,8 +891,9 @@
 
                                             <!-- Action Buttons -->
                                             <div class="flex flex-wrap justify-end items-end gap-3 mt-4">
-                                                <button @click="isOpen = !isOpen"
-                                                    class="inline-flex items-center text-xs md:text-sm px-3 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">
+                                                {{--@click="isOpen = !isOpen"--}}
+                                                <button
+                                                    class="inline-flex items-center text-xs md:text-sm px-3 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 details-btn" data-modal="modal-<?= $flight['id'] ?>">
                                                     Flight Details
                                                     <svg class="ml-2 h-4 w-4 transition-transform duration-200"
                                                         :class="{ 'transform rotate-180': isOpen }"
@@ -858,7 +929,7 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                @include('livewire.page.flight-modal', ['flight' => $flight, 'index' => $index])
                                 <!-- Expanded Flight Details -->
                                 <div x-cloak x-show="isOpen" x-collapse>
                                     <div class="border-t border-gray-200 bg-gray-50">

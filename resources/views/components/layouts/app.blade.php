@@ -57,6 +57,10 @@
             margin-top: 10px;
         }
 
+        .bg-red {
+            background: #97050C;
+        }
+
         .btn {
             background: #97050C;
             color: white;
