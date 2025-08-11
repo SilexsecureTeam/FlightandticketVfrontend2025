@@ -93,8 +93,8 @@
                 width: 96vw;
             }
 
-            .btn {
-                font-size: 12px;
+            .nav-buttons .btn {
+                font-size: 10px;
             }
         }
 

@@ -1,5 +1,5 @@
 <div x-data="{
-    tripType: 'round',
+    tripType: @entangle('tripType'),
     showPassengerDropdown: false,
     showCabinDropdown: false,
     cabinClass: @entangle('cabinClass'),
@@ -95,7 +95,7 @@
         <!-- Trip Type Selection -->
         <div class="flex relative justify-between flex-wrap gap-5 mb-3 md:gap-3 ">
             <div
-                class="flex flex-wrap gap-1 md:gap-3 j                                                                  ustify-center">
+                class="flex flex-wrap gap-1 md:gap-3 justify-center">
                 <template
                     x-for="(label, type) in {
                     'one': { text: 'ONE WAY', icon: 'M14 5l7 7m0 0l-7 7m7-7H3' },
@@ -118,7 +118,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" :d="label.icon" />
                             </svg>
                         </span>
-
                         <!-- Text -->
                         <span x-text="label.text" class="font-medium"></span>
                     </label>
@@ -529,7 +528,7 @@
                             :initial-date="$departureDate ?? null" wire="true" />
 
                         <!-- Return Date (only visible for round trips) -->
-                        
+
                         <template x-if="tripType === 'round'" class="w-full">
                             <x-datepicker label="Return" name="return_date" placeholder="Pick Return Date"
                                 :initial-date="$returnDate ?? null" :min-date="$departureDate ?? null" type="return" wire="true" />
