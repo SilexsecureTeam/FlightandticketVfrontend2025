@@ -253,6 +253,10 @@
             }
         }
 
+        .bodyModalPrevent {
+            overflow: hidden !important;
+        }
+
         /* Overlay */
         .modal-overlay {
             position: fixed;
@@ -308,6 +312,60 @@
         @media (max-width: 768px) {
             .modal {
                 width: 100%;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .font-sm10 {
+                font-size: 10px !important;
+            }
+
+            .font-sm12 {
+                font-size: 12px !important;
+            }
+
+            .font-sm14 {
+                font-size: 14px !important;
+            }
+
+            .font-sm16 {
+                font-size: 16px !important;
+            }
+
+            .line-height-sm {
+                line-height: 20px !important;
+            }
+
+            .line-height-sm5 {
+                line-height: 5px !important;
+            }
+
+            .moveUpMbhhh {
+                margin-top: -10px !important;
+            }
+
+            .mobiledisplayNone {
+                display: none !important;
+            }
+
+            .psm1 {
+                padding: 1px !important;
+            }
+
+            .mobileCenter {
+                text-align: center !important;
+            }
+
+            .mobilemarginLeft0 {
+                margin-left: 0 !important;
+            }
+
+            .mobileFLexdis {
+                display: flex;
+            }
+
+            .mobileFLexdis div {
+                font-size: 8px !important;
             }
         }
     </style>

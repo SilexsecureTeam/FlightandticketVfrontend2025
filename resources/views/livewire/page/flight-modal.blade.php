@@ -357,6 +357,7 @@
         // Open modal
         if (e.target.matches('.details-btn')) {
             const modalId = e.target.dataset.modal;
+            document.querySelector("body").classList.add("bodyModalPrevent");
             document.getElementById(modalId).classList.add('active');
             document.getElementById('overlay-' + modalId.replace('modal-', '')).classList.add('active');
         }
@@ -364,6 +365,7 @@
         if (e.target.matches('.modal-close')) {
             const modalId = e.target.dataset.close;
             document.getElementById(modalId).classList.remove('active');
+            document.querySelector("body").classList.remove("bodyModalPrevent");
             document.getElementById('overlay-' + modalId.replace('modal-', '')).classList.remove('active');
         }
         // Close on overlay click
@@ -371,6 +373,7 @@
             e.target.classList.remove('active');
             const id = e.target.id.replace('overlay-', '');
             document.getElementById('modal-' + id).classList.remove('active');
+            document.querySelector("body").classList.remove("bodyModalPrevent");
         }
     });
 </script>
