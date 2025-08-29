@@ -665,7 +665,7 @@
                             <div
                                 class="col-span-12 lg:col-span-5 flex flex-col justify-between mt-4 lg:mt-0">
 
-                                <div class="flex justify-between">
+                                <div class="flexMobnnklii justify-between">
                                     <div class="md:hidden">
                                         <div class="text-base md:text-xl font-bold text-gray-900">
                                             {{ $flight['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] }}

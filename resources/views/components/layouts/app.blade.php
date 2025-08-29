@@ -316,6 +316,9 @@
         }
 
         @media (max-width: 600px) {
+            .flexMobnnklii{
+                display: flex;
+            } 
             .font-sm8 {
                 font-size: 8px !important;
             }
