@@ -316,6 +316,10 @@
         }
 
         @media (max-width: 600px) {
+            .font-sm8 {
+                font-size: 8px !important;
+            }
+
             .font-sm10 {
                 font-size: 10px !important;
             }

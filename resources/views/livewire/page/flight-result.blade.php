@@ -585,7 +585,7 @@
                                                     </div>
 
                                                     <!-- Flight Path - Desktop only -->
-                                                    <div class="hidden md:block flex-1 px-4">
+                                                    <div class="hidden-pp md:block-oo flex-1 px-4">
                                                         <div class="relative">
                                                             <div class="h-px bg-gray-300 w-full"></div>
                                                             <div
@@ -636,7 +636,7 @@
                                                 </div>
 
                                                 <!-- Flight details below arrow - Mobile only -->
-                                                <div
+                                                {{-- <div
                                                     class="flex md:hidden justify-center items-center mt-3 mb-2">
                                                     <div class="text-center">
                                                         <div class="text-sm font-medium">
@@ -656,7 +656,7 @@
                                                             {{ $flight['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] }}
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> --}}
                                             </div>
                                             @endforeach
                                         </div>
