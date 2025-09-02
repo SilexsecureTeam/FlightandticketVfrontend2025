@@ -38,7 +38,7 @@
         isEditOpen: false
     }" class="bg-black text-white sticky mt-1 md:top-[2%] w-full z-[99]">
 
-        <div class="px-2 sm:px-3 md:px-6 py-1">
+        <div class="px-2 sm:px-3 md:px-6 py-5">
             <div class="flex items-center justify-between space-x-2 ">
                 <!-- Title -->
                 <div class="text-xs md:text-sm font-bold text-white shrink-0">Flight Details</div>
