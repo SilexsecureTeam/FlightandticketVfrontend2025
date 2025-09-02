@@ -17,7 +17,7 @@
                         </svg>
                     </div>
                 </div>
-                <h1 style="text-align: center; font-size: 30px; font-weight: 700; color: #ffffff;">Offline Reservation
+                <h1 style="text-align: center; font-size: 20px; font-weight: 700; color: #ffffff;">Offline Reservation
                     Confirmed!</h1>
                 <p style="text-align: center; color: #dcfce7; margin-top: 8px;">Your Offline Reservation has been
                     Confirmed</p>
@@ -33,9 +33,9 @@
                 </div>
 
                 <!-- Amount Paid -->
-                <div style="text-align: center; margin-bottom: 24px;">
+                <div style="text-align: center; margin-bottom: 16px;">
                     <span
-                        style="font-size: 36px; font-weight: 700; color: #111827;">₦{{ number_format($bookingData['price']['grandTotal'] + $bookingData['commission'] , 2) }}</span>
+                        style="font-size: 18px; font-weight: 700; color: #111827;">₦{{ number_format($bookingData['price']['grandTotal'] + $bookingData['commission'] , 2) }}</span>
                     <p style="color: #6b7280; margin-top: 4px;">Total Amount Paid</p>
                 </div>
 
@@ -60,7 +60,7 @@
                                 <div style="margin-top: 12px;">
                                     <table cellpadding="0" cellspacing="0" border="0" width="100%">
                                         <tr>
-                                            <td width="50%"
+                                            <td width="100%"
                                                 style="padding-right: 8px; padding-bottom: 16px; vertical-align: top;">
                                                 <!-- First Bank Account -->
                                                 <div
@@ -75,7 +75,9 @@
                                                     <p style="margin-top: 4px;">MYMORE TRAVELS SERVICES LTD</p>
                                                 </div>
                                             </td>
-                                            <td width="50%"
+                                        </tr>
+                                        <tr>
+                                            <td width="100%"
                                                 style="padding-left: 8px; padding-bottom: 16px; vertical-align: top;">
                                                 <!-- Second Bank Account -->
                                                 <div
@@ -125,11 +127,11 @@
                                                     d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </td>
-                                        <td style="padding-left: 16px;">
-                                            <p style="font-size: 14px; font-weight: 500; color: #6b7280;">Payment Date
+                                        <td style="padding-left: 2px;">
+                                            <p style="font-size: 12px; font-weight: 500; color: #6b7280;">Payment Date
                                             </p>
                                             <p
-                                                style="margin-top: 4px; font-size: 16px; font-weight: 500; color: #111827;">
+                                                style="margin-top: 4px; font-size: 12px; font-weight: 500; color: #111827;">
                                                 {{ now()->format('M d, Y h:i A') }}</p>
                                         </td>
                                     </tr>
@@ -147,11 +149,11 @@
                                                     d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                             </svg>
                                         </td>
-                                        <td style="padding-left: 16px;">
-                                            <p style="font-size: 14px; font-weight: 500; color: #6b7280;">Payment Type
+                                        <td style="padding-left: 12px;">
+                                            <p style="font-size: 12px; font-weight: 500; color: #6b7280;">Payment Type
                                             </p>
                                             <p
-                                                style="margin-top: 4px; font-size: 16px; font-weight: 500; color: #111827;">
+                                                style="margin-top: 4px; font-size: 12px; font-weight: 500; color: #111827;">
                                                 Offline Payment</p>
                                         </td>
                                     </tr>
@@ -171,10 +173,10 @@
                                                     d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                                             </svg>
                                         </td>
-                                        <td style="padding-left: 16px;">
-                                            <p style="font-size: 14px; font-weight: 500; color: #6b7280;">Email</p>
+                                        <td style="padding-left: 2px;">
+                                            <p style="font-size: 12px; font-weight: 500; color: #6b7280;">Email</p>
                                             <p
-                                                style="margin-top: 4px; font-size: 16px; font-weight: 500; color: #111827; word-break: break-all;">
+                                                style="margin-top: 4px; font-size: 12px; font-weight: 500; color: #111827; word-break: break-all;">
                                                 {{ $bookingData['travelers'][0]['contact']['emailAddress'] }}</p>
                                         </td>
                                     </tr>
