@@ -225,7 +225,23 @@
             display: unset !important;
         }
 
+        .displayDeskopp {
+            display: none !important;
+        }
+
+        .mdwauto {
+            width: 45%;
+        }
+
         @media (max-width: 600px) {
+            .mdwauto {
+                width: unset;
+            }
+
+            .displayDeskopp {
+                display: unset !important;
+            }
+
             .calendar {
                 flex-direction: column;
                 align-items: flex-start;
@@ -315,10 +331,35 @@
             }
         }
 
+        .deskotGap {
+            gap: 1rem;
+        }
+
+        .deskotMaerp {
+            margin-top: 1rem;
+        }
+
+        .flexdcolmrow {
+            flex-direction: column;
+        }
+
         @media (max-width: 600px) {
-            .flexMobnnklii{
+            .deskotGap {
+                gap: unset;
+            }
+
+            .flexdcolmrow {
+                flex-direction: row;
+            }
+
+            .deskotMaerp {
+                margin-top: unset;
+            }
+
+            .flexMobnnklii {
                 display: flex;
-            } 
+            }
+
             .font-sm8 {
                 font-size: 8px !important;
             }

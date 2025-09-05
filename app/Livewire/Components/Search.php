@@ -703,7 +703,6 @@ class Search extends Component
                             "price" => floatval($flightOffer['price']['total'] + $markupValueSign),
                             "numberOfStops" => $numberOfStops
                         ];
-
                         $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
                     }
                 }
