@@ -1,3 +1,289 @@
+<div>
+    @if ($status === 'processing')
+    <style>
+        /* Shimmer effect */
+        .skeleton {
+            background: linear-gradient(90deg, #e0e0e0 25%, #f0f0f0 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 10px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Layout styling */
+        .layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            grid-template-rows: 120px 1fr;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar body";
+            height: 100vh;
+        }
+
+        .sidebar {
+            grid-area: sidebar;
+            background-color: #fafafa;
+            border-right: 1px solid #ddd;
+            padding: 1rem;
+        }
+
+        .header {
+            grid-area: header;
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 1rem;
+        }
+
+        .body {
+            grid-area: body;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Full-width skeleton cards */
+        .skeleton.card {
+            height: 120px;
+            width: 100%;
+        }
+
+        /* Modal backdrop */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal card */
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            width: 400px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal.skeleton {
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Message fade animation */
+        .modal-message {
+            font-size: 16px;
+            font-weight: 800;
+            color: #97050C;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            position: absolute;
+            left: 0;
+            right: 0;
+        }
+
+        .modal-message.active {
+            opacity: 1;
+            position: relative;
+        }
+
+        /* Cancel button */
+        .cancel-btn {
+            margin-top: 2rem;
+            background-color: #97050C;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+
+    <style>
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 12px;
+            width: 420px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .modal-card h3 {
+            font-size: 18px;
+            margin-bottom: 1rem;
+            color: #444;
+            display: block;
+        }
+
+        .modal-card h3 span {
+            font-weight: bold;
+            color: #97050C;
+        }
+
+        .flight-image {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .route {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 1rem 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .route small {
+            display: block;
+            font-size: 13px;
+            font-weight: normal;
+            color: #666;
+        }
+
+        .cancel-btn {
+            margin-top: 1.5rem;
+            background-color: #97050C;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .cancel-btn:hover {
+            opacity: 0.9;
+        }
+
+        .text-white {
+            color: unset !important;
+        }
+    </style>
+
+    <div class="layout" wire:ignore>
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="skeleton" style="height:20px; margin-bottom:15px;"></div>
+            <div class="skeleton" style="height:20px; margin-bottom:15px;"></div>
+            <div class="skeleton" style="height:20px; margin-bottom:15px;"></div>
+            <div class="skeleton" style="height:20px; margin-bottom:15px;"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h3>Flight Search</h3>
+        </div>
+
+        <!-- Body with cards -->
+        <div class="body" id="skeleton-container"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" wire:ignore>
+        <div class="modal-card">
+            <h6>Do not <span>leave</span> this page</h6>
+            <!-- Replace src with generated GIF -->
+            {{-- <div class="flight-image">
+                <img src="{{asset('images/plane-flying.png')}}" alt="Flying plane" width="200" height="200">
+        </div> --}}
+        <div id="modal-messages">
+            <div class="modal-message active">🔄 Searching for flights...</div>
+            <div class="modal-message">🔄 Checking availability...</div>
+            <div class="modal-message">🔄 searching for the best flights...</div>
+            <div class="modal-message">🔄 Verifying flight details...</div>
+            <div class="modal-message">🔄 Comparing ticket prices...</div>
+            <div class="modal-message">🔄 Checking seat availability...</div>
+            <div class="modal-message">🔄 Looking for the fastest routes...</div>
+            <div class="modal-message">🔄 Finding the most convenient options...</div>
+            <div class="modal-message">🔄 Matching your travel dates...</div>
+            <div class="modal-message">🔄 Optimizing for best value...</div>
+            <div class="modal-message">🔄 Confirming airline schedules...</div>
+            <div class="modal-message">🔄 Cross-checking with partners...</div>
+            <div class="modal-message">🔄 Preparing your flight results...</div>
+            <div class="modal-message">🔄 Almost done, please wait...</div>
+            <div class="modal-message">🔄 Finalizing your search...</div>
+            <div class="modal-message">🔄 Connection lost, retrying please wait...</div>
+        </div>
+
+        <div class="route">
+            <div>
+                {{$seachNow->from_city_name}} <br>
+                <small>{{\Carbon\Carbon::parse($seachNow->departure_date)->format('D, M d')}}</small>
+            </div>
+            <div>✈️</div>
+            <div>
+                {{$seachNow->to_city_name}} <br>
+                <small>{{\Carbon\Carbon::parse($seachNow->return_date)->format('D, M d')}}</small>
+            </div>
+        </div>
+
+        <p>
+            {{array_sum($seachNow->passengers)}} passenger,
+            <b style="text-transform: uppercase;">{{$seachNow->cabinClass}} class</b>
+        </p>
+
+        <a href="{{route('landing')}}"><button class="cancel-btn">Cancel Search</button></a>
+    </div>
+</div>
+
+<script>
+    // Populate skeleton cards
+    const skeletonContainer = document.getElementById("skeleton-container");
+    for (let i = 0; i < 5; i++) {
+        const skeletonCard = document.createElement("div");
+        skeletonCard.classList.add("skeleton", "card");
+        skeletonContainer.appendChild(skeletonCard);
+    }
+
+    // Cycle modal messages
+    const messages = document.querySelectorAll(".modal-message");
+    let current = 0;
+    setInterval(() => {
+        messages[current].classList.remove("active");
+        current = (current + 1) % messages.length;
+        messages[current].classList.add("active");
+    }, 3000);
+</script>
+{{-- Poll every 3 seconds --}}
+<div wire:poll.3000ms="checkStatus"></div>
+@else
 <div x-data="{
     showFilters: false
 }">
@@ -1492,4 +1778,6 @@
 </script>
 
 </div>
+</div>
+@endif
 </div>

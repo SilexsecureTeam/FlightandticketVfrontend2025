@@ -25,7 +25,9 @@ class FlightSearch extends Model
         'return_date',
         'trip_type',
         'expires_at',
-        'cabinClass'
+        'cabinClass',
+        'error_message',
+        'status',
     ];
 
     protected function casts(): array

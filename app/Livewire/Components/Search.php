@@ -2,17 +2,18 @@
 
 namespace App\Livewire\Components;
 
+use GuzzleHttp\Client;
 use App\Models\Airline;
 use App\Models\Airport;
-use App\Models\FlightSearch;
-use App\Traits\AmadeusApiTrait;
-use GuzzleHttp\Client;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\Attributes\On;
+use App\Models\FlightSearch;
+use Livewire\Attributes\Url;
 use Livewire\WithPagination;
+use App\Jobs\FetchFlightsJob;
+use Illuminate\Support\Carbon;
+use App\Traits\AmadeusApiTrait;
+use Illuminate\Support\Facades\Storage;
 
 class Search extends Component
 {
@@ -487,7 +488,81 @@ class Search extends Component
             }
         }
     }
+
     public function search()
+    {
+        try {
+            $validatedData = $this->validate([
+                'from' => $this->tripType !== 'multi' ? 'required|string|size:3' : 'nullable',
+                'to' => $this->tripType !== 'multi' ? 'required|string|size:3' : 'nullable',
+                'departureDate' => $this->tripType !== 'multi' ? 'required|date|after:' . Carbon::yesterday()->format('Y-m-d') : 'nullable',
+                'returnDate' => $this->tripType === 'round' ? 'required|date|after:departureDate' : 'nullable',
+                'passengers.adult' => 'required|integer|min:1|max:9',
+                'passengers.child' => 'nullable|integer|min:0|max:8',
+                'passengers.infant' => 'nullable|integer|min:0',
+                'cabinClass' => 'required|string|in:ECONOMY,PREMIUM_ECONOMY,BUSINESS,FIRST',
+                'currencyCode' => 'required|string|size:3',
+                'nonStop' => 'boolean',
+                'maxPrice' => 'nullable|integer|min:1',
+                'max' => 'integer|min:1|max:250',
+                'multiCityFlights.*.from' => $this->tripType === 'multi' ? 'required|string|size:3' : 'nullable',
+                'multiCityFlights.*.to' => $this->tripType === 'multi' ? 'required|string|size:3' : 'nullable',
+                'multiCityFlights.*.departureDate' => $this->tripType === 'multi' ? 'required|date|after:today' : 'nullable',
+            ]);
+
+            $clientRef = 'mymore-' . uniqid(bin2hex(random_bytes(6)), true);
+            session(['clientRef' => $clientRef]);
+            $searchId = 'search_' . uniqid();
+
+            $fligtBokked = FlightSearch::create([
+                'search_id' => $searchId,
+                'trip_type' => $this->tripType,
+                'passengers' => $validatedData['passengers'],
+                'cabinClass' => $validatedData['cabinClass'],
+                'from_city_name' => $this->fromDisplayName,
+                'to_city_name' => $this->toDisplayName,
+                'from_code' => $this->from,
+                'to_code' => $this->to,
+                'departure_date' => $this->departureDate,
+                'return_date' => $this->returnDate,
+            ]);
+
+            // Stage 1: Queue fetch
+            FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from, $this->to, $this->departureDate, $this->returnDate, $fligtBokked->id);
+
+            // Redirect with just the search ID
+            return redirect()->route('search.results', ['id' => $searchId]);
+
+            // return redirect()->route('search.results');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // dd( $e->errors() );
+            session()->flash('errors', $e->errors());
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            // Get the HTTP response from the exception
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $statusCode = $response->getStatusCode(); // Get the HTTP status code
+                $errorBody = json_decode($response->getBody(), true); // Decode the JSON response
+
+                // Extract error details
+                $errorMessage = $errorBody['errors'][0]['detail'] ?? 'Unknown error';
+                $errorCode = $errorBody['errors'][0]['code'] ?? 'N/A';
+
+
+                // Flash the error message to the user
+                session()->flash('error', "Error [$errorCode]: $errorMessage");
+            } else {
+                // If no response is available, use the generic exception message
+                session()->flash('error', 'An unexpected error occurred: ' . $e->getMessage());
+            }
+        } catch (\Exception $e) {
+            // dd( $e->getMessage() );
+            session()->flash('error', 'An error occurred while searching for flights: ' . $e->getMessage());
+        }
+    }
+
+    public function searchOld()
     {
         try {
             $validatedData = $this->validate([
