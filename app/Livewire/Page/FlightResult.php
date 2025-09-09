@@ -48,10 +48,11 @@ class FlightResult extends Component
                 
                 try {
                     // Get data from database
-                    $flightSearch = $search->where('expires_at', '>', Carbon::now())
-                        ->first();
+                    // $flightSearch = $search->where('expires_at', '>', Carbon::now());
 
-                    if (!$flightSearch) {
+                    $flightSearch = $search;
+
+                    if ($flightSearch->expires_at < Carbon::now()) {
                         session()->flash('error', 'Search data expired or not found.');
                         return redirect()->route('landing');
                     }
