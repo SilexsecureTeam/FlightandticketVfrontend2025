@@ -754,11 +754,10 @@
                         @endif
                     </div>
                 </div>
-
                 <!-- Navigation -->
                 <div class="nav-buttons">
-                    <button class="btn" onclick="scrollTable(-1)" id="prevBtn" disabled>⬅ Show less airlines</button>
-                    <button class="btn" onclick="scrollTable(1)" id="nextBtn">Show more airlines ➡</button>
+                    <button type="button" class="btn" id="prevBtn" disabled>⬅ Show less airlines</button>
+                    <button type="button" class="btn" id="nextBtn">Show more airlines ➡</button>
                 </div>
                 @endif
 
@@ -793,7 +792,7 @@
                         }
                         $flight['totalDuration'] = $totalDurationInSeconds;
                         @endphp
-                        <div data-airline="{{ $flight['validatingAirlineCodes'][0] }}"
+                        <div id="flightcard{{$index+1}}" data-airline="{{ $flight['validatingAirlineCodes'][0] }}"
                             data-total-stops="{{$stopNm}}"
                             data-price="{{ $flight['totalPrice'] }}"
                             data-duration="{{ $flight['totalDuration'] }}"
@@ -1610,10 +1609,28 @@
 @endif
 
 </div>
-@if (count($searchResults['flightOffers']) > 10)
-<button id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
-    Load More
+@if ($status === 'view' && !$loadMore)
+<button wire:target="loadMoreFlights" wire:click="loadMoreFlights" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
+    <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
+    <!-- Loading State: Spinner Animation -->
+    <div wire:loading wire:target="loadMoreFlights" class="flex items-center justify-center w-full">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"
+            style="width:40px; height:40px; fill:#fff; animation:spinvne 1s linear infinite;" class="">
+            <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
+            <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+        </svg>
+    </div>
 </button>
+@endif
+@if ($status === 'completed')
+<button id="load-more-btn"
+    disabled
+    style="opacity:0.5; cursor:not-allowed;"
+    class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4">
+    🔄 searching for more flights...
+</button>
+{{-- Poll every 3 seconds --}}
+<div wire:poll.3000ms="checkStatus"></div>
 @endif
 </div>
 </div>
@@ -1748,33 +1765,352 @@
     });
 </script>
 
-<script>
-    const scrollable = document.getElementById("scrollableTable");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
+{{--<script>
+    // document.addEventListener("livewire:load", () => {
+    let scrollable = null;
+    let prevBtn = null;
+    let nextBtn = null;
 
-    let currentIndex = 0;
-    const colWidth = 200; // fallback
-    const visibleCols = window.innerWidth <= 480 ? 1 : window.innerWidth <= 768 ? 2 : 4;
-    const totalCols = scrollable.children.length;
-    const maxIndex = totalCols - visibleCols;
+    // handler references so we can remove them later
+    let handlers = {
+        onPrev: null,
+        onNext: null,
+        onScroll: null,
+        onMouseDown: null,
+        onMouseMove: null,
+        onMouseUp: null,
+        onMouseLeave: null,
+        onTouchStart: null,
+        onTouchMove: null,
+        onTouchEnd: null
+    };
 
-    function scrollTable(direction) {
-        currentIndex += direction;
-        currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+    let isDown = false;
+    let startX = 0;
+    let scrollLeft = 0;
 
-        const columnWidth = scrollable.querySelector(".column").offsetWidth;
-        scrollable.style.transform = `translateX(-${currentIndex * columnWidth}px)`;
+    function cleanup() {
+        if (!scrollable) return;
+        // remove scroll/drag handlers
+        if (handlers.onScroll) scrollable.removeEventListener('scroll', handlers.onScroll);
+        if (handlers.onMouseDown) scrollable.removeEventListener('mousedown', handlers.onMouseDown);
+        if (handlers.onMouseMove) scrollable.removeEventListener('mousemove', handlers.onMouseMove);
+        if (handlers.onMouseUp) scrollable.removeEventListener('mouseup', handlers.onMouseUp);
+        if (handlers.onMouseLeave) scrollable.removeEventListener('mouseleave', handlers.onMouseLeave);
+        if (handlers.onTouchStart) scrollable.removeEventListener('touchstart', handlers.onTouchStart);
+        if (handlers.onTouchMove) scrollable.removeEventListener('touchmove', handlers.onTouchMove);
+        if (handlers.onTouchEnd) scrollable.removeEventListener('touchend', handlers.onTouchEnd);
 
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === maxIndex;
+        // remove button clicks
+        if (prevBtn && handlers.onPrev) prevBtn.removeEventListener('click', handlers.onPrev);
+        if (nextBtn && handlers.onNext) nextBtn.removeEventListener('click', handlers.onNext);
+
+        // reset
+        handlers = {
+            onPrev: null,
+            onNext: null,
+            onScroll: null,
+            onMouseDown: null,
+            onMouseMove: null,
+            onMouseUp: null,
+            onMouseLeave: null,
+            onTouchStart: null,
+            onTouchMove: null,
+            onTouchEnd: null
+        };
+        isDown = false;
     }
 
-    // On resize, reset scroll position to ensure consistency
-    window.addEventListener('resize', () => {
-        currentIndex = 0;
-        scrollTable(0);
-    });
+    function scrollByColumns(direction) {
+        if (!scrollable) return;
+        const col = scrollable.querySelector('.column');
+        const columnWidth = (col && col.offsetWidth) ? col.offsetWidth : Math.min(220, scrollable.clientWidth);
+        scrollable.scrollBy({
+            left: direction * columnWidth,
+            behavior: 'smooth'
+        });
+    }
+
+    function updateButtons() {
+        if (!scrollable || !prevBtn || !nextBtn) return;
+        prevBtn.disabled = scrollable.scrollLeft <= 0;
+        nextBtn.disabled = (scrollable.scrollLeft + scrollable.clientWidth) >= (scrollable.scrollWidth - 5);
+    }
+
+    function bindSlider() {
+        // remove previous listeners (if any)
+        cleanup();
+
+        scrollable = document.getElementById("scrollableTable");
+        prevBtn = document.getElementById("prevBtn");
+        nextBtn = document.getElementById("nextBtn");
+
+        if (!scrollable) {
+            // nothing to bind
+            return;
+        }
+
+        // Backwards-compatible global function (if you still have inline onclick)
+        window.scrollTable = (dir) => scrollByColumns(dir);
+
+        // Button handlers
+        handlers.onPrev = () => scrollByColumns(-1);
+        handlers.onNext = () => scrollByColumns(1);
+        if (prevBtn) prevBtn.addEventListener('click', handlers.onPrev);
+        if (nextBtn) nextBtn.addEventListener('click', handlers.onNext);
+
+        // Scroll event - update buttons state
+        handlers.onScroll = () => updateButtons();
+        scrollable.addEventListener('scroll', handlers.onScroll);
+
+        // Mouse drag
+        handlers.onMouseDown = function(e) {
+            isDown = true;
+            scrollable.classList.add('dragging');
+            startX = e.pageX - scrollable.offsetLeft;
+            scrollLeft = scrollable.scrollLeft;
+        };
+        handlers.onMouseMove = function(e) {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollable.offsetLeft;
+            const walk = (x - startX) * 1.5; // adjust speed
+            scrollable.scrollLeft = scrollLeft - walk;
+        };
+        handlers.onMouseUp = function() {
+            isDown = false;
+            scrollable.classList.remove('dragging');
+        };
+        handlers.onMouseLeave = function() {
+            isDown = false;
+            scrollable.classList.remove('dragging');
+        };
+
+        scrollable.addEventListener('mousedown', handlers.onMouseDown);
+        scrollable.addEventListener('mousemove', handlers.onMouseMove);
+        scrollable.addEventListener('mouseup', handlers.onMouseUp);
+        scrollable.addEventListener('mouseleave', handlers.onMouseLeave);
+
+        // Touch drag
+        handlers.onTouchStart = function(e) {
+            isDown = true;
+            startX = e.touches[0].pageX - scrollable.offsetLeft;
+            scrollLeft = scrollable.scrollLeft;
+        };
+        handlers.onTouchMove = function(e) {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - scrollable.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            scrollable.scrollLeft = scrollLeft - walk;
+        };
+        handlers.onTouchEnd = function() {
+            isDown = false;
+        };
+
+        scrollable.addEventListener('touchstart', handlers.onTouchStart, {
+            passive: true
+        });
+        scrollable.addEventListener('touchmove', handlers.onTouchMove, {
+            passive: true
+        });
+        scrollable.addEventListener('touchend', handlers.onTouchEnd);
+
+        // Initial button state
+        updateButtons();
+    }
+
+    // Initial bind
+    bindSlider();
+
+    // Re-bind after Livewire updates (give DOM a beat)
+    //     Livewire.hook('message.processed', () => {
+    //         setTimeout(bindSlider, 50);
+    //     });
+    // });
+</script>--}}
+
+<script>
+    (function() {
+        // keep state & handler refs so we can clean up between re-binds
+        let state = {
+            scrollable: null,
+            prevBtn: null,
+            nextBtn: null,
+            handlers: {},
+            livewireHooked: false
+        };
+
+        function cleanup() {
+            const s = state;
+            if (!s.scrollable) return;
+
+            // remove scroll/drag handlers
+            const h = s.handlers;
+            if (h.scroll) s.scrollable.removeEventListener('scroll', h.scroll);
+            if (h.mousedown) s.scrollable.removeEventListener('mousedown', h.mousedown);
+            if (h.mousemove) document.removeEventListener('mousemove', h.mousemove);
+            if (h.mouseup) document.removeEventListener('mouseup', h.mouseup);
+            if (h.mouseleave) s.scrollable.removeEventListener('mouseleave', h.mouseleave);
+            if (h.touchstart) s.scrollable.removeEventListener('touchstart', h.touchstart);
+            if (h.touchmove) s.scrollable.removeEventListener('touchmove', h.touchmove);
+            if (h.touchend) s.scrollable.removeEventListener('touchend', h.touchend);
+
+            // remove button clicks
+            if (s.prevBtn && h.prev) s.prevBtn.removeEventListener('click', h.prev);
+            if (s.nextBtn && h.next) s.nextBtn.removeEventListener('click', h.next);
+
+            // reset state handlers
+            s.handlers = {};
+        }
+
+        function bindSlider() {
+            cleanup();
+
+            const s = state;
+            s.scrollable = document.getElementById('scrollableTable');
+            s.prevBtn = document.getElementById('prevBtn');
+            s.nextBtn = document.getElementById('nextBtn');
+
+            if (!s.scrollable) return; // nothing to do
+
+            // ensure buttons don't submit forms
+            if (s.prevBtn) s.prevBtn.type = 'button';
+            if (s.nextBtn) s.nextBtn.type = 'button';
+
+            // helper: scroll one column at a time
+            const scrollByColumns = (direction) => {
+                const col = s.scrollable.querySelector('.column');
+                const columnWidth = col ? col.offsetWidth : Math.min(220, s.scrollable.clientWidth);
+                s.scrollable.scrollBy({
+                    left: direction * columnWidth,
+                    behavior: 'smooth'
+                });
+            };
+
+            // update next/prev disabled states
+            const updateButtons = () => {
+                if (!s.prevBtn || !s.nextBtn) return;
+                s.prevBtn.disabled = s.scrollable.scrollLeft <= 0;
+                s.nextBtn.disabled = (s.scrollable.scrollLeft + s.scrollable.clientWidth) >= (s.scrollable.scrollWidth - 5);
+            };
+
+            // store handlers so we can remove them later
+            s.handlers.prev = () => scrollByColumns(-1);
+            s.handlers.next = () => scrollByColumns(1);
+            if (s.prevBtn) s.prevBtn.addEventListener('click', s.handlers.prev);
+            if (s.nextBtn) s.nextBtn.addEventListener('click', s.handlers.next);
+
+            // scroll event
+            s.handlers.scroll = () => updateButtons();
+            s.scrollable.addEventListener('scroll', s.handlers.scroll);
+
+            // ----- mouse drag (desktop) -----
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            s.handlers.mousedown = function(e) {
+                // only left mouse button
+                if (e.button !== 0) return;
+                isDown = true;
+                s.scrollable.classList.add('dragging');
+                startX = e.pageX - s.scrollable.offsetLeft;
+                scrollLeft = s.scrollable.scrollLeft;
+            };
+            s.handlers.mousemove = function(e) {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - s.scrollable.offsetLeft;
+                const walk = (x - startX) * 1.5; // adjust scroll speed if needed
+                s.scrollable.scrollLeft = scrollLeft - walk;
+            };
+            s.handlers.mouseup = function() {
+                if (!isDown) return;
+                isDown = false;
+                s.scrollable.classList.remove('dragging');
+            };
+            s.handlers.mouseleave = function() {
+                isDown = false;
+                s.scrollable.classList.remove('dragging');
+            };
+
+            s.scrollable.addEventListener('mousedown', s.handlers.mousedown);
+            document.addEventListener('mousemove', s.handlers.mousemove);
+            document.addEventListener('mouseup', s.handlers.mouseup);
+            s.scrollable.addEventListener('mouseleave', s.handlers.mouseleave);
+
+            // ----- touch drag (mobile) -----
+            s.handlers.touchstart = function(e) {
+                isDown = true;
+                startX = e.touches[0].pageX - s.scrollable.offsetLeft;
+                scrollLeft = s.scrollable.scrollLeft;
+            };
+            s.handlers.touchmove = function(e) {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - s.scrollable.offsetLeft;
+                const walk = (x - startX) * 1.5;
+                s.scrollable.scrollLeft = scrollLeft - walk;
+            };
+            s.handlers.touchend = function() {
+                isDown = false;
+            };
+
+            s.scrollable.addEventListener('touchstart', s.handlers.touchstart, {
+                passive: true
+            });
+            s.scrollable.addEventListener('touchmove', s.handlers.touchmove, {
+                passive: true
+            });
+            s.scrollable.addEventListener('touchend', s.handlers.touchend);
+
+            // initial state
+            updateButtons();
+        }
+
+        // Attempt to bind now (if DOM already ready)
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            bindSlider();
+        } else {
+            document.addEventListener('DOMContentLoaded', bindSlider, {
+                once: true
+            });
+        }
+
+        // If Livewire is present, bind on livewire:load and re-bind after each update
+        function ensureLivewireHooks() {
+            if (!window.Livewire || state.livewireHooked) return;
+            state.livewireHooked = true;
+
+            // initial Livewire load (fires once)
+            document.addEventListener('livewire:load', () => {
+                bindSlider();
+            }, {
+                once: true
+            });
+
+            // re-bind after each Livewire DOM update
+            Livewire.hook('message.processed', (message, component) => {
+                // small delay to allow DOM replace to finish
+                setTimeout(bindSlider, 40);
+            });
+        }
+
+        // Run immediately if Livewire exists, otherwise wait a bit and check again
+        if (window.Livewire) {
+            ensureLivewireHooks();
+        } else {
+            // check for Livewire presence in case it loads after this script
+            const checkInterval = setInterval(() => {
+                if (window.Livewire) {
+                    ensureLivewireHooks();
+                    clearInterval(checkInterval);
+                }
+            }, 200);
+
+            // stop checking after 5s
+            setTimeout(() => clearInterval(checkInterval), 5000);
+        }
+    })();
 </script>
 
 </div>

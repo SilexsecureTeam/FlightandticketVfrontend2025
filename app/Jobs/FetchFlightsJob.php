@@ -31,11 +31,14 @@ class FetchFlightsJob implements ShouldQueue
     public $departureDate;
     public $returnDate;
     public $flightBookedId;
+    public $originDestinations;
+    public $travelers;
+    public $cabinRestrictions;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(array $validatedData, string $clientRef, string $searchId, string $tripType, array $passengers, string $fromDisplayName, string $toDisplayName, array $multiCityFlights = [], string $from, string $to, string $departureDate, string $returnDate, int $flightBookedId)
+    public function __construct(array $validatedData, string $clientRef, string $searchId, string $tripType, array $passengers, string $fromDisplayName, string $toDisplayName, array $multiCityFlights = [], string $from, string $to, string $departureDate, string $returnDate, int $flightBookedId, array $originDestinations = [], array $travelers = [], array $cabinRestrictions = [])
     {
         $this->validatedData = $validatedData;
         $this->clientRef = $clientRef;
@@ -50,6 +53,9 @@ class FetchFlightsJob implements ShouldQueue
         $this->departureDate = $departureDate;
         $this->returnDate = $returnDate;
         $this->flightBookedId = $flightBookedId;
+        $this->originDestinations = $originDestinations;
+        $this->travelers = $travelers;
+        $this->cabinRestrictions = $cabinRestrictions;
     }
 
     /**
@@ -59,118 +65,20 @@ class FetchFlightsJob implements ShouldQueue
     {
         $validatedData = $this->validatedData;
         $clientRef = $this->clientRef;
-        $originDestinations = [];
-        $cabinRestrictions = [];
-
-        if ($this->tripType === 'multi') {
-            foreach ($this->multiCityFlights as $index => $flight) {
-                // Ensure date is in ISO 8601 format (YYYY-MM-DD)
-                $departureDate = Carbon::parse($flight['departureDate'])->format('Y-m-d');
-
-                $originDestinations[] = [
-                    'id' => (string)($index + 1),
-                    'originLocationCode' => $flight['from'],
-                    'destinationLocationCode' => $flight['to'],
-                    'departureDateTimeRange' => [
-                        'date' => $departureDate
-                    ]
-                ];
-
-                $cabinRestrictions[] = [
-                    'cabin' => $validatedData['cabinClass'],
-                    'coverage' => 'ALL_SEGMENTS',
-                    'originDestinationIds' => [(string)($index + 1)],
-                ];
-            }
-        } else {
-            // Ensure date is in ISO 8601 format (YYYY-MM-DD)
-            $departureDate = Carbon::parse($validatedData['departureDate'])->format('Y-m-d');
-
-            $originDestinations[] = [
-                'id' => '1',
-                'originLocationCode' => $validatedData['from'],
-                'destinationLocationCode' => $validatedData['to'],
-                'departureDateTimeRange' => [
-                    'date' => $departureDate
-                ]
-            ];
-
-            $cabinRestrictions[] = [
-                'cabin' => $validatedData['cabinClass'],
-                'coverage' => 'ALL_SEGMENTS',
-                'originDestinationIds' => ["1"],
-            ];
-
-            if ($this->tripType === 'round' && $validatedData['returnDate']) {
-                // Ensure date is in ISO 8601 format (YYYY-MM-DD)
-                $returnDate = Carbon::parse($validatedData['returnDate'])->format('Y-m-d');
-
-                $originDestinations[] = [
-                    'id' => '2',
-                    'originLocationCode' => $validatedData['to'],
-                    'destinationLocationCode' => $validatedData['from'],
-                    'departureDateTimeRange' => [
-                        'date' => $returnDate
-                    ]
-                ];
-
-                $cabinRestrictions[] = [
-                    'cabin' => $validatedData['cabinClass'],
-                    'coverage' => 'ALL_SEGMENTS',
-                    'originDestinationIds' => ["2"],
-                ];
-            }
-        }
-        $travelers = [];
-
-        // Handle Adult Passengers
-        for ($i = 1; $i <= $validatedData['passengers']['adult']; $i++) {
-            $travelers[] = [
-                'id' => (string)$i,
-                'travelerType' => 'ADULT',
-                'fareOptions' => ['STANDARD'],
-            ];
-        }
-
-        // Handle Child Passengers
-        if (!empty($validatedData['passengers']['child'])) {
-            for ($i = 1; $i <= $validatedData['passengers']['child']; $i++) {
-                $travelers[] = [
-                    'id' => (string)(count($travelers) + 1), // Ensure unique IDs
-                    'travelerType' => 'CHILD',
-                    'fareOptions' => ['STANDARD'],
-                ];
-            }
-        }
-
-        // Handle Infant Passengers (Each Infant Must be Associated with an Adult)
-        if (!empty($validatedData['passengers']['infant'])) {
-            for ($i = 1; $i <= $validatedData['passengers']['infant']; $i++) {
-                // Find an adult to associate the infant with (first available adult)
-                $associatedAdultId = (string)$i; // Linking to first few adults in order
-
-                $travelers[] = [
-                    'id' => (string)(count($travelers) + 1), // Ensure unique IDs
-                    'travelerType' => 'HELD_INFANT',
-                    'associatedAdultId' => $associatedAdultId, // REQUIRED by Amadeus API
-                    'fareOptions' => ['STANDARD'],
-                ];
-            }
-        }
 
         $client = new Client();
         $baseUrl = config('services.amadeus.base_url');
 
         $payload = [
             'currencyCode' => $validatedData['currencyCode'],
-            'originDestinations' => $originDestinations,
-            'travelers' => $travelers,
+            'originDestinations' => $this->originDestinations,
+            'travelers' => $this->travelers,
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
 
             'searchCriteria' => [
                 'maxFlightOffers' => $validatedData['max'],
                 'flightFilters' => [
-                    'cabinRestrictions' => $cabinRestrictions,
+                    'cabinRestrictions' => $this->cabinRestrictions,
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
@@ -274,7 +182,7 @@ class FetchFlightsJob implements ShouldQueue
             'flight_offers_path' => $flightOffersFile,
             'dictionaries_path' => $dictionariesFile,
             'expires_at' => now()->addHours(24),
-            'status' => 'completed',
+            'status' => 'view',
         ];
 
         // Store in database

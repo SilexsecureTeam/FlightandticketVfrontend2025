@@ -514,6 +514,105 @@ class Search extends Component
             session(['clientRef' => $clientRef]);
             $searchId = 'search_' . uniqid();
 
+            $originDestinations = [];
+            $cabinRestrictions = [];
+
+            if ($this->tripType === 'multi') {
+                foreach ($this->multiCityFlights as $index => $flight) {
+                    // Ensure date is in ISO 8601 format (YYYY-MM-DD)
+                    $departureDate = Carbon::parse($flight['departureDate'])->format('Y-m-d');
+
+                    $originDestinations[] = [
+                        'id' => (string)($index + 1),
+                        'originLocationCode' => $flight['from'],
+                        'destinationLocationCode' => $flight['to'],
+                        'departureDateTimeRange' => [
+                            'date' => $departureDate
+                        ]
+                    ];
+
+                    $cabinRestrictions[] = [
+                        'cabin' => $validatedData['cabinClass'],
+                        'coverage' => 'ALL_SEGMENTS',
+                        'originDestinationIds' => [(string)($index + 1)],
+                    ];
+                }
+            } else {
+                // Ensure date is in ISO 8601 format (YYYY-MM-DD)
+                $departureDate = Carbon::parse($validatedData['departureDate'])->format('Y-m-d');
+
+                $originDestinations[] = [
+                    'id' => '1',
+                    'originLocationCode' => $validatedData['from'],
+                    'destinationLocationCode' => $validatedData['to'],
+                    'departureDateTimeRange' => [
+                        'date' => $departureDate
+                    ]
+                ];
+
+                $cabinRestrictions[] = [
+                    'cabin' => $validatedData['cabinClass'],
+                    'coverage' => 'ALL_SEGMENTS',
+                    'originDestinationIds' => ["1"],
+                ];
+
+                if ($this->tripType === 'round' && $validatedData['returnDate']) {
+                    // Ensure date is in ISO 8601 format (YYYY-MM-DD)
+                    $returnDate = Carbon::parse($validatedData['returnDate'])->format('Y-m-d');
+
+                    $originDestinations[] = [
+                        'id' => '2',
+                        'originLocationCode' => $validatedData['to'],
+                        'destinationLocationCode' => $validatedData['from'],
+                        'departureDateTimeRange' => [
+                            'date' => $returnDate
+                        ]
+                    ];
+
+                    $cabinRestrictions[] = [
+                        'cabin' => $validatedData['cabinClass'],
+                        'coverage' => 'ALL_SEGMENTS',
+                        'originDestinationIds' => ["2"],
+                    ];
+                }
+            }
+            $travelers = [];
+
+            // Handle Adult Passengers
+            for ($i = 1; $i <= $validatedData['passengers']['adult']; $i++) {
+                $travelers[] = [
+                    'id' => (string)$i,
+                    'travelerType' => 'ADULT',
+                    'fareOptions' => ['STANDARD'],
+                ];
+            }
+
+            // Handle Child Passengers
+            if (!empty($validatedData['passengers']['child'])) {
+                for ($i = 1; $i <= $validatedData['passengers']['child']; $i++) {
+                    $travelers[] = [
+                        'id' => (string)(count($travelers) + 1), // Ensure unique IDs
+                        'travelerType' => 'CHILD',
+                        'fareOptions' => ['STANDARD'],
+                    ];
+                }
+            }
+
+            // Handle Infant Passengers (Each Infant Must be Associated with an Adult)
+            if (!empty($validatedData['passengers']['infant'])) {
+                for ($i = 1; $i <= $validatedData['passengers']['infant']; $i++) {
+                    // Find an adult to associate the infant with (first available adult)
+                    $associatedAdultId = (string)$i; // Linking to first few adults in order
+
+                    $travelers[] = [
+                        'id' => (string)(count($travelers) + 1), // Ensure unique IDs
+                        'travelerType' => 'HELD_INFANT',
+                        'associatedAdultId' => $associatedAdultId, // REQUIRED by Amadeus API
+                        'fareOptions' => ['STANDARD'],
+                    ];
+                }
+            }
+
             $fligtBokked = FlightSearch::create([
                 'search_id' => $searchId,
                 'trip_type' => $this->tripType,
@@ -527,13 +626,11 @@ class Search extends Component
                 'return_date' => $this->returnDate,
             ]);
 
-            // Stage 1: Queue fetch
-            FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from, $this->to, $this->departureDate, $this->returnDate, $fligtBokked->id);
+            // return dd([$validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions]);
 
-            // Redirect with just the search ID
-            return redirect()->route('search.results', ['id' => $searchId]);
+            $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            $this->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
 
-            // return redirect()->route('search.results');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
@@ -560,6 +657,151 @@ class Search extends Component
             // dd( $e->getMessage() );
             session()->flash('error', 'An error occurred while searching for flights: ' . $e->getMessage());
         }
+    }
+
+    public function searchJob($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions)
+    {
+        
+        // Stage 1: Queue fetch
+        FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from, $this->to, $this->departureDate, $this->returnDate || '', $fligtBokked, $originDestinations, $travelers, $cabinRestrictions);
+
+        // Redirect with just the search ID
+        // return redirect()->route('search.results', ['id' => $searchId]);
+
+        // return redirect()->route('search.results');
+    }
+
+    public function searchDirect($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions)
+    {
+        $client = new Client();
+        $baseUrl = config('services.amadeus.base_url');
+
+        $payload = [
+            'currencyCode' => $validatedData['currencyCode'],
+            'originDestinations' => $originDestinations,
+            'travelers' => $travelers,
+            'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
+
+            'searchCriteria' => [
+                'maxFlightOffers' => 10, //$validatedData['max'],
+                'flightFilters' => [
+                    'cabinRestrictions' => $cabinRestrictions,
+                ],
+                'additionalInformation' => [
+                    'chargeableCheckedBags' => false,
+                    'brandedFares' => true,
+                    'fareRules' => true,
+                ],
+                'pricingOptions' => [
+                    'fareType' => ['PUBLISHED'],
+                ],
+            ],
+        ];
+
+
+        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                'Content-Type' => 'application/json',
+                'ama-client-ref' => $clientRef,
+            ],
+            'json' => $payload
+
+        ]);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $flightOffers = $data['data'] ?? [];
+        $dictionaries = $data['dictionaries'] ?? [];
+        $cheapest = [];
+
+        // return dd(json_encode($payload));
+        // return dd(json_encode($flightOffers));
+        // return dd(json_encode($dictionaries['carriers']));
+
+
+        foreach ($flightOffers as &$flightOffer) {
+            foreach ($flightOffer['itineraries'] as &$itinerary) {
+                $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
+                foreach ($itinerary['segments'] as &$segment) {
+                    // Replace departure iataCode with city details
+                    $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
+                    $segment['departure']['city'] = $departureDetails['city'];
+                    $segment['departure']['country'] = $departureDetails['country'];
+                    $segment['departure']['airport'] = $departureDetails['airport'];
+                    $segment['departure']['city_country'] = $departureDetails['city_country'];
+
+                    // Replace arrival iataCode with city details
+                    $arrivalDetails = $this->getCityNameByIata($segment['arrival']['iataCode']);
+                    $segment['arrival']['city'] = $arrivalDetails['city'];
+                    $segment['arrival']['country'] = $arrivalDetails['country'];
+                    $segment['arrival']['airport'] = $arrivalDetails['airport'];
+                    $segment['arrival']['city_country'] = $arrivalDetails['city_country'];
+
+                    $airlineDetails = $this->getAirlineDetailsByCode($segment['carrierCode']);
+                    $segment['airline'] = [
+                        'name' => $airlineDetails['name'],
+                        'logo' => $airlineDetails['logo'],
+                    ];
+                    $segment['airline'] = [
+                        'name' => $airlineDetails['name'],
+                        'logo' => $airlineDetails['logo'],
+                    ];
+
+                    // Add the fixed markup value as commission
+                    $markupValue = $airlineDetails['markup']; // Fixed markup value
+                    $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+
+                    // Add commission to the price array
+                    $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+                    $flightOffer['price']['commission'] = $markupValueSign;
+                    $cheapestNew = [
+                        "name" => $airlineDetails['name'],
+                        "logo" => $airlineDetails['logo'],
+                        "code" => $segment['carrierCode'],
+                        "currency" => $flightOffer['price']['currency'],
+                        "price" => floatval($flightOffer['price']['total'] + $markupValueSign),
+                        "numberOfStops" => $numberOfStops
+                    ];
+                    $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
+                }
+            }
+        }
+
+        // return dd($cheapest);
+
+
+        // $this->searchId = 'search_' . uniqid();
+
+        // Store large data in files
+        $flightOffersFile = 'flight_searches/' . $searchId . '_offers.json';
+        $dictionariesFile = 'flight_searches/' . $searchId . '_dictionaries.json';
+
+        // Ensure directory exists
+        if (!Storage::exists('flight_searches')) {
+            Storage::makeDirectory('flight_searches');
+        }
+
+        // Store large data in files
+        Storage::put($flightOffersFile, json_encode($flightOffers));
+        Storage::put($dictionariesFile, json_encode($dictionaries));
+
+        // Create search results array with only essential data in DB
+        $categorizedData = [
+            'meta' => $data['meta'] ?? [],
+            'cheapest' => json_encode($cheapest),
+            'flight_offers_path' => $flightOffersFile,
+            'dictionaries_path' => $dictionariesFile,
+            'expires_at' => now()->addHours(24),
+            'status' => 'completed',
+        ];
+
+        // Store in database
+        FlightSearch::find($fligtBokked)->update($categorizedData);
+
+        // Redirect with just the search ID
+        return redirect()->route('search.results', ['id' => $searchId]);
+
+        // return redirect()->route('search.results');
     }
 
     public function searchOld()

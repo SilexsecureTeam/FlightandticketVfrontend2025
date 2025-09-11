@@ -7,6 +7,12 @@
 
     <title>{{ $title ?? 'Mymore' }}</title>
     <style>
+        @keyframes spinvne {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .table-wrapper {
             display: flex;
             overflow-x: hidden;
@@ -74,6 +80,7 @@
             background: #ccc;
             cursor: not-allowed;
         }
+
 
         @media (max-width: 768px) {
             .cell {
@@ -416,8 +423,28 @@
                 font-size: 8px !important;
             }
         }
+
+        .scrollable-columns {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .scrollable-columns::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Chrome/Safari */
+
+        .scrollable-columns.dragging {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
+        }
     </style>
-    
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 

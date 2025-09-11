@@ -22,11 +22,19 @@ class FlightResult extends Component
     public $status = 'processing';
     public $cheapest = null;
     public $seachNow;
+    public $loadMore = false;
 
     public function mount()
     {
         $this->searchId = request()->get('id');
+        $this->loadMore = request()->get('_ts') ? true : false;
         $this->checkStatus();
+    }
+
+    public function loadMoreFlights()
+    {
+        // return redirect()->route('search.results', ['id' => $this->searchId]);
+        return redirect()->away("/search?id=" . $this->searchId . "&_ts=" . time() . "#flightcard9");
     }
 
     public function checkStatus()
@@ -39,12 +47,7 @@ class FlightResult extends Component
         if ($search) {
             $this->searchResultsId = $searchId;
             $this->status = $search->status;
-            if($search->status === 'completed'){
-                $search->update(['status' => 'view']);
-                // Redirect with just the search ID
-                return redirect()->route('search.results', ['id' => $searchId]);
-            }
-            if($search->status === 'view'){
+            if($search->status === 'view' || $search->status === 'completed'){
                 
                 try {
                     // Get data from database
