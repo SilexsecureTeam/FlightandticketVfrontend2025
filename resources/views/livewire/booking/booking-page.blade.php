@@ -78,8 +78,8 @@
             <div x-data="{ isOpen: false }">
 
                 <!-- Main Flight Information -->
-                <div class="p-6">
-                    <div class="grid grid-cols-12 gap-4">
+                <div class="p-6 flight-offer bg-white rounded-xl shadow-2xl border-b border-t border-dotted-2 mb-6 overflow-hidden  border-primary">
+                    <div class="grid grid-cols-12 deskotGap">
                         <!-- Left Section: Flight Route -->
                         <div class="col-span-12 lg:col-span-7">
                             @foreach ($selectedFlight['itineraries'] as $index => $itinerary)
@@ -89,8 +89,8 @@
                                     <!-- Logo on left -->
                                     <div class="flex-shrink-0 mr-3">
                                         <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
-                                                ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
-                                                : asset('images/default-airline-logo.png') }}"
+                                                                        ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
+                                                                        : asset('images/default-airline-logo.png') }}"
                                             alt="{{ $itinerary['segments'][0]['airline']['name'] }}"
                                             class="object-contain w-12 h-12">
                                     </div>
@@ -104,12 +104,14 @@
                                 </div>
 
                                 <!-- Flight details - Improved mobile layout -->
-                                <div class="flex flex-row md:items-center justify-between md:gap-4">
+                                <div
+                                    class="flex flex-row md:items-center justify-between md:gap-4">
                                     <!-- Airline logo - Desktop only -->
-                                    <div class="hidden md:flex flex-col items-center justify-center">
+                                    <div
+                                        class="hidden md:flex flex-col items-center justify-center">
                                         <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
-                                                ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
-                                                : asset('images/default-airline-logo.png') }}"
+                                                                        ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
+                                                                        : asset('images/default-airline-logo.png') }}"
                                             alt="{{ $itinerary['segments'][0]['airline']['name'] }}"
                                             class="object-contain w-12 h-12">
                                         <div class="text-xs font-medium text-center">
@@ -118,158 +120,171 @@
                                     </div>
 
                                     <!-- Departure -->
-                                    <div class="flex-shrink-0 text-left w-[45%] md:w-auto">
-                                        <div class="text-xs font-bold line-clamp-2 md:line-clamp-none">
-                                            {{ $itinerary['segments'][0]['departure']['city_country'] }}
+                                    <div class="flex-shrink-0 text-left mdwauto md:w-auto">
+                                        <div
+                                            class="text-xs font-bold line-clamp-2 md:line-clamp-none">
+                                            {{ $itinerary['segments'][0]['departure']['city'] }}
                                             ({{ $itinerary['segments'][0]['departure']['iataCode'] }})
                                         </div>
-                                        <div class="text-sm text-gray-500">
+                                        <div class="font-sm10 text-gray-500">
                                             {{ \Carbon\Carbon::parse($itinerary['segments'][0]['departure']['at'])->format('H:i') }}
-                                        </div>
-                                        <div class="text-xs text-gray-400">
+                                            {{--</div>
+                                                        <div class="text-xs text-gray-400">--}}
                                             {{ \Carbon\Carbon::parse($itinerary['segments'][0]['departure']['at'])->format('D, M d') }}
                                         </div>
                                     </div>
 
                                     <!-- Arrow for mobile -->
-                                    <div class="flex items-center self-center text-gray-400 flex-shrink-0">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                            class="h-6 w-6" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round"
-                                                stroke-linejoin="round" stroke-width="2"
-                                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                                        </svg>
-                                    </div>
+                                    {{--<div
+                                                        class="flex items-center self-center text-gray-400 flex-shrink-0 mobiledisplayNone">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-6 w-6" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round"
+                                                                stroke-linejoin="round" stroke-width="2"
+                                                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                                        </svg>
+                                                    </div>--}}
 
                                     <!-- Flight Path - Desktop only -->
-                                    <div class="hidden md:block flex-1 px-4">
+                                    <div class="flex-1 px-4">
                                         <div class="relative">
                                             <div class="h-px bg-gray-300 w-full"></div>
-                                            <div class="absolute inset-0 flex items-center justify-center">
-                                                <span class="bg-white px-2 text-xs text-gray-500">
+                                            <div
+                                                class="absolute inset-0 flex items-center justify-center">
+                                                <span
+                                                    class="bg-white px-2 text-xs text-gray-500 font-sm10">
                                                     {{ str_replace(['PT', 'H', 'M'], ['', 'h ', 'm'], $itinerary['duration']) }}
                                                 </span>
                                             </div>
                                         </div>
                                         <!-- Stops Indicator -->
-                                        <div class="text-center flex flex-col items-center gap-3 mt-3">
+                                        <div
+                                            class="text-center flex flex-col items-center mt-1">
                                             @if (count($itinerary['segments']) > 1)
-                                            <span class="text-xs flex-shrink-0 text-orange-600">
+                                            <span
+                                                class="text-xs flex-shrink-0 text-orange-600 font-sm8">
                                                 {{ count($itinerary['segments']) - 1 }}
                                                 stop(s)
                                             </span>
-                                            <span class="text-xs">
+                                            <span class="text-xs font-sm10 font-bold">
                                                 {{ $selectedFlight['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] }}
                                             </span>
                                             @else
-                                            <span class="text-xs text-green-600">Direct</span>
+                                            <span
+                                                class="text-xs text-green-600 font-sm10">Direct</span>
                                             @endif
                                         </div>
                                     </div>
 
                                     <!-- Arrival -->
-                                    <div class="flex-shrink-0 text-right w-[45%] md:w-auto">
+                                    <div
+                                        class="flex-shrink-0 text-right mdwauto md:w-auto">
                                         @php
                                         $lastSegment = end($itinerary['segments']);
                                         @endphp
-                                        <div class="text-xs font-bold line-clamp-2 md:line-clamp-none">
-                                            {{ $lastSegment['arrival']['city_country'] }}
+                                        <div
+                                            class="text-xs font-bold line-clamp-2 md:line-clamp-none">
+                                            {{ $lastSegment['arrival']['city'] }}
                                             ({{ $lastSegment['arrival']['iataCode'] }})
                                         </div>
-                                        <div class="text-sm text-gray-500">
+                                        <div class="font-sm10 text-gray-500">
                                             {{ \Carbon\Carbon::parse($lastSegment['arrival']['at'])->format('H:i') }}
-                                        </div>
-                                        <div class="text-xs text-gray-400">
+                                            {{--</div>
+                                                        <div class="text-xs text-gray-400">--}}
                                             {{ \Carbon\Carbon::parse($lastSegment['arrival']['at'])->format('D, M d') }}
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Flight details below arrow - Mobile only -->
-                                <div class="flex md:hidden justify-center items-center mt-3 mb-2">
-                                    <div class="text-center">
-                                        <div class="text-sm font-medium">
-                                            {{ str_replace(['PT', 'H', 'M'], ['', 'h ', 'm'], $itinerary['duration']) }}
-                                            •
-                                            @if (count($itinerary['segments']) > 1)
-                                            <span class="text-orange-600">
-                                                {{ count($itinerary['segments']) - 1 }}
-                                                stop
-                                            </span>
-                                            @else
-                                            <span class="text-green-600">Direct</span>
-                                            @endif
-                                        </div>
-                                        <!-- Cabin class - visible on mobile -->
-                                        <div class="text-xs text-gray-600 mt-1">
-                                            {{ $selectedFlight['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] }}
-                                        </div>
-                                    </div>
+                                <div
+                                    class="flex md:hidden justify-center items-center mt-3 mb-2">
+                                    {{--<div class="text-center">
+                                                        <div class="text-sm font-medium">
+                                                            {{ str_replace(['PT', 'H', 'M'], ['', 'h ', 'm'], $itinerary['duration']) }}
+                                    •
+                                    @if (count($itinerary['segments']) > 1)
+                                    <span class="text-orange-600">
+                                        {{ count($itinerary['segments']) - 1 }}
+                                        stop
+                                    </span>
+                                    @else
+                                    <span class="text-green-600">Direct</span>
+                                    @endif
+                                    <span class="text-xs text-gray-600 mt-1">
+                                        {{ $selectedFlight['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] }}
+                                    </span>
                                 </div>
+                            </div>--}}
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+
+                <!-- Right Section: Price & Booking -->
+                <div
+                    class="col-span-12 lg:col-span-5 flex flex-col justify-between deskotMaerp lg:mt-0">
+
+                    <div class="flex flexdcolmrow justify-end items-end">
+                        <!-- Price Information -->
+                        <div>
+                            <div class="text-base md:text-xl font-bold text-gray-900">
+                                {{ $selectedFlight['price']['currency'] }}
+                                {{ number_format((float) $selectedFlight['price']['total'] + $selectedFlight['price']['commission'], 2) }}
                             </div>
-                            @endforeach
                         </div>
 
-                        <!-- Right Section: Price & Booking -->
-                        <div class="col-span-12 lg:col-span-5 flex flex-col justify-between mt-4 lg:mt-0">
-                            <div class="flex flex-col justify-end items-end">
-                                <!-- Price Information -->
-                                <div>
-                                    <div class="text-base md:text-xl font-bold text-gray-900">
-                                        {{ $selectedFlight['price']['currency'] }}
-                                        {{ number_format((float) $selectedFlight['price']['total'] + $selectedFlight['price']['commission'], 2) }}
-                                    </div>
-                                </div>
-
-                                <!-- Flight Details -->
-                                <div class="text-right">
-                                    <div class="text-sm text-gray-500">
-                                        {{ $selectedFlight['numberOfBookableSeats'] }} seats left
-                                    </div>
-                                </div>
+                        <!-- Flight Details -->
+                        <div class="text-right ml-2">
+                            <div class="text-sm text-gray-500">
+                                {{ $selectedFlight['numberOfBookableSeats'] }} seats left
                             </div>
+                        </div>
+                    </div>
 
-                            <!-- Action Buttons -->
-                            <div class="flex flex-wrap justify-end items-end gap-3 mt-4">
-                                <button @click="isOpen = !isOpen"
-                                    class="inline-flex items-center text-xs md:text-sm px-3 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">
-                                    Flight Details
-                                    <svg class="ml-2 h-4 w-4 transition-transform duration-200"
-                                        :class="{ 'transform rotate-180': isOpen }"
-                                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                        fill="currentColor">
-                                        <path fill-rule="evenodd"
-                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-                                {{--
-                                <div>
-                                    <button wire:loading.remove
-                                        wire:target='selectFlight({{ $selectedFlight['id'] }})'
+                    <!-- Action Buttons -->
+                    <div class="flex flex-wrap justify-end items-end gap-3 mt-4">
+                        {{--@click="isOpen = !isOpen"--}}
+                        <button
+                            class="inline-flex items-center text-xs md:text-sm px-3 py-2 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 details-btn" data-modal="modal-<?= $selectedFlight['id'] ?>">
+                            Flight Details
+                            <svg class="ml-2 h-4 w-4 transition-transform duration-200"
+                                :class="{ 'transform rotate-180': isOpen }"
+                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </button>
+
+                        <div>
+                            {{--<button wire:loading.remove
+                                wire:target='selectFlight({{ $selectedFlight['id'] }})'
                                 class="px-4 md:px-6 py-2 text-xs md:text-sm bg-primary text-white rounded-lg hover:bg-red-700"
                                 wire:click="selectFlight({{ $selectedFlight['id'] }})">
                                 Select Flight
-                                </button>
-                                <div wire:loading
-                                    wire:target='selectFlight({{ $flight['id'] }})'>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24" aria-hidden="true"
-                                        class="size-5 fill-neutral-600 motion-safe:animate-spin dark:fill-neutral-300">
-                                        <path
-                                            d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                                            opacity=".25" />
-                                        <path
-                                            d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
-                                    </svg>
-                                </div>
-                            </div> --}}
+                            </button>--}}
+                            <div wire:loading
+                                wire:target='selectFlight({{ $selectedFlight['id'] }})'>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24" aria-hidden="true"
+                                    class="size-5 fill-neutral-600 motion-safe:animate-spin dark:fill-neutral-300">
+                                    <path
+                                        d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+                                        opacity=".25" />
+                                    <path
+                                        d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Right Column - Booking Summary -->
+            @include('livewire.page.flight-modal', ['flight' => $selectedFlight, 'index' => 1, 'selectedFlightNow' => false])
 
             <!-- Expanded Flight Details -->
             <div x-cloak x-show="isOpen" x-collapse>
@@ -714,6 +729,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 </div>

@@ -339,7 +339,9 @@
         </div>
         <div class=" flex gap-3 justify-end items-end m-3">
             <div>
+                @if($selectedFlightNow)
                 <button wire:loading.remove="" wire:target="selectFlight(<?= $flight['id'] ?>)" class="px-6 py-2 md:text-base text-xs bg-primary text-white rounded-lg hover:bg-red-700" wire:click="selectFlight(<?= $flight['id'] ?>)"> Select Flight </button>
+                @endif
                 <div wire:loading="" wire:target="selectFlight(<?= $flight['id'] ?>)">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" class="size-5 fill-neutral-600 motion-safe:animate-spin dark:fill-neutral-300">
                         <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25"></path>

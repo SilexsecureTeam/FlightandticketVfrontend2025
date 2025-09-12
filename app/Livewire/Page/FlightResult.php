@@ -27,7 +27,6 @@ class FlightResult extends Component
     public function mount()
     {
         $this->searchId = request()->get('id');
-        $this->loadMore = request()->get('_ts') ? true : false;
         $this->checkStatus();
     }
 
@@ -35,6 +34,17 @@ class FlightResult extends Component
     {
         // return redirect()->route('search.results', ['id' => $this->searchId]);
         return redirect()->away("/search?id=" . $this->searchId . "&_ts=" . time() . "#flightcard9");
+    }
+
+    public function checkStatusLoader()
+    {
+        $search = FlightSearch::where('search_id', $this->searchId)->first();
+        $this->status = $search->status;
+        if($search->status === 'view'){
+            $this->loadMore = true;
+        } else {
+            $this->loadMore = false;
+        }
     }
 
     public function checkStatus()
@@ -47,7 +57,7 @@ class FlightResult extends Component
         if ($search) {
             $this->searchResultsId = $searchId;
             $this->status = $search->status;
-            if($this->loadMore || $search->status === 'completed'){
+            if($search->status === 'view' || $search->status === 'completed'){
                 
                 try {
                     // Get data from database

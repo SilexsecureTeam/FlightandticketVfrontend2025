@@ -1033,7 +1033,7 @@
                             </div>
                         </div>
                     </div>
-                    @include('livewire.page.flight-modal', ['flight' => $flight, 'index' => $index])
+                    @include('livewire.page.flight-modal', ['flight' => $flight, 'index' => $index, 'selectedFlightNow' => true])
                     <!-- Expanded Flight Details -->
                     <div x-cloak x-show="isOpen" x-collapse>
                         <div class="border-t border-gray-200 bg-gray-50">
@@ -1636,7 +1636,7 @@
 @endif
 
 </div>
-@if ($status === 'view' && !$loadMore)
+@if ($status === 'view' && $loadMore)
 <button wire:target="loadMoreFlights" wire:click="loadMoreFlights" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
     <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
     <!-- Loading State: Spinner Animation -->
@@ -1658,7 +1658,7 @@
     🔄 searching for more flights..
 </button>
 {{-- Poll every 3 seconds --}}
-<div wire:poll.3000ms="checkStatus"></div>
+<div wire:poll.3000ms="checkStatusLoader"></div>
 <script>
     // All your messages
     const messages = [
