@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('to_code', 3)->nullable();
             $table->date('departure_date')->nullable();
             $table->date('return_date')->nullable();
+            $table->json('multicity')->nullable();
             $table->string('trip_type')->nullable();
             $table->string('cabinClass')->nullable();
             $table->text('error_message')->nullable();

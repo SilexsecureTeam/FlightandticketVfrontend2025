@@ -129,7 +129,6 @@
                 pickerType: type || 'departure',
                 wire: wire || null,
                 name: 'date',
-
                 init() {
                     // Set initial date if provided
                     if (initialDate && initialDate !== 'null') {
@@ -269,7 +268,7 @@
                         } else {
                             // Extract index from name attribute (e.g., "flight_1_date" -> 1)
                             const index = this.name.split('_')[1];
-                            this.$wire.call('multiCityDateSelected', formattedForLivewire, index);
+                            this.$wire.call('multiCityDateSelected', formattedForLivewire, wire);
                         }
                     }
                 },

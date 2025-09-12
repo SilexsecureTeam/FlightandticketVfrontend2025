@@ -443,6 +443,11 @@
             cursor: grabbing;
             cursor: -webkit-grabbing;
         }
+
+        .heightFindCsna {
+            max-height: 80vh;
+            overflow: scroll;
+        }
     </style>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])

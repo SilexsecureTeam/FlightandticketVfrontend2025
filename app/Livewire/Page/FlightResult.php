@@ -47,7 +47,7 @@ class FlightResult extends Component
         if ($search) {
             $this->searchResultsId = $searchId;
             $this->status = $search->status;
-            if($search->status === 'view' || $search->status === 'completed'){
+            if($this->loadMore || $search->status === 'completed'){
                 
                 try {
                     // Get data from database
@@ -103,6 +103,7 @@ class FlightResult extends Component
                         'toCityName' => $flightSearch->to_city_name,
                         'departureDate' => $flightSearch->departure_date,
                         'returnDate' => $flightSearch->return_date,
+                        'multiCityFlights' => $flightSearch->multicity ? json_decode($flightSearch->multicity, true) : []
                     ];
                     // Extract search data for edit form
                     $this->searchParams = [
@@ -116,6 +117,7 @@ class FlightResult extends Component
                         'tripType' => $flightSearch->trip_type,
                         'passengers' => $flightSearch->passengers,
                         'cabinClass' => $flightSearch->cabinClass, // Default if not stored
+                        'multiCityFlights' => $flightSearch->multicity ? json_decode($flightSearch->multicity, true) : []
                     ];
 
                     // If codes are missing, try to extract them from itineraries

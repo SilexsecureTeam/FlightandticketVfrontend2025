@@ -173,7 +173,8 @@ class Search extends Component
         $returnDate = null,
         $tripType = 'round',
         $initialPassengers = null,
-        $cabinClass = 'ECONOMY'
+        $cabinClass = 'ECONOMY',
+        $multiCityFlights = []
     ) {
         // Enable debugging for this method
         \Log::info('Search component mount called', [
@@ -199,6 +200,7 @@ class Search extends Component
             $this->returnDate = $returnDate;
             $this->tripType = $tripType;
             $this->cabinClass = $cabinClass;
+            $this->multiCityFlights = $multiCityFlights;
 
             // Initialize passengers from provided values or defaults
             if ($initialPassengers) {
@@ -442,6 +444,7 @@ class Search extends Component
 
     public function multiCityDateSelected($date, $index)
     {
+        // return dd([$date, $index]);
         try {
             // Convert the date from MM/DD/YYYY to YYYY-MM-DD format (ISO 8601)
             $formattedDate = Carbon::parse($date)->format('Y-m-d');
@@ -495,6 +498,7 @@ class Search extends Component
             $validatedData = $this->validate([
                 'from' => $this->tripType !== 'multi' ? 'required|string|size:3' : 'nullable',
                 'to' => $this->tripType !== 'multi' ? 'required|string|size:3' : 'nullable',
+                // 'departureDate' => $this->tripType !== 'multi' ? 'required|date' : 'nullable',
                 'departureDate' => $this->tripType !== 'multi' ? 'required|date|after:' . Carbon::yesterday()->format('Y-m-d') : 'nullable',
                 'returnDate' => $this->tripType === 'round' ? 'required|date|after:departureDate' : 'nullable',
                 'passengers.adult' => 'required|integer|min:1|max:9',
@@ -518,6 +522,7 @@ class Search extends Component
             $cabinRestrictions = [];
 
             if ($this->tripType === 'multi') {
+                // return dd($this->multiCityFlights);
                 foreach ($this->multiCityFlights as $index => $flight) {
                     // Ensure date is in ISO 8601 format (YYYY-MM-DD)
                     $departureDate = Carbon::parse($flight['departureDate'])->format('Y-m-d');
@@ -613,16 +618,19 @@ class Search extends Component
                 }
             }
 
+            // return dd($this->multiCityFlights);
+
             $fligtBokked = FlightSearch::create([
                 'search_id' => $searchId,
                 'trip_type' => $this->tripType,
                 'passengers' => $validatedData['passengers'],
                 'cabinClass' => $validatedData['cabinClass'],
-                'from_city_name' => $this->fromDisplayName,
-                'to_city_name' => $this->toDisplayName,
-                'from_code' => $this->from,
-                'to_code' => $this->to,
-                'departure_date' => $this->departureDate,
+                'from_city_name' => $this->tripType === 'multi' ? $this->multiCityFlights[0]['fromQuery'] : $this->fromDisplayName,
+                'to_city_name' => $this->tripType === 'multi' ? $this->multiCityFlights[0]['toQuery'] :  $this->toDisplayName,
+                'from_code' => $this->tripType === 'multi' ? $this->multiCityFlights[0]['from'] :  $this->from,
+                'to_code' => $this->tripType === 'multi' ? $this->multiCityFlights[0]['to'] :  $this->to,
+                'multicity' => json_encode($this->multiCityFlights),
+                'departure_date' => $this->tripType === 'multi' ? $this->multiCityFlights[0]['departureDate'] : $this->departureDate,
                 'return_date' => $this->returnDate,
             ]);
 
@@ -663,7 +671,7 @@ class Search extends Component
     {
         
         // Stage 1: Queue fetch
-        FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from, $this->to, $this->departureDate, $this->returnDate || '', $fligtBokked, $originDestinations, $travelers, $cabinRestrictions);
+        FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from || '', $this->to || '', $this->departureDate || '', $this->returnDate || '', $fligtBokked, $originDestinations, $travelers, $cabinRestrictions);
 
         // Redirect with just the search ID
         // return redirect()->route('search.results', ['id' => $searchId]);
@@ -686,6 +694,9 @@ class Search extends Component
                 'maxFlightOffers' => 10, //$validatedData['max'],
                 'flightFilters' => [
                     'cabinRestrictions' => $cabinRestrictions,
+                    // 'connectionRestriction' => [
+                    //     'maxNumberOfConnections' => 0 // 0 = direct, 1 = max 1 stop, 2 = max 2 stops
+                    // ],
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
@@ -721,7 +732,7 @@ class Search extends Component
 
         foreach ($flightOffers as &$flightOffer) {
             foreach ($flightOffer['itineraries'] as &$itinerary) {
-                $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
+                $numberOfStops = count($itinerary['segments']) - 1;
                 foreach ($itinerary['segments'] as &$segment) {
                     // Replace departure iataCode with city details
                     $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
@@ -979,7 +990,7 @@ class Search extends Component
 
             foreach ($flightOffers as &$flightOffer) {
                 foreach ($flightOffer['itineraries'] as &$itinerary) {
-                    $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
+                    $numberOfStops = count($itinerary['segments']) - 1;
                     foreach ($itinerary['segments'] as &$segment) {
                         // Replace departure iataCode with city details
                         $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
@@ -1173,7 +1184,7 @@ class Search extends Component
     private function addOrReplaceByLowestPrice(array $flights, array $newFlight): array
     {
         $newPrice = (int) str_replace(',', '', $newFlight['price']);
-        $stopIndex = $newFlight['numberOfStops'] - 1;
+        $stopIndex = $newFlight['numberOfStops'];
         $codeKey = strtolower($newFlight['code']);
         $updated = false;
 
@@ -1204,7 +1215,7 @@ class Search extends Component
 
         if (!$updated) {
             // New flight structure
-            $priceArray = [];
+            $priceArray = ['','',''];
             $priceArray[$stopIndex] = $newPrice;
 
             $new = [

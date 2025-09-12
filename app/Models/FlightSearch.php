@@ -28,7 +28,9 @@ class FlightSearch extends Model
         'cabinClass',
         'error_message',
         'status',
+        'multicity',
     ];
+    
 
     protected function casts(): array
     {

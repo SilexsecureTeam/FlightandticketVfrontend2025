@@ -114,7 +114,7 @@ class FetchFlightsJob implements ShouldQueue
 
         foreach ($flightOffers as &$flightOffer) {
             foreach ($flightOffer['itineraries'] as &$itinerary) {
-                $numberOfStops = count($itinerary['segments']) > 1 ? count($itinerary['segments']) - 1 : 1;
+                $numberOfStops = count($itinerary['segments']) - 1;
                 foreach ($itinerary['segments'] as &$segment) {
                     // Replace departure iataCode with city details
                     $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
@@ -242,7 +242,7 @@ class FetchFlightsJob implements ShouldQueue
     private function addOrReplaceByLowestPrice(array $flights, array $newFlight): array
     {
         $newPrice = (int) str_replace(',', '', $newFlight['price']);
-        $stopIndex = $newFlight['numberOfStops'] - 1;
+        $stopIndex = $newFlight['numberOfStops'];
         $codeKey = strtolower($newFlight['code']);
         $updated = false;
 
@@ -273,7 +273,7 @@ class FetchFlightsJob implements ShouldQueue
 
         if (!$updated) {
             // New flight structure
-            $priceArray = [];
+            $priceArray = ['', '', ''];
             $priceArray[$stopIndex] = $newPrice;
 
             $new = [
