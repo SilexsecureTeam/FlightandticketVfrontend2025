@@ -638,8 +638,6 @@ class Search extends Component
 
             $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
             $this->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
-
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
             session()->flash('errors', $e->errors());
@@ -669,7 +667,7 @@ class Search extends Component
 
     public function searchJob($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions)
     {
-        
+
         // Stage 1: Queue fetch
         FetchFlightsJob::dispatch($validatedData, $clientRef, $searchId, $this->tripType, $this->passengers, $this->fromDisplayName, $this->toDisplayName, $this->multiCityFlights, $this->from || '', $this->to || '', $this->departureDate || '', $this->returnDate || '', $fligtBokked, $originDestinations, $travelers, $cabinRestrictions);
 
@@ -691,7 +689,7 @@ class Search extends Component
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
 
             'searchCriteria' => [
-                'maxFlightOffers' => 10, //$validatedData['max'],
+                'maxFlightOffers' => 100,
                 'flightFilters' => [
                     'cabinRestrictions' => $cabinRestrictions,
                     // 'connectionRestriction' => [
@@ -863,7 +861,7 @@ class Search extends Component
                         'cabin' => $validatedData['cabinClass'],
                         'coverage' => 'ALL_SEGMENTS',
                         'originDestinationIds' => [(string)($index + 1)],
-                    ];                    
+                    ];
                 }
             } else {
                 // Ensure date is in ISO 8601 format (YYYY-MM-DD)
@@ -902,7 +900,6 @@ class Search extends Component
                         'coverage' => 'ALL_SEGMENTS',
                         'originDestinationIds' => ["2"],
                     ];
-
                 }
             }
             $travelers = [];
@@ -1215,7 +1212,7 @@ class Search extends Component
 
         if (!$updated) {
             // New flight structure
-            $priceArray = ['','',''];
+            $priceArray = ['', '', ''];
             $priceArray[$stopIndex] = $newPrice;
 
             $new = [
