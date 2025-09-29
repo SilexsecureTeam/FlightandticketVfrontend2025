@@ -777,6 +777,31 @@
                         @endif
                     </div>
                     @endforeach
+                    <div style="margin-top: 50px; margin-left: 25px">
+                        @if ($status === 'view' && $loadMore)
+                        <button wire:target="loadMoreFlights" wire:click="loadMoreFlights" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
+                            <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
+                            <!-- Loading State: Spinner Animation -->
+                            <div wire:loading wire:target="loadMoreFlights" class="flex items-center justify-center w-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"
+                                    style="width:40px; height:40px; fill:#fff; animation:spinvne 1s linear infinite;" class="">
+                                    <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
+                                    <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+                                </svg>
+                            </div>
+                        </button>
+                        @endif
+                        @if ($status === 'completed')
+                        <button
+                            class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
+                            disabled
+                            style="opacity:0.5; cursor:not-allowed;">
+                            🔄 searching for more flights..
+                        </button>
+                        {{-- Poll every 3 seconds --}}
+                        <div wire:poll.3000ms="checkStatusLoader"></div>
+                        @endif
+                    </div>
                     @endif
                 </div>
             </div>
@@ -1651,14 +1676,19 @@
 @endif
 @if ($status === 'completed')
 <div style="color:#000; text-align:center;">Please wait!</div>
-<button id="loading-message"
+<button
+    class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
     disabled
-    style="opacity:0.5; cursor:not-allowed;"
-    class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4">
+    style="opacity:0.5; cursor:not-allowed;">
     🔄 searching for more flights..
 </button>
 {{-- Poll every 3 seconds --}}
 <div wire:poll.3000ms="checkStatusLoader"></div>
+
+@endif
+</div>
+</div>
+
 <script>
     // All your messages
     const messages = [
@@ -1680,26 +1710,22 @@
         "🔄 Connection interrupted, retrying — please wait..."
     ];
 
-    // Shuffle messages
+    // Shuffle helper
     function shuffle(array) {
         return array.sort(() => Math.random() - 0.5);
     }
 
-    const shuffledMessages = shuffle([...messages]);
+    // Target all buttons with the class
+    document.querySelectorAll(".loading-message").forEach((messageBox) => {
+        const shuffledMessages = shuffle([...messages]);
+        let index = 0;
 
-    let index = 0;
-    const messageBox = document.getElementById("loading-message");
-
-    // Rotate messages every 3 seconds
-    setInterval(() => {
-        messageBox.textContent = shuffledMessages[index];
-        index = (index + 1) % shuffledMessages.length; // loop back
-    }, 3000);
+        setInterval(() => {
+            messageBox.textContent = shuffledMessages[index];
+            index = (index + 1) % shuffledMessages.length; // loop back
+        }, 3000);
+    });
 </script>
-@endif
-</div>
-</div>
-
 
 <script>
     let selectedAirlines = [];

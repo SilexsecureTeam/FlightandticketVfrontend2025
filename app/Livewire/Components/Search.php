@@ -638,6 +638,7 @@ class Search extends Component
 
             $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
             $this->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
             session()->flash('errors', $e->errors());
@@ -689,7 +690,7 @@ class Search extends Component
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
 
             'searchCriteria' => [
-                'maxFlightOffers' => 100,
+                'maxFlightOffers' => 10,
                 'flightFilters' => [
                     'cabinRestrictions' => $cabinRestrictions,
                     // 'connectionRestriction' => [

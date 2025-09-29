@@ -32,8 +32,8 @@ class FlightResult extends Component
 
     public function loadMoreFlights()
     {
-        // return redirect()->route('search.results', ['id' => $this->searchId]);
-        return redirect()->away("/search?id=" . $this->searchId . "&_ts=" . time() . "#flightcard9");
+        // return redirect()->route('search.results', ['id' => $this->searchId]); flightcard9
+        return redirect()->away("/search?id=" . $this->searchId . "&_ts=" . time() . "#");
     }
 
     public function checkStatusLoader()
