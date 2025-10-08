@@ -239,10 +239,10 @@ class BookingPage extends Component
         // dd('Validated Data:', $validatedData);
         try {
 
-            // $flightOrderPayload = $this->prepareFlightOrderPayload($this->travelers);
-            // $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
-            // $order = $this->saveFlightOrder($orderResponse, $this->travelers);
-            // $this->initializePayment($order, $this->travelers);
+            $flightOrderPayload = $this->prepareFlightOrderPayload($this->travelers);
+            $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
+            $order = $this->saveFlightOrder($orderResponse, $this->travelers);
+            $this->initializePayment($order, $this->travelers);
 
             $flightOrderPayload = $this->prepareFlightOrderPayload();
             // return dd(json_encode($flightOrderPayload));

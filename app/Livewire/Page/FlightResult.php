@@ -38,13 +38,14 @@ class FlightResult extends Component
 
     public function checkStatusLoader()
     {
-        $search = FlightSearch::where('search_id', $this->searchId)->first();
-        $this->status = $search->status;
-        if($search->status === 'view'){
-            $this->loadMore = true;
-        } else {
-            $this->loadMore = false;
-        }
+        // $search = FlightSearch::where('search_id', $this->searchId)->first();
+        // $this->status = $search->status;
+        // if($search->status === 'view'){
+        //     $this->loadMore = true;
+        // } else {
+        //     $this->loadMore = false;
+        // }
+        $this->loadMore = "loaded";
     }
 
     public function checkStatus()
