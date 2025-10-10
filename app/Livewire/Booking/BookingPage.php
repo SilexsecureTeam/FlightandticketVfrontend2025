@@ -19,8 +19,6 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
 
-use function Pest\Laravel\json;
-
 class BookingPage extends Component
 {
     use AmadeusApiTrait,  LivewireAlert;
@@ -108,13 +106,11 @@ class BookingPage extends Component
             $this->extractTravelerTypes();
             $this->initializePassengers();
             $this->initializeTravelers();
-            $this->getFlightPricing();
-            // $this->dispatch('getPricing');
+            $this->dispatch('getPricing');
         } catch (\Exception $e) {
             $this->alert('error', 'Failed to initialize booking: ' . $e->getMessage());
             return redirect()->route('/');
         }
-
     }
 
 
@@ -239,15 +235,15 @@ class BookingPage extends Component
         // dd('Validated Data:', $validatedData);
         try {
 
-            $flightOrderPayload = $this->prepareFlightOrderPayload($this->travelers);
-            $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
-            $order = $this->saveFlightOrder($orderResponse, $this->travelers);
-            $this->initializePayment($order, $this->travelers);
+            // $flightOrderPayload = $this->prepareFlightOrderPayload($this->travelers);
+            // $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
+            // $order = $this->saveFlightOrder($orderResponse, $this->travelers);
+            // $this->initializePayment($order, $this->travelers);
 
             $flightOrderPayload = $this->prepareFlightOrderPayload();
-            // return dd(json_encode($flightOrderPayload));
+            // dd($flightOrderPayload);
             $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
-            // return dd($orderResponse);
+            //   dd($orderResponse);   
 
             $order = $this->saveFlightOrder($orderResponse);
 
@@ -284,8 +280,6 @@ class BookingPage extends Component
             }
             return $traveler;
         })->toArray();
-
-        // return dd($this->flight_offer_booking);
 
         return [
             'data' => [
@@ -344,7 +338,8 @@ class BookingPage extends Component
             $baseUrl = config('services.amadeus.base_url');
             $clientRef = session('clientRef');
 
-            // return dd(json_encode($payload));
+
+
             $client = new Client();
             $response = $client->request('POST', "$baseUrl/v1/booking/flight-orders", [
                 'headers' => [
@@ -546,7 +541,7 @@ class BookingPage extends Component
     #[On('getPricing')]
     public function getFlightPricing()
     {
-        // return dd($this->selectedFlight);
+        // dd($this->flight_offer);
         try {
             // Structure the request payload
             $payload = [
@@ -598,6 +593,9 @@ class BookingPage extends Component
 
             $price = $flightOffer['price'];
             $price['commission'] = $markupValue;
+
+
+
 
 
             $this->flight_offer_price = $price;
