@@ -178,7 +178,7 @@ class Search extends Component
         $multiCityFlights = [],
         $source = "web"
     ) {
-        $this->showToSource = session('showToSource') ?? "web";
+        $this->showToSource = $source ?? "web";
         // Enable debugging for this method
         \Log::info('Search component mount called', [
             'editMode' => $editMode,
