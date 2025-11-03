@@ -1,0 +1,62 @@
+<div id="flight-list" class="md:p-6 p-2 overflow-auto text-black">
+    @if (isset($searchResults['flightOffers']) && count($searchResults['flightOffers']))
+        @foreach ($searchResults['flightOffers'] as $flight)
+            <div 
+                data-airline="{{ $flight['validatingAirlineCodes'][0] ?? 'Unknown' }}" 
+                class="flight-offer bg-white rounded-xl shadow-lg mb-6 overflow-hidden border border-gray-100"
+            >
+                <div x-data="{ isOpen: false }">
+                    <div class="flex space-x-4 mb-2 p-3">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" wire:model="selectedIncludes" value="bags" class="form-checkbox">
+                            <span class="ml-2">Include Bags</span>
+                        </label>
+                    </div>
+
+                    <!-- Main Flight Information -->
+                    <div class="p-6">
+                        <div class="grid grid-cols-12 gap-6">
+                            <!-- Left Section: Flight Route -->
+                            <div class="col-span-12 lg:col-span-7">
+                                @foreach ($flight['itineraries'] ?? [] as $index => $itinerary)
+                                    <div class="mb-6 last:mb-0">
+                                        <div class="text-sm font-medium text-gray-500 mb-3">
+                                            {{ $index === 0 ? 'Outbound' : 'Return' }} Flight
+                                        </div>
+
+                                        <!-- Segments -->
+                                        @foreach ($itinerary['segments'] ?? [] as $segIndex => $segment)
+                                            <div class="flight-segment" data-stops="{{ $segment['numberOfStops'] ?? 0 }}">
+                                                <p>{{ $segment['carrierCode'] ?? 'Unknown' }} {{ $segment['number'] ?? '' }}</p>
+                                                <p>
+                                                    {{ $segment['departure']['city'] ?? 'Unknown' }} ({{ $segment['departure']['iataCode'] ?? 'Unknown' }})
+                                                    - 
+                                                    {{ $segment['arrival']['city'] ?? 'Unknown' }} ({{ $segment['arrival']['iataCode'] ?? 'Unknown' }})
+                                                </p>
+                                                <p>
+                                                    {{ \Carbon\Carbon::parse($segment['departure']['at'] ?? now())->format('D, M d, Y H:i') }}
+                                                    - 
+                                                    {{ \Carbon\Carbon::parse($segment['arrival']['at'] ?? now())->format('D, M d, Y H:i') }}
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Right Section: Price & Actions -->
+                            <div class="col-span-12 lg:col-span-5">
+                                <div class="text-right">
+                                    <p><strong>Total Price:</strong> {{ $flight['price']['currency'] ?? 'NGN' }} {{ number_format((float)($flight['price']['total'] ?? 0), 2) }}</p>
+                                    <button wire:click="selectFlight('{{ $flight['id'] ?? '' }}')" class="btn btn-primary mt-4">Select Flight</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @else
+        <p>No flights found.</p>
+    @endif
+</div>

@@ -37,13 +37,13 @@
                 <button @click.prevent="prevMonth('departure')" type="button"
                     class="hover:text-gray-800 bg-primary text-white px-2 py-1 rounded-md">&lt;</button>
                 <div x-text="months[currentMonth.getMonth()] + ' ' + currentMonth.getFullYear()"
-                    class="font-semibold text-lg text-gray-700"></div>
+                    class="font-semibold text-lg text-gray-700" style="font-size: 12px;"></div>
                 <button @click.prevent="nextMonth('departure')" type="button"
                     class="text-white hover:text-gray-800 bg-primary px-2 py-1 rounded-md">&gt;</button>
             </div>
             <div class="grid grid-cols-7 text-center text-sm font-semibold text-gray-600 mb-2">
                 <template x-for="day in days" :key="day">
-                    <div x-text="day" class="py-1"></div>
+                    <div x-text="day" class="py-1" style="font-size: 10px;"></div>
                 </template>
             </div>
             <div class="grid grid-cols-7 gap-1 text-xs">
@@ -77,13 +77,13 @@
                 <button @click.prevent="prevMonth('return')" type="button"
                     class="hover:text-gray-800 bg-primary text-white px-2 py-1 rounded-md">&lt;</button>
                 <div x-text="months[currentMonth.getMonth()] + ' ' + currentMonth.getFullYear()"
-                    class="font-semibold text-lg text-gray-700"></div>
+                    class="font-semibold text-lg text-gray-700" style="font-size: 12px;"></div>
                 <button @click.prevent="nextMonth('return')" type="button"
                     class="text-white hover:text-gray-800 bg-primary px-2 py-1 rounded-md">&gt;</button>
             </div>
             <div class="grid grid-cols-7 text-center text-sm font-semibold text-gray-600 mb-2">
                 <template x-for="day in days" :key="day">
-                    <div x-text="day" class="py-1"></div>
+                    <div x-text="day" class="py-1" style="font-size: 10px;"></div>
                 </template>
             </div>
             <div class="grid grid-cols-7 gap-1 text-xs">

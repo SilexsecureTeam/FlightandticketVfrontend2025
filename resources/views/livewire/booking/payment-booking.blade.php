@@ -1,4 +1,11 @@
-<div x-data="{
+<div>
+    @if($showToSource == "admin")
+    @include('components.adminHead')
+    <script>
+        document.getElementById('hideforAdmid').style.display = 'none';
+    </script>
+    @endif
+    <div x-data="{
     timer: 300,
     formatTime() {
         const minutes = Math.floor(this.timer / 60);
@@ -12,22 +19,22 @@
         window.location.href = '/search';
     }
 }, 1000);">
-    <!-- Timer Component (Uncommented for better user experience) -->
-    <div class="bg-gradient-to-r from-red-600 to-red-800 text-white py-2 px-4 z-50 shadow-lg">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="font-semibold text-xs">Session expires in</span>
+        <!-- Timer Component (Uncommented for better user experience) -->
+        <div class="bg-gradient-to-r from-red-600 to-red-800 text-white py-2 px-4 z-50 shadow-lg">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="font-semibold text-xs">Session expires in</span>
+                </div>
+                <div class="text-lg font-bold" x-text="formatTime()"></div>
             </div>
-            <div class="text-lg font-bold" x-text="formatTime()"></div>
         </div>
-    </div>
 
-    <!-- Improved Stepper Component -->
-    <div x-data="{
+        <!-- Improved Stepper Component -->
+        <div x-data="{
         currentStep: 'payment',
         steps: [
             { id: 'search-flight', label: 'Search Flight' },
@@ -38,50 +45,50 @@
         isEditOpen: false
     }" class="bg-black text-white sticky w-full z-[99]">
 
-        <div class="px-2 sm:px-3 md:px-6 py-5">
-            <div class="flex items-center justify-between space-x-2 ">
-                <!-- Title -->
-                <div class="text-xs md:text-sm font-bold text-white shrink-0">Flight Details</div>
+            <div class="px-2 sm:px-3 md:px-6 py-5">
+                <div class="flex items-center justify-between space-x-2 ">
+                    <!-- Title -->
+                    <div class="text-xs md:text-sm font-bold text-white shrink-0">Flight Details</div>
 
-                <!-- Stepper container -->
-                <div class="flex-1 hidden md:inline relative py-3  max-w-md mx-auto">
-                    <div class="absolute inset-0 flex items-center justify-between px-1">
-                        <div class="absolute h-[2px] bg-gray-700 w-full"></div>
-                        <div class="absolute h-[2px] bg-primary transition-all duration-300"
-                            :style="'width: ' + (steps.findIndex(step => step.id === currentStep) / (steps.length - 1) * 100) +
+                    <!-- Stepper container -->
+                    <div class="flex-1 hidden md:inline relative py-3  max-w-md mx-auto">
+                        <div class="absolute inset-0 flex items-center justify-between px-1">
+                            <div class="absolute h-[2px] bg-gray-700 w-full"></div>
+                            <div class="absolute h-[2px] bg-primary transition-all duration-300"
+                                :style="'width: ' + (steps.findIndex(step => step.id === currentStep) / (steps.length - 1) * 100) +
                             '%'">
-                        </div>
+                            </div>
 
-                        <div class="relative flex justify-between w-full">
-                            <template x-for="(step, index) in steps" :key="step.id">
-                                <div class="relative flex flex-col items-center w-16">
-                                    <!-- Step Circle -->
-                                    <div class="w-3 h-3 rounded-full flex items-center justify-center transition-all duration-300 z-10 text-[10px] font-medium"
-                                        :class="{
+                            <div class="relative flex justify-between w-full">
+                                <template x-for="(step, index) in steps" :key="step.id">
+                                    <div class="relative flex flex-col items-center w-16">
+                                        <!-- Step Circle -->
+                                        <div class="w-3 h-3 rounded-full flex items-center justify-center transition-all duration-300 z-10 text-[10px] font-medium"
+                                            :class="{
                                             'bg-primary text-white': currentStep === step.id,
                                             'bg-white text-black': steps.findIndex(s => s.id === currentStep) > index,
                                             'bg-white text-gray-400': steps.findIndex(s => s.id === currentStep) < index
                                         }">
-                                        <span x-text="index + 1"></span>
-                                    </div>
-                                    <!-- Step Label -->
-                                    <div class="absolute -bottom-3 text-[8px] text-center w-full transition-all duration-300"
-                                        :class="{
+                                            <span x-text="index + 1"></span>
+                                        </div>
+                                        <!-- Step Label -->
+                                        <div class="absolute -bottom-3 text-[8px] text-center w-full transition-all duration-300"
+                                            :class="{
                                             'text-primary': currentStep === step.id,
                                             'text-white': steps.findIndex(s => s.id === currentStep) > index,
                                             'text-white': steps.findIndex(s => s.id === currentStep) < index
                                         }">
-                                        <span x-text="step.label" class="inline-block"></span>
+                                            <span x-text="step.label" class="inline-block"></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </template>
+                                </template>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div wire:ignore>
-                    <a href="{{ url()->previous()}}" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
-                </div>
+                    <div wire:ignore>
+                        <a href="{{ url()->previous()}}" class="text-sm bg-white px-4 py-2 rounded-xl text-black shrink-0">Back</a>
+                    </div>
 
                 </div>
             </div>
@@ -468,4 +475,6 @@
         popup.show();
     }
 </script>
+</div>
+
 </div>

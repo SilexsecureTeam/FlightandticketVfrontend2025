@@ -10,11 +10,13 @@ class OfflineSuccessPage extends Component
 {
     public $orderResponse;
     public $payment;
+    public $showToSource = 'web';
 
 
 
 public function mount($orderResponse)
 {
+    $this->showToSource = session('showToSource') ?? "web";
     // Decode the orderResponse
     $decodedOrderResponse = base64_decode($orderResponse, true); 
 

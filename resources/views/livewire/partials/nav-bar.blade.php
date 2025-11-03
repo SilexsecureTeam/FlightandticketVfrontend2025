@@ -1,4 +1,4 @@
-<div class="w-full sticky top-0 px-5 md:px-8 lg:px-24 flex justify-between bg-black items-center z-[9999] font-semibold"
+<div id="hideforAdmid" class="w-full sticky top-0 px-5 md:px-8 lg:px-24 flex justify-between bg-black items-center z-[9999] font-semibold"
 x-data="{ 
     isOpen: false,
      phoneNumber: '(+234) 802-200-8793',

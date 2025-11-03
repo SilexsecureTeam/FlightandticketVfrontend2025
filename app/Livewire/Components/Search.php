@@ -46,6 +46,7 @@ class Search extends Component
     public $toAirlines = [];
     public $showFromDropdown = null;
     public $showToDropdown = null;
+    public $showToSource = "web";
 
     #[On('updateTrip')]
     public function trip($type)
@@ -174,8 +175,10 @@ class Search extends Component
         $tripType = 'round',
         $initialPassengers = null,
         $cabinClass = 'ECONOMY',
-        $multiCityFlights = []
+        $multiCityFlights = [],
+        $source = "web"
     ) {
+        $this->showToSource = session('showToSource') ?? "web";
         // Enable debugging for this method
         \Log::info('Search component mount called', [
             'editMode' => $editMode,
@@ -794,6 +797,7 @@ class Search extends Component
         // Store large data in files
         Storage::put($flightOffersFile, json_encode($flightOffers));
         Storage::put($dictionariesFile, json_encode($dictionaries));
+        session(['showToSource' => $this->showToSource]);
 
         // Create search results array with only essential data in DB
         $categorizedData = [

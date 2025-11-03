@@ -20,7 +20,7 @@
         this.$wire.set('multiCityFlights', this.multiCityFlights); // Sync with Livewire
     }
 
-}" @keydown.escape="showPassengerDropdown = false; showCabinDropdown = false" class="p-4">
+}" @keydown.escape="showPassengerDropdown = false; showCabinDropdown = false" class="{{$showToSource == 'web' ? 'p-4' : ''}}">
 
     <style>
         @keyframes steam {
@@ -43,7 +43,7 @@
         }
     </style>
 
-    <div class="lg:mx-10 relative bg-black bg-opacity-80 z-20 rounded-3xl p-4 md:p-7 ">
+    <div class="{{$showToSource == 'web' ? 'lg:mx-10' : ''}} relative bg-black bg-opacity-80 z-20 rounded-3xl p-4 md:p-7 ">
         @if (session('error'))
         <div class="mt-2 bg-red-100 border border-red-200 text-sm text-red-800 rounded-lg p-4  " role="alert">
             {{ session('error') }}
@@ -168,37 +168,81 @@
                 </div>
             </div>
 
-            <div class=" w-full md:max-w-sm flex-end rounded-xl relative transition-shadow duration-300">
-                <button @click="showPassengerDropdown = !showPassengerDropdown"
-                    class="w-full text-left border text-white   rounded-lg p-2 focus:outline-none transition-all duration-300">
-                    <div class="flex items-center justify-between">
-                        <div class="flex space-x-4">
-                            <div class="flex items-center space-x-1">
-                                <span class="text-[11px]">Adult</span>
-                                <span x-text="passengers.adult"></span>
+            <div class=" w-full {{$showToSource =='web' ? 'md:max-w-sm flex-end' : '' }} rounded-xl relative transition-shadow duration-300">
+                <div class="flex justify-between w-full">
+                    <button @click="showPassengerDropdown = !showPassengerDropdown"
+                        class="w-full text-left border text-white {{$showToSource =='admin' ? 'md:max-w-sm' : '' }} rounded-lg p-2 focus:outline-none transition-all duration-300">
+                        <div class="flex items-center justify-between">
+                            <div class="flex space-x-4">
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-[11px]">Adult</span>
+                                    <span x-text="passengers.adult"></span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-[11px]">Child</span>
+                                    <span x-text="passengers.child"></span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-[11px]">Infant</span>
+                                    <span x-text="passengers.infant"></span>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-[11px]">Child</span>
-                                <span x-text="passengers.child"></span>
-                            </div>
-                            <div class="flex items-center space-x-1">
-                                <span class="text-[11px]">Infant</span>
-                                <span x-text="passengers.infant"></span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-lg font-semibold"
+                                    x-text="`Total: ${passengers.adult + passengers.child + passengers.infant}`"></span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300"
+                                    :class="{ 'rotate-180': showPassengerDropdown }" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
                             </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            <span class="text-lg font-semibold"
-                                x-text="`Total: ${passengers.adult + passengers.child + passengers.infant}`"></span>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300"
-                                :class="{ 'rotate-180': showPassengerDropdown }" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7" />
-                            </svg>
+                    </button>
+                    @if($showToSource == "admin")
+                    <div class="max-w-xl">
+                        <div class=" relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <input type="number"
+                                name="maxPrice"
+                                id="maxPrice"
+                                x-model="maxPrice"
+                                min="1"
+                                class="block rounded-xl pl-10 pr-20 p-5 border w-full sm:text-sm outline-none  focus:outline-none"
+
+                                placeholder="0.00">
+                            <div class="absolute inset-y-0 right-0 flex items-center">
+                                <label for="currency" class="sr-only">Currency</label>
+                                <select id="currency"
+                                    name="currency"
+                                    x-model="currencyCode"
+                                    class="h-full py-0 pl-2 pr-7 border-transparent bg-transparent text-gray-500 sm:text-sm rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>USD</option>
+                                    <option>EUR</option>
+                                    <option>GBP</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </button>
-
+                    <!-- Non-stop Flights -->
+                    <label class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 shadow-sm hover:bg-gray-50 transition-colors duration-200 cursor-pointer group">
+                        <input type="checkbox"
+                            x-model="nonStop"
+                            class="rounded border-gray-300 text-blue-500 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 h-5 w-5">
+                        <div class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                            </svg>
+                            <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Non-stop flights only</span>
+                        </div>
+                    </label>
+                    
+                    @endif
+                </div>
                 <!-- Passenger Dropdown -->
                 <div x-cloak x-show="showPassengerDropdown" @click.away="showPassengerDropdown = false"
                     class="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl z-50 border border-gray-200 max-h-72 overflow-y-auto">

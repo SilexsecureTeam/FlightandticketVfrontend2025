@@ -1,4 +1,10 @@
 <div>
+    @if($showToSource == "admin")
+    @include('components.adminHead')
+    <script>
+        document.getElementById('hideforAdmid').style.display = 'none';
+    </script>
+    @endif
     @if ($status === 'processing')
     <style>
         /* Shimmer effect */
@@ -1005,8 +1011,25 @@
                                     <div>
                                         <div class="text-base md:text-xl font-bold text-gray-900">
                                             {{ $flight['price']['currency'] }}
-                                            {{ number_format((float) $flight['price']['total'] + $flight['price']['commission'], 2) }}
+                                            @php
+                                            $main = $flight['price']['total'];
+                                            $mark = $flight['price']['total'] + $flight['price']['commission'];
+                                            $ismark = $main - $mark;
+                                            @endphp
+                                            {{ number_format((float) $mark, 2) }}
+                                            @if($showToSource == "admin" && $ismark < 0)
+                                                <span style="font-size: 10px;">markup</span>
+                                                @endif
+                                                @if($showToSource == "admin" && $ismark > 0)
+                                                <span style="font-size: 10px;">markdown</span>
+                                                @endif
                                         </div>
+                                        @if($showToSource == "admin" && $ismark != 0)
+                                        <div class="text-base md:text-xl font-bold text-gray-900">
+                                            {{ $flight['price']['currency'] }}
+                                            {{ number_format((float) $main, 2) }}
+                                        </div>
+                                        @endif
                                     </div>
 
                                     <!-- Flight Details -->
@@ -1662,7 +1685,7 @@
 </div>
 @if ($status === 'view' && $loadMore != 'loaded')
 <button onclick="toggleAirlineCheap('')" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
-    <b >Load More</b>
+    <b>Load More</b>
 </button>
 @endif
 @if ($status === 'completed')

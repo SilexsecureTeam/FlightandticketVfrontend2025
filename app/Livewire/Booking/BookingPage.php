@@ -31,7 +31,7 @@ class BookingPage extends Component
     public $travelers = [];
     public $passengers = [];
     public $orderResponse;
-
+    public $showToSource = 'web';
     public $markUp;
     public $paystackUrl;
 
@@ -89,6 +89,7 @@ class BookingPage extends Component
         $this->selectedFlight = session('selected_flight', []);
         $this->searchResultsId = session('searchResultsId');
         // dd( $this->selectedFlight['price']['commission']);
+        $this->showToSource = session('showToSource') ?? "web";
 
         $markup = Markup::first(); // Get a single record
 
@@ -246,7 +247,7 @@ class BookingPage extends Component
             //   dd($orderResponse);   
 
             $order = $this->saveFlightOrder($orderResponse);
-
+            
             $this->initializePayment($order);
         } catch (ValidationException $e) {
             // $this->alert('error', 'Please check the form for errors.'. $e->getMessage() );
@@ -281,6 +282,8 @@ class BookingPage extends Component
             return $traveler;
         })->toArray();
 
+        // return dd($cleanedTravelers);
+
         return [
             'data' => [
                 'type' => 'flight-order',
@@ -298,35 +301,35 @@ class BookingPage extends Component
                     'option' => 'DELAY_TO_CANCEL',
                     'delay' => '3D',
                 ],
-                'contacts' => [
-                    [
-                        'addresseeName' => [
-                            'firstName' => 'PABLO',
-                            'lastName' => 'RODRIGUEZ',
-                        ],
-                        'companyName' => 'INCREIBLE VIAJES',
-                        'purpose' => 'STANDARD',
-                        'phones' => [
-                            [
-                                'deviceType' => 'LANDLINE',
-                                'countryCallingCode' => '34',
-                                'number' => '480080071',
-                            ],
-                            [
-                                'deviceType' => 'MOBILE',
-                                'countryCallingCode' => '33',
-                                'number' => '480080072',
-                            ]
-                        ],
-                        'emailAddress' => 'support@increibleviajes.es',
-                        'address' => [
-                            'lines' => ['Calle Prado, 16'],
-                            'postalCode' => '28014',
-                            'cityName' => 'Madrid',
-                            'countryCode' => 'ES',
-                        ]
-                    ]
-                ]
+                // 'contacts' => [
+                //     [
+                //         'addresseeName' => [
+                //             'firstName' => 'PABLO',
+                //             'lastName' => 'RODRIGUEZ',
+                //         ],
+                //         'companyName' => 'INCREIBLE VIAJES',
+                //         'purpose' => 'STANDARD',
+                //         'phones' => [
+                //             [
+                //                 'deviceType' => 'LANDLINE',
+                //                 'countryCallingCode' => '34',
+                //                 'number' => '480080071',
+                //             ],
+                //             [
+                //                 'deviceType' => 'MOBILE',
+                //                 'countryCallingCode' => '33',
+                //                 'number' => '480080072',
+                //             ]
+                //         ],
+                //         'emailAddress' => 'support@increibleviajes.es',
+                //         'address' => [
+                //             'lines' => ['Calle Prado, 16'],
+                //             'postalCode' => '28014',
+                //             'cityName' => 'Madrid',
+                //             'countryCode' => 'ES',
+                //         ]
+                //     ]
+                // ]
             ]
         ];
     }
@@ -338,7 +341,7 @@ class BookingPage extends Component
             $baseUrl = config('services.amadeus.base_url');
             $clientRef = session('clientRef');
 
-
+            // return dd(json_encode($payload, true));
 
             $client = new Client();
             $response = $client->request('POST', "$baseUrl/v1/booking/flight-orders", [
@@ -507,7 +510,7 @@ class BookingPage extends Component
                 // Set session values
                 session()->put('paystackUrl', $this->paystackUrl);
                 session()->put('payment_information', $this->flight_offer_price);
-
+                session(['showToSource' => $this->showToSource]);
 
 
 

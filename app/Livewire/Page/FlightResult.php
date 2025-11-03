@@ -20,6 +20,7 @@ class FlightResult extends Component
     public $searchResultsId;
     public $searchId;
     public $status = 'processing';
+    public $showToSource = 'web';
     public $cheapest = null;
     public $seachNow;
     public $loadMore = false;
@@ -28,6 +29,7 @@ class FlightResult extends Component
     {
         $this->searchId = request()->get('id');
         $this->checkStatus();
+        $this->showToSource = session('showToSource') ?? "web";
     }
 
     public function loadMoreFlights()
@@ -345,6 +347,7 @@ class FlightResult extends Component
                 'selected_includes' => implode(',', $this->selectedIncludes),
                 'searchResultsId' => $this->searchResultsId
             ]);
+            session(['showToSource' => $this->showToSource]);
 
             return redirect()->route('booking.page');
         }

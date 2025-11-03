@@ -24,6 +24,7 @@ class PaymentBooking extends Component
     public $bookingDetails = false;
     public $email = false;
     public $markUp;
+    public $showToSource = 'web';
     public $data = [
 
     ];
@@ -33,6 +34,7 @@ class PaymentBooking extends Component
     public function mount()
     {
         // Retrieve data from session
+        $this->showToSource = session('showToSource') ?? "web";
         $this->paystackUrl = session('paystackUrl', "");
         $this->orderResponse = session('orderResponse', "");
         $this->price = session('payment_information', []);
@@ -126,7 +128,7 @@ class PaymentBooking extends Component
     public function processPayment()
     {
         $this->isLoading = true;
-
+        session(['showToSource' => $this->showToSource]);
         if ($this->selectedPayment === 'Paystack') {
             $this->initiatePaystackPayment();
         } else {
@@ -158,7 +160,7 @@ class PaymentBooking extends Component
         // dd($this->bookingDetails);
         Mail::to($this->email)->send(new OfflineLineMail(bookingData: $this->bookingDetails));
         $hashedOrder = base64_encode($this->orderResponse);
-      
+        session(['showToSource' => $this->showToSource]);
         return redirect()->route('payment.offline', ['orderResponse' => $hashedOrder]);
 
     }

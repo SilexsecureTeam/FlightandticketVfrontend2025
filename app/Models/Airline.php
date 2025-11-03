@@ -14,7 +14,8 @@ class Airline extends Model
         'airline_name',
         'logo',
         'markprice',
-        'markstatus'      
+        'markstatus' ,
+        'markup'     
     ];
 
 }
