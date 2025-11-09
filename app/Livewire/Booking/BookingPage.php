@@ -591,16 +591,16 @@ class BookingPage extends Component
             // Fetch airline details and calculate commission
             $carrierCode = $flightOffer['itineraries'][0]['segments'][0]['carrierCode'];
             $airlineDetails = $this->getAirlineDetailsByCode($carrierCode);
-            $markupValue = $airlineDetails['markup'] ?? 0; // Fixed markup value
-
-
+            $markupValueSign = 0;
+            if (count($this->travelers) == 1) {
+                // Add the fixed markup value as commission
+                $markupValue = $airlineDetails['markup']; // Fixed markup value
+                $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+                // Add commission to the price array
+                $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+            }
             $price = $flightOffer['price'];
-            $price['commission'] = $markupValue;
-
-
-
-
-
+            $price['commission'] = $markupValueSign;
             $this->flight_offer_price = $price;
             $this->flight_offer_booking = $flightOffer;
             // dd( $this->flight_offer_price );
@@ -626,6 +626,7 @@ class BookingPage extends Component
                 'name' => $airline->airline_name,
                 'logo' => $airline->logo ?? null,
                 'markup' => $airline->markup ?? 0,
+                'markstatus' => $airline->markstatus ?? "markup",
             ];
         }
 
@@ -633,6 +634,7 @@ class BookingPage extends Component
             'name' => 'Unknown',
             'logo' => null,
             'markup' => 0,
+            'markstatus' => "markup"
         ];
     }
 

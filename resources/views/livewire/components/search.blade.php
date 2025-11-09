@@ -240,7 +240,7 @@
                             <span class="text-sm font-medium text-gray-700 group-hover:text-gray-900">Non-stop flights only</span>
                         </div>
                     </label>
-                    
+
                     @endif
                 </div>
                 <!-- Passenger Dropdown -->

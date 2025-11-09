@@ -208,7 +208,7 @@
                                             {{ $data['count'] }}
                                         </span>
                                         <span class="font-medium">
-                                            {{ $data['currency'] }} {{ number_format($data['price'], 2) }}
+                                            {{ $data['currency'] }} {{ number_format($data['price'] + $flight['price']['commission'], 2) }}
                                         </span>
                                     </div>
                                     @endforeach

@@ -83,7 +83,7 @@
                     </div>
 
                     <!-- Payment Details Grid - IMPROVED -->
-                    <div class="rounded-xl overflow-hidden border border-gray-200">
+                    {{--<div class="rounded-xl overflow-hidden border border-gray-200">
                         <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                             <h3 class="text-base font-medium text-gray-700">Payment Details</h3>
                         </div>
@@ -150,7 +150,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div>--}}
 
                     <!-- Email Notice -->
                     <div class="bg-blue-50 rounded-xl p-4 flex items-start gap-3">

@@ -306,7 +306,7 @@ class FlightResult extends Component
             return $cabins;
             // Check if all cabins are the same
             if (count(array_unique($cabins)) === 1) {
-                return dd($cabins);
+                // return dd($cabins);
                 return true;
             }
         }

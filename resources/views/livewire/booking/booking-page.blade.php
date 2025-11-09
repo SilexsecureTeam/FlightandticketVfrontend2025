@@ -1146,7 +1146,7 @@
                             x {{ $data['count'] }}
                         </span>
                         <span class="font-medium">
-                            {{ $data['currency'] }} {{ number_format($data['price'], 2) }}
+                            {{ $data['currency'] }} {{ number_format($data['price'] + $flight_offer_price['commission'], 2) }}
                         </span>
                     </div>
                     @endforeach
@@ -1211,6 +1211,7 @@
             isset($flight_offer_price['commission']))
             <span class="text-primary  text-xs md:text-xl">
                 {{ $flight_offer_price['currency'] }}
+                {{-- number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) --}}
                 {{ number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) }}
             </span>
             @else

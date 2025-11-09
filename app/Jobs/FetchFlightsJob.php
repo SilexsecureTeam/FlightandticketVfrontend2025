@@ -140,12 +140,14 @@ class FetchFlightsJob implements ShouldQueue
                         'logo' => $airlineDetails['logo'],
                     ];
 
-                    // Add the fixed markup value as commission
-                    $markupValue = $airlineDetails['markup']; // Fixed markup value
-                    $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
-
-                    // Add commission to the price array
-                    $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+                    $markupValueSign = 0;
+                    if (count($this->travelers) == 1) {
+                        // Add the fixed markup value as commission
+                        $markupValue = $airlineDetails['markup']; // Fixed markup value
+                        $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+                        // Add commission to the price array
+                        $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+                    }
                     $flightOffer['price']['commission'] = $markupValueSign;
                     $cheapestNew = [
                         "name" => $airlineDetails['name'],

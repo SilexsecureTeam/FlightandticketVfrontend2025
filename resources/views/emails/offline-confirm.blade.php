@@ -107,7 +107,7 @@
                 </div>
 
                 <!-- Payment Details Grid -->
-                <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px;">
+                {{--<div style="border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px;">
                     <div style="background-color: #f9fafb; padding: 12px 24px; border-bottom: 1px solid #e5e7eb;">
                         <h3 style="font-size: 16px; font-weight: 500; color: #374151;">Payment Details</h3>
                     </div>
@@ -212,7 +212,7 @@
                             </td>
                         </tr>
                     </table>
-                </div>
+                </div>--}}
 
                 <!-- Flight Details Summary -->
                 <div style="border-radius: 12px; overflow: hidden; border: 1px solid #e5e7eb; margin-bottom: 24px;">

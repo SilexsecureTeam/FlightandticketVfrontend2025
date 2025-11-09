@@ -165,7 +165,7 @@
                                 {{ $type }} x {{ $data['count'] }}
                             </span>
                             <span class="font-bold text-gray-800">{{ $data['currency'] }}
-                                {{ number_format($data['price'], 2) }}</span>
+                                {{ number_format($data['price'] + $price['commission'], 2) }}</span>
                         </div>
                         @endforeach
 
