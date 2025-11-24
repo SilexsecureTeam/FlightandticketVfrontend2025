@@ -148,7 +148,7 @@ class BookingPage extends Component
                     'middleName' => '',
                     'lastName' => ''
                 ],
-                'gender' => 'MALE',
+                'gender' => 'UNSPECIFIED',
                 'contact' => [
                     'emailAddress' => $index === 0 ? '' : ($this->travelers[0]['contact']['emailAddress'] ?? ''),
                     'phones' => [
@@ -247,7 +247,7 @@ class BookingPage extends Component
             //   dd($orderResponse);   
 
             $order = $this->saveFlightOrder($orderResponse);
-            
+
             $this->initializePayment($order);
         } catch (ValidationException $e) {
             // $this->alert('error', 'Please check the form for errors.'. $e->getMessage() );

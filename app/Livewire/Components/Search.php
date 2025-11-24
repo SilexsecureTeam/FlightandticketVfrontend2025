@@ -691,7 +691,7 @@ class Search extends Component
             'originDestinations' => $originDestinations,
             'travelers' => $travelers,
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
-
+            'includedAirlineCodes' => 'KQ',
             'searchCriteria' => [
                 'maxFlightOffers' => 10,
                 'flightFilters' => [
@@ -761,8 +761,8 @@ class Search extends Component
                     ];
 
                     $markupValueSign = 0;
-                    if(count($travelers) == 1){
-                    // Add the fixed markup value as commission
+                    if (count($travelers) == 1) {
+                        // Add the fixed markup value as commission
                         $markupValue = $airlineDetails['markup']; // Fixed markup value
                         $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
                         // Add commission to the price array
