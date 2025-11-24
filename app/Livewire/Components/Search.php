@@ -691,7 +691,7 @@ class Search extends Component
             'originDestinations' => $originDestinations,
             'travelers' => $travelers,
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
-            'includedAirlineCodes' => 'KQ',
+            // 'includedAirlineCodes' => 'KQ',
             'searchCriteria' => [
                 'maxFlightOffers' => 10,
                 'flightFilters' => [
