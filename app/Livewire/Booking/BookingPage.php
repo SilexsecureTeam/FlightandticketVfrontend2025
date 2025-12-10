@@ -45,7 +45,8 @@ class BookingPage extends Component
         'travelers.*.name.firstName' => 'required|string|max:255',
         'travelers.*.name.middleName' => 'nullable|string|max:255',
         'travelers.*.name.lastName' => 'required|string|max:255',
-        'travelers.*.gender' => 'required|in:MALE,FEMALE,OTHER',
+        'travelers.*.gender' => 'nullable|string',
+        'travelers.*.title' => 'nullable|string',
         'travelers.*.contact' => 'required|array',
         'travelers.*.contact.emailAddress' => 'required|email',
         'travelers.*.contact.phones' => 'required|array|min:1',
@@ -69,7 +70,8 @@ class BookingPage extends Component
         'travelers.*.dateOfBirth.before' => 'Date of birth must be in the past',
         'travelers.*.name.firstName.required' => 'First name is required',
         'travelers.*.name.lastName.required' => 'Last name is required',
-        'travelers.*.gender.in' => 'Gender must be MALE, FEMALE',
+        'travelers.*.gender.in' => 'Gender requires',
+        'travelers.*.title.in' => 'Title requires',
         'travelers.*.contact.emailAddress.email' => 'Please enter a valid email address',
         'travelers.*.contact.phones.*.number.min' => 'Phone number must be at least 10 digits',
         'travelers.*.documents.*.documentType.in' => 'Document type must be either PASSPORT or ID_CARD',
@@ -149,6 +151,7 @@ class BookingPage extends Component
                     'lastName' => ''
                 ],
                 'gender' => 'UNSPECIFIED',
+                'title' => '',
                 'contact' => [
                     'emailAddress' => $index === 0 ? '' : ($this->travelers[0]['contact']['emailAddress'] ?? ''),
                     'phones' => [
@@ -242,7 +245,7 @@ class BookingPage extends Component
             // $this->initializePayment($order, $this->travelers);
 
             $flightOrderPayload = $this->prepareFlightOrderPayload();
-            // dd($flightOrderPayload);
+            
             $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
             //   dd($orderResponse);   
 
@@ -340,8 +343,6 @@ class BookingPage extends Component
         try {
             $baseUrl = config('services.amadeus.base_url');
             $clientRef = session('clientRef');
-
-            // return dd(json_encode($payload, true));
 
             $client = new Client();
             $response = $client->request('POST', "$baseUrl/v1/booking/flight-orders", [

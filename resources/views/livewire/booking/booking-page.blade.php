@@ -901,14 +901,21 @@
 
                                     <div>
                                         <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                                            class="block text-sm font-medium text-gray-700 mb-2">Title</label>
                                         <select
                                             class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.gender">
-                                            <option value="">Select Gender</option>
-                                            <option value="MALE">Male</option>
-                                            <option value="FEMALE">Female</option>
-
+                                            wire:model.defer="travelers.{{ $index }}.title">
+                                            <option value="">Select Title</option>
+                                            <option value="Mr">Mr</option>
+                                            <option value="Ms">Ms</option>
+                                            <option value="Mrs">Mrs</option>
+                                            <option value="Miss">Miss</option>
+                                            <option value="Sir">Sir</option>
+                                            <option value="Dr">Dr</option>
+                                            <option value="HRH">HRH</option>
+                                            <option value="Hon">Hon</option>
+                                            <option value="Pst">Pst</option>
+                                            <option value="Sen">Sen</option>
                                         </select>
                                         @error("travelers.{$index}.gender")
                                         <span
