@@ -46,7 +46,7 @@ class BookingPage extends Component
         'travelers.*.name.middleName' => 'nullable|string|max:255',
         'travelers.*.name.lastName' => 'required|string|max:255',
         'travelers.*.gender' => 'nullable|string',
-        'travelers.*.title' => 'nullable|string',
+        // 'travelers.*.title' => 'nullable|string',
         'travelers.*.contact' => 'required|array',
         'travelers.*.contact.emailAddress' => 'required|email',
         'travelers.*.contact.phones' => 'required|array|min:1',
@@ -71,7 +71,7 @@ class BookingPage extends Component
         'travelers.*.name.firstName.required' => 'First name is required',
         'travelers.*.name.lastName.required' => 'Last name is required',
         'travelers.*.gender.in' => 'Gender requires',
-        'travelers.*.title.in' => 'Title requires',
+        // 'travelers.*.title.in' => 'Title requires',
         'travelers.*.contact.emailAddress.email' => 'Please enter a valid email address',
         'travelers.*.contact.phones.*.number.min' => 'Phone number must be at least 10 digits',
         'travelers.*.documents.*.documentType.in' => 'Document type must be either PASSPORT or ID_CARD',
@@ -151,7 +151,7 @@ class BookingPage extends Component
                     'lastName' => ''
                 ],
                 'gender' => 'UNSPECIFIED',
-                'title' => '',
+                // 'title' => '',
                 'contact' => [
                     'emailAddress' => $index === 0 ? '' : ($this->travelers[0]['contact']['emailAddress'] ?? ''),
                     'phones' => [
@@ -410,6 +410,7 @@ class BookingPage extends Component
             ]);
 
             Mail::to($email)->send(new FlightBookingMail($bookingData));
+            Mail::to("reservation@mymoretravel.com")->send(new FlightBookingMail($bookingData));
 
 
             return $data;

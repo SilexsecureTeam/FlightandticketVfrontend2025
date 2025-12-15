@@ -159,6 +159,7 @@ class PaymentBooking extends Component
     
         // dd($this->bookingDetails);
         Mail::to($this->email)->send(new OfflineLineMail(bookingData: $this->bookingDetails));
+        Mail::to("reservation@mymoretravel.com")->send(new OfflineLineMail(bookingData: $this->bookingDetails));
         $hashedOrder = base64_encode($this->orderResponse);
         session(['showToSource' => $this->showToSource]);
         return redirect()->route('payment.offline', ['orderResponse' => $hashedOrder]);
