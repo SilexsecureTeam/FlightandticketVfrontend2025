@@ -905,326 +905,537 @@
                                         <select
                                             class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                                             wire:model.defer="travelers.{{ $index }}.title">
-                                            <option value="">Select Title</option>
-                                            <option value="Mr">Mr</option>
-                                            <option value="Ms">Ms</option>
-                                            <option value="Mrs">Mrs</option>
-                                            <option value="Miss">Miss</option>
-                                            <option value="Sir">Sir</option>
-                                            <option value="Dr">Dr</option>
-                                            <option value="HRH">HRH</option>
-                                            <option value="Hon">Hon</option>
-                                            <option value="Pst">Pst</option>
-                                            <option value="Sen">Sen</option>
-                                        </select>
-                                        @error("travelers.{$index}.gender")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>--}}
-                                </div>
+                                    <option value="">Select Title</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Ms">Ms</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Miss">Miss</option>
+                                    <option value="Sir">Sir</option>
+                                    <option value="Dr">Dr</option>
+                                    <option value="HRH">HRH</option>
+                                    <option value="Hon">Hon</option>
+                                    <option value="Pst">Pst</option>
+                                    <option value="Sen">Sen</option>
+                                    </select>
+                                    @error("travelers.{$index}.gender")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>--}}
                             </div>
-
-                            <!-- Contact Information -->
-                            @if ($index === 0)
-                            <!-- Contact Information -->
-                            <div class="bg-gray-50 rounded-xl p-6 space-y-6 shadow-inner">
-                                <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">
-                                    Contact Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                        <input type="email"
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.contact.emailAddress"
-                                            placeholder="Enter email address"
-                                            wire:change="$dispatch('syncContactInfo')">
-                                        @error("travelers.{$index}.contact.emailAddress")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Phone
-                                            Number</label>
-                                        <input type="text"
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.contact.phones.0.number"
-                                            placeholder="Enter phone number"
-                                            wire:change="$dispatch('syncContactInfo')">
-                                        @error("travelers.{$index}.contact.phones.0.number")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            @else
-                            <!-- Hidden Contact Information for Other Travelers -->
-                            <input type="hidden"
-                                wire:model="travelers.{{ $index }}.contact.emailAddress">
-                            <input type="hidden"
-                                wire:model="travelers.{{ $index }}.contact.phones.0.number">
-                            @endif
-                            <!-- Document Information -->
-                            <div class="bg-gray-50 rounded-xl p-6 space-y-6 shadow-inner">
-                                <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">
-                                    Document Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Passport
-                                            Number</label>
-                                        <input type="text"
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.documents.0.number"
-                                            placeholder="Enter passport number">
-                                        @error("travelers.{$index}.documents.0.number")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Issuance
-                                            Location</label>
-                                        <select
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.documents.0.issuanceLocation">
-                                            <option value="">Select Country</option>
-                                            <option value="US">United States</option>
-                                            <option value="NG">Nigeria</option>
-                                            <option value="UK">United Kingdom</option>
-                                        </select>
-                                        @error("travelers.{$index}.documents.0.issuanceLocation")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Issuance
-                                            Date</label>
-                                        <input type="date"
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.documents.0.issuanceDate">
-                                        @error("travelers.{$index}.documents.0.issuanceDate")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-
-                                    <div>
-                                        <label
-                                            class="block text-sm font-medium text-gray-700 mb-2">Expiry
-                                            Date</label>
-                                        <input type="date"
-                                            class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                            wire:model.defer="travelers.{{ $index }}.documents.0.expiryDate">
-                                        @error("travelers.{$index}.documents.0.expiryDate")
-                                        <span
-                                            class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-                            @if ($loop->last)
-                            <button type="submit"
-                                class="w-full bg-primary md:hidden text-white rounded-xl py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/25">
-                                <span wire:loading.remove>
-                                    Continue to Payment
-                                </span>
-                                <div class="flex items-center justify-center text-center mx-auto"
-                                    wire:loading.flex wire:target='createFlightOrder'>
-                                    <span>Please Wait</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 24 24" aria-hidden="true"
-                                        class="size-10 pl-3 fill-white motion-safe:animate-spin">
-                                        <path
-                                            d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                                            opacity=".25" />
-                                        <path
-                                            d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
-                                    </svg>
-                                </div>
-                            </button>
-                            @endif
                         </div>
+
+                        <!-- Contact Information -->
+                        @if ($index === 0)
+                        <!-- Contact Information -->
+                        <div class="bg-gray-50 rounded-xl p-6 space-y-6 shadow-inner">
+                            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">
+                                Contact Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                    <input type="email"
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.contact.emailAddress"
+                                        placeholder="Enter email address"
+                                        wire:change="$dispatch('syncContactInfo')">
+                                    @error("travelers.{$index}.contact.emailAddress")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Phone
+                                        Number</label>
+                                    <input type="text"
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.contact.phones.0.number"
+                                        placeholder="Enter phone number"
+                                        wire:change="$dispatch('syncContactInfo')">
+                                    @error("travelers.{$index}.contact.phones.0.number")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        @else
+                        <!-- Hidden Contact Information for Other Travelers -->
+                        <input type="hidden"
+                            wire:model="travelers.{{ $index }}.contact.emailAddress">
+                        <input type="hidden"
+                            wire:model="travelers.{{ $index }}.contact.phones.0.number">
+                        @endif
+                        <!-- Document Information -->
+                        <div class="bg-gray-50 rounded-xl p-6 space-y-6 shadow-inner">
+                            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">
+                                Document Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Passport
+                                        Number</label>
+                                    <input type="text"
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.documents.0.number"
+                                        placeholder="Enter passport number">
+                                    @error("travelers.{$index}.documents.0.number")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Issuance
+                                        Location</label>
+                                    <select
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.documents.0.issuanceLocation">
+                                        <option value="">Select Country</option>
+                                        <option value="US">United States</option>
+                                        <option value="NG">Nigeria</option>
+                                        <option value="UK">United Kingdom</option>
+                                        <option value="AF">Afghanistan</option>
+                                        <option value="AL">Albania</option>
+                                        <option value="DZ">Algeria</option>
+                                        <option value="AS">American Samoa</option>
+                                        <option value="AD">Andorra</option>
+                                        <option value="AO">Angola</option>
+                                        <option value="AI">Anguilla</option>
+                                        <option value="AQ">Antarctica</option>
+                                        <option value="AG">Antigua and Barbuda</option>
+                                        <option value="AR">Argentina</option>
+                                        <option value="AM">Armenia</option>
+                                        <option value="AW">Aruba</option>
+                                        <option value="AU">Australia</option>
+                                        <option value="AT">Austria</option>
+                                        <option value="AZ">Azerbaijan</option>
+
+                                        <option value="BS">Bahamas</option>
+                                        <option value="BH">Bahrain</option>
+                                        <option value="BD">Bangladesh</option>
+                                        <option value="BB">Barbados</option>
+                                        <option value="BY">Belarus</option>
+                                        <option value="BE">Belgium</option>
+                                        <option value="BZ">Belize</option>
+                                        <option value="BJ">Benin</option>
+                                        <option value="BM">Bermuda</option>
+                                        <option value="BT">Bhutan</option>
+                                        <option value="BO">Bolivia</option>
+                                        <option value="BA">Bosnia and Herzegovina</option>
+                                        <option value="BW">Botswana</option>
+                                        <option value="BR">Brazil</option>
+                                        <option value="BN">Brunei</option>
+                                        <option value="BG">Bulgaria</option>
+                                        <option value="BF">Burkina Faso</option>
+                                        <option value="BI">Burundi</option>
+
+                                        <option value="KH">Cambodia</option>
+                                        <option value="CM">Cameroon</option>
+                                        <option value="CA">Canada</option>
+                                        <option value="CV">Cape Verde</option>
+                                        <option value="KY">Cayman Islands</option>
+                                        <option value="CF">Central African Republic</option>
+                                        <option value="TD">Chad</option>
+                                        <option value="CL">Chile</option>
+                                        <option value="CN">China</option>
+                                        <option value="CO">Colombia</option>
+                                        <option value="KM">Comoros</option>
+                                        <option value="CG">Congo</option>
+                                        <option value="CR">Costa Rica</option>
+                                        <option value="HR">Croatia</option>
+                                        <option value="CU">Cuba</option>
+                                        <option value="CY">Cyprus</option>
+                                        <option value="CZ">Czech Republic</option>
+
+                                        <option value="DK">Denmark</option>
+                                        <option value="DJ">Djibouti</option>
+                                        <option value="DM">Dominica</option>
+                                        <option value="DO">Dominican Republic</option>
+
+                                        <option value="EC">Ecuador</option>
+                                        <option value="EG">Egypt</option>
+                                        <option value="SV">El Salvador</option>
+                                        <option value="GQ">Equatorial Guinea</option>
+                                        <option value="ER">Eritrea</option>
+                                        <option value="EE">Estonia</option>
+                                        <option value="ET">Ethiopia</option>
+
+                                        <option value="FJ">Fiji</option>
+                                        <option value="FI">Finland</option>
+                                        <option value="FR">France</option>
+
+                                        <option value="GA">Gabon</option>
+                                        <option value="GM">Gambia</option>
+                                        <option value="GE">Georgia</option>
+                                        <option value="DE">Germany</option>
+                                        <option value="GH">Ghana</option>
+                                        <option value="GR">Greece</option>
+                                        <option value="GD">Grenada</option>
+                                        <option value="GU">Guam</option>
+                                        <option value="GT">Guatemala</option>
+                                        <option value="GN">Guinea</option>
+                                        <option value="GW">Guinea-Bissau</option>
+                                        <option value="GY">Guyana</option>
+
+                                        <option value="HT">Haiti</option>
+                                        <option value="HN">Honduras</option>
+                                        <option value="HK">Hong Kong</option>
+                                        <option value="HU">Hungary</option>
+
+                                        <option value="IS">Iceland</option>
+                                        <option value="IN">India</option>
+                                        <option value="ID">Indonesia</option>
+                                        <option value="IR">Iran</option>
+                                        <option value="IQ">Iraq</option>
+                                        <option value="IE">Ireland</option>
+                                        <option value="IL">Israel</option>
+                                        <option value="IT">Italy</option>
+
+                                        <option value="JM">Jamaica</option>
+                                        <option value="JP">Japan</option>
+                                        <option value="JO">Jordan</option>
+
+                                        <option value="KZ">Kazakhstan</option>
+                                        <option value="KE">Kenya</option>
+                                        <option value="KI">Kiribati</option>
+                                        <option value="KP">North Korea</option>
+                                        <option value="KR">South Korea</option>
+                                        <option value="KW">Kuwait</option>
+                                        <option value="KG">Kyrgyzstan</option>
+
+                                        <option value="LA">Laos</option>
+                                        <option value="LV">Latvia</option>
+                                        <option value="LB">Lebanon</option>
+                                        <option value="LS">Lesotho</option>
+                                        <option value="LR">Liberia</option>
+                                        <option value="LY">Libya</option>
+                                        <option value="LI">Liechtenstein</option>
+                                        <option value="LT">Lithuania</option>
+                                        <option value="LU">Luxembourg</option>
+
+                                        <option value="MO">Macau</option>
+                                        <option value="MG">Madagascar</option>
+                                        <option value="MW">Malawi</option>
+                                        <option value="MY">Malaysia</option>
+                                        <option value="MV">Maldives</option>
+                                        <option value="ML">Mali</option>
+                                        <option value="MT">Malta</option>
+                                        <option value="MH">Marshall Islands</option>
+                                        <option value="MR">Mauritania</option>
+                                        <option value="MU">Mauritius</option>
+                                        <option value="MX">Mexico</option>
+                                        <option value="FM">Micronesia</option>
+                                        <option value="MD">Moldova</option>
+                                        <option value="MC">Monaco</option>
+                                        <option value="MN">Mongolia</option>
+                                        <option value="ME">Montenegro</option>
+                                        <option value="MA">Morocco</option>
+                                        <option value="MZ">Mozambique</option>
+                                        <option value="MM">Myanmar</option>
+
+                                        <option value="NA">Namibia</option>
+                                        <option value="NP">Nepal</option>
+                                        <option value="NL">Netherlands</option>
+                                        <option value="NZ">New Zealand</option>
+                                        <option value="NI">Nicaragua</option>
+                                        <option value="NE">Niger</option>
+                                        <option value="NG">Nigeria</option>
+                                        <option value="NO">Norway</option>
+
+                                        <option value="OM">Oman</option>
+
+                                        <option value="PK">Pakistan</option>
+                                        <option value="PA">Panama</option>
+                                        <option value="PG">Papua New Guinea</option>
+                                        <option value="PY">Paraguay</option>
+                                        <option value="PE">Peru</option>
+                                        <option value="PH">Philippines</option>
+                                        <option value="PL">Poland</option>
+                                        <option value="PT">Portugal</option>
+
+                                        <option value="QA">Qatar</option>
+
+                                        <option value="RO">Romania</option>
+                                        <option value="RU">Russia</option>
+                                        <option value="RW">Rwanda</option>
+
+                                        <option value="SA">Saudi Arabia</option>
+                                        <option value="SN">Senegal</option>
+                                        <option value="RS">Serbia</option>
+                                        <option value="SC">Seychelles</option>
+                                        <option value="SL">Sierra Leone</option>
+                                        <option value="SG">Singapore</option>
+                                        <option value="SK">Slovakia</option>
+                                        <option value="SI">Slovenia</option>
+                                        <option value="SO">Somalia</option>
+                                        <option value="ZA">South Africa</option>
+                                        <option value="ES">Spain</option>
+                                        <option value="LK">Sri Lanka</option>
+                                        <option value="SD">Sudan</option>
+                                        <option value="SR">Suriname</option>
+                                        <option value="SE">Sweden</option>
+                                        <option value="CH">Switzerland</option>
+                                        <option value="SY">Syria</option>
+
+                                        <option value="TW">Taiwan</option>
+                                        <option value="TJ">Tajikistan</option>
+                                        <option value="TZ">Tanzania</option>
+                                        <option value="TH">Thailand</option>
+                                        <option value="TG">Togo</option>
+                                        <option value="TO">Tonga</option>
+                                        <option value="TT">Trinidad and Tobago</option>
+                                        <option value="TN">Tunisia</option>
+                                        <option value="TR">Turkey</option>
+                                        <option value="TM">Turkmenistan</option>
+
+                                        <option value="UG">Uganda</option>
+                                        <option value="UA">Ukraine</option>
+                                        <option value="AE">United Arab Emirates</option>
+                                        <option value="UK">United Kingdom</option>
+                                        <option value="US">United States</option>
+                                        <option value="UY">Uruguay</option>
+                                        <option value="UZ">Uzbekistan</option>
+
+                                        <option value="VU">Vanuatu</option>
+                                        <option value="VA">Vatican City</option>
+                                        <option value="VE">Venezuela</option>
+                                        <option value="VN">Vietnam</option>
+
+                                        <option value="YE">Yemen</option>
+                                        <option value="ZM">Zambia</option>
+                                        <option value="ZW">Zimbabwe</option>
+
+                                    </select>
+                                    @error("travelers.{$index}.documents.0.issuanceLocation")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Issuance
+                                        Date</label>
+                                    <input type="date"
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.documents.0.issuanceDate">
+                                    @error("travelers.{$index}.documents.0.issuanceDate")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-medium text-gray-700 mb-2">Expiry
+                                        Date</label>
+                                    <input type="date"
+                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                        wire:model.defer="travelers.{{ $index }}.documents.0.expiryDate">
+                                    @error("travelers.{$index}.documents.0.expiryDate")
+                                    <span
+                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                        @if ($loop->last)
+                        <button type="submit"
+                            class="w-full bg-primary md:hidden text-white rounded-xl py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/25">
+                            <span wire:loading.remove>
+                                Continue to Payment
+                            </span>
+                            <div class="flex items-center justify-center text-center mx-auto"
+                                wire:loading.flex wire:target='createFlightOrder'>
+                                <span>Please Wait</span>
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24" aria-hidden="true"
+                                    class="size-10 pl-3 fill-white motion-safe:animate-spin">
+                                    <path
+                                        d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+                                        opacity=".25" />
+                                    <path
+                                        d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+                                </svg>
+                            </div>
+                        </button>
                         @endif
                     </div>
+                    @endif
                 </div>
-                @endforeach
-                @else
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd"
-                                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-700">
-                                Please select a flight first.
-                            </p>
-                        </div>
+            </div>
+            @endforeach
+            @else
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd"
+                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            Please select a flight first.
+                        </p>
                     </div>
                 </div>
-                @endif
-
-
             </div>
+            @endif
+
 
         </div>
 
+    </div>
 
-        <div class="lg:sticky lg:top-8 h-fit">
-            <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-200/50 space-y-8">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-2xl font-bold">Price Summary</h2>
-                    <div class="p-2 rounded-lg bg-primary/10 text-primary">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                    </div>
+
+    <div class="lg:sticky lg:top-8 h-fit">
+        <div class="bg-white rounded-2xl shadow-lg p-8 border border-gray-200/50 space-y-8">
+            <div class="flex items-center justify-between">
+                <h2 class="text-2xl font-bold">Price Summary</h2>
+                <div class="p-2 rounded-lg bg-primary/10 text-primary">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Currency -->
+                <div class="flex justify-between items-center text-gray-600">
+                    <span>Currency</span>
+                    @if (isset($flight_offer_price['currency']))
+                    <span class="font-medium">{{ $flight_offer_price['currency'] }}</span>
+                    @else
+                    <span class="w-16 h-6 bg-gray-300 rounded animate-pulse"></span>
+                    @endif
                 </div>
 
-                <div class="space-y-4">
-                    <!-- Currency -->
-                    <div class="flex justify-between items-center text-gray-600">
-                        <span>Currency</span>
-                        @if (isset($flight_offer_price['currency']))
-                        <span class="font-medium">{{ $flight_offer_price['currency'] }}</span>
-                        @else
-                        <span class="w-16 h-6 bg-gray-300 rounded animate-pulse"></span>
-                        @endif
-                    </div>
+                <!-- Traveler Breakdown -->
+                @php
+                $travelerTypes = [];
+                $hasTravelerData = false;
 
-                    <!-- Traveler Breakdown -->
-                    @php
-                    $travelerTypes = [];
-                    $hasTravelerData = false;
+                // Check if $flight_offer_booking and travelerPricings exist
+                if (
+                isset($flight_offer_booking['travelerPricings']) &&
+                is_array($flight_offer_booking['travelerPricings'])
+                ) {
+                foreach ($flight_offer_booking['travelerPricings'] as $traveler) {
+                // Ensure required keys exist
+                if (
+                isset($traveler['travelerType'], $traveler['price']) &&
+                isset($traveler['price']['currency'], $traveler['price']['total'])
+                ) {
+                $type = $traveler['travelerType'];
+                $hasTravelerData = true;
 
-                    // Check if $flight_offer_booking and travelerPricings exist
-                    if (
-                    isset($flight_offer_booking['travelerPricings']) &&
-                    is_array($flight_offer_booking['travelerPricings'])
-                    ) {
-                    foreach ($flight_offer_booking['travelerPricings'] as $traveler) {
-                    // Ensure required keys exist
-                    if (
-                    isset($traveler['travelerType'], $traveler['price']) &&
-                    isset($traveler['price']['currency'], $traveler['price']['total'])
-                    ) {
-                    $type = $traveler['travelerType'];
-                    $hasTravelerData = true;
+                // Initialize traveler type if not already set
+                if (!isset($travelerTypes[$type])) {
+                $travelerTypes[$type] = [
+                'count' => 0,
+                'price' => 0,
+                'currency' => $traveler['price']['currency'],
+                ];
+                }
 
-                    // Initialize traveler type if not already set
-                    if (!isset($travelerTypes[$type])) {
-                    $travelerTypes[$type] = [
-                    'count' => 0,
-                    'price' => 0,
-                    'currency' => $traveler['price']['currency'],
-                    ];
-                    }
+                // Increment count and add price
+                $travelerTypes[$type]['count']++;
+                $travelerTypes[$type]['price'] += floatval($traveler['price']['total']);
+                }
+                }
+                }
+                @endphp
 
-                    // Increment count and add price
-                    $travelerTypes[$type]['count']++;
-                    $travelerTypes[$type]['price'] += floatval($traveler['price']['total']);
-                    }
-                    }
-                    }
-                    @endphp
-
-                    @if ($hasTravelerData)
-                    @foreach ($travelerTypes as $type => $data)
+                @if ($hasTravelerData)
+                @foreach ($travelerTypes as $type => $data)
+                <div class="flex justify-between text-sm border-b pb-2">
+                    <span class="text-gray-700 font-medium">
+                        {{ ucfirst(strtolower($type) === 'held_infant' ? 'Infant' : strtolower($type)) }}
+                        x {{ $data['count'] }}
+                    </span>
+                    <span class="font-medium">
+                        {{ $data['currency'] }} {{ number_format($data['price'] + $flight_offer_price['commission'], 2) }}
+                    </span>
+                </div>
+                @endforeach
+                @else
+                <!-- Skeleton Loading for Traveler Breakdown -->
+                @for ($i = 0; $i < 3; $i++)
+                    <!-- Assuming max 3 traveler types -->
                     <div class="flex justify-between text-sm border-b pb-2">
-                        <span class="text-gray-700 font-medium">
-                            {{ ucfirst(strtolower($type) === 'held_infant' ? 'Infant' : strtolower($type)) }}
-                            x {{ $data['count'] }}
-                        </span>
-                        <span class="font-medium">
-                            {{ $data['currency'] }} {{ number_format($data['price'] + $flight_offer_price['commission'], 2) }}
-                        </span>
+                        <span class="w-24 h-5 bg-gray-300 rounded animate-pulse"></span>
+                        <span class="w-20 h-5 bg-gray-300 rounded animate-pulse"></span>
                     </div>
-                    @endforeach
-                    @else
-                    <!-- Skeleton Loading for Traveler Breakdown -->
-                    @for ($i = 0; $i < 3; $i++)
-                        <!-- Assuming max 3 traveler types -->
-                        <div class="flex justify-between text-sm border-b pb-2">
-                            <span class="w-24 h-5 bg-gray-300 rounded animate-pulse"></span>
-                            <span class="w-20 h-5 bg-gray-300 rounded animate-pulse"></span>
-                        </div>
-                        @endfor
-                        @endif
+                    @endfor
+                    @endif
 
-                        <!-- Taxes & Fees -->
-                        {{-- <div class="flex justify-between items-center text-gray-600">
+                    <!-- Taxes & Fees -->
+                    {{-- <div class="flex justify-between items-center text-gray-600">
                                 <span>Base Fare</span>
                                 @if (isset($flight_offer_price['base']))
                                     <span class="font-medium">
 
                                         {{ $flight_offer_price['currency'] }}
-                        {{ number_format((float) $flight_offer_price['base'], 2) }}
-                        </span>
-                        @else
-                        <span class="w-20 h-6 bg-gray-300 rounded animate-pulse"></span>
-                        @endif
-                </div> --}}
-                {{-- <div class="flex justify-between items-center text-gray-600">
+                    {{ number_format((float) $flight_offer_price['base'], 2) }}
+                    </span>
+                    @else
+                    <span class="w-20 h-6 bg-gray-300 rounded animate-pulse"></span>
+                    @endif
+            </div> --}}
+            {{-- <div class="flex justify-between items-center text-gray-600">
                                 <span>Taxes & Fees</span>
                                 @if (isset($flight_offer_price['currency']))
                                     <span class="font-medium">
 
                                         {{ $flight_offer_price['currency'] }}
-                {{ number_format((float) ($flight_offer_price['grandTotal'] - $flight_offer_price['base']), 2) }}
-                </span>
-                @else
-                <span class="w-20 h-6 bg-gray-300 rounded animate-pulse"></span>
-                @endif
-            </div> --}}
-
-
-
-            <!-- Commission -->
-            {{-- <div class="flex justify-between items-center text-gray-600">
-                                <span>Service charge</span>
-                                @if (isset($flight_offer_price['currency']) && isset($flight_offer_price['commission']))
-                                    <span class="font-medium">
-                                        {{ $flight_offer_price['currency'] }}
-            {{ number_format($flight_offer_price['commission'], 2) }}
+            {{ number_format((float) ($flight_offer_price['grandTotal'] - $flight_offer_price['base']), 2) }}
             </span>
             @else
             <span class="w-20 h-6 bg-gray-300 rounded animate-pulse"></span>
             @endif
         </div> --}}
 
-        <!-- Total Amount -->
-        <div
-            class="flex justify-between items-center pt-4 border-t border-gray-200 text-xl font-bold text-gray-800">
-            <span class=" text-xs md:text-xl">Total Amount</span>
-            @if (isset($flight_offer_price['currency']) &&
-            isset($flight_offer_price['grandTotal']) &&
-            isset($flight_offer_price['commission']))
-            <span class="text-primary  text-xs md:text-xl">
-                {{ $flight_offer_price['currency'] }}
-                {{-- number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) --}}
-                {{ number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) }}
-            </span>
-            @else
-            <span class="w-32 h-8 bg-gray-300 rounded animate-pulse"></span>
-            @endif
-        </div>
+
+
+        <!-- Commission -->
+        {{-- <div class="flex justify-between items-center text-gray-600">
+                                <span>Service charge</span>
+                                @if (isset($flight_offer_price['currency']) && isset($flight_offer_price['commission']))
+                                    <span class="font-medium">
+                                        {{ $flight_offer_price['currency'] }}
+        {{ number_format($flight_offer_price['commission'], 2) }}
+        </span>
+        @else
+        <span class="w-20 h-6 bg-gray-300 rounded animate-pulse"></span>
+        @endif
+    </div> --}}
+
+    <!-- Total Amount -->
+    <div
+        class="flex justify-between items-center pt-4 border-t border-gray-200 text-xl font-bold text-gray-800">
+        <span class=" text-xs md:text-xl">Total Amount</span>
+        @if (isset($flight_offer_price['currency']) &&
+        isset($flight_offer_price['grandTotal']) &&
+        isset($flight_offer_price['commission']))
+        <span class="text-primary  text-xs md:text-xl">
+            {{ $flight_offer_price['currency'] }}
+            {{-- number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) --}}
+            {{ number_format((float) $flight_offer_price['grandTotal'] + $flight_offer_price['commission'], 2) }}
+        </span>
+        @else
+        <span class="w-32 h-8 bg-gray-300 rounded animate-pulse"></span>
+        @endif
+    </div>
     </div>
 
     <div class="space-y-6">
