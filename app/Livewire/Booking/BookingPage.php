@@ -57,7 +57,7 @@ class BookingPage extends Component
         'travelers.*.documents.*.documentType' => 'required|string|in:PASSPORT,ID_CARD',
         'travelers.*.documents.*.birthPlace' => 'required|string|max:255',
         'travelers.*.documents.*.issuanceLocation' => 'required|string|max:255',
-        'travelers.*.documents.*.issuanceDate' => 'required|date|before:today',
+        // 'travelers.*.documents.*.issuanceDate' => 'nullable|date|before:today',
         'travelers.*.documents.*.number' => 'required|string|max:255',
         'travelers.*.documents.*.expiryDate' => 'required|date|after:today',
         'travelers.*.documents.*.issuanceCountry' => 'required|string',
@@ -70,7 +70,7 @@ class BookingPage extends Component
         'travelers.*.dateOfBirth.before' => 'Date of birth must be in the past',
         'travelers.*.name.firstName.required' => 'First name is required',
         'travelers.*.name.lastName.required' => 'Last name is required',
-        'travelers.*.gender.in' => 'Gender requires',
+        // 'travelers.*.gender.in' => 'Gender requires',
         // 'travelers.*.title.in' => 'Title requires',
         'travelers.*.contact.emailAddress.email' => 'Please enter a valid email address',
         'travelers.*.contact.phones.*.number.min' => 'Phone number must be at least 10 digits',
@@ -167,7 +167,7 @@ class BookingPage extends Component
                         'documentType' => 'PASSPORT',
                         'birthPlace' => 'NG',
                         'issuanceLocation' => 'NG',
-                        'issuanceDate' => '',
+                        // 'issuanceDate' => '',
                         'number' => '',
                         'expiryDate' => '',
                         'issuanceCountry' => 'NG',
@@ -245,6 +245,7 @@ class BookingPage extends Component
             // $this->initializePayment($order, $this->travelers);
 
             $flightOrderPayload = $this->prepareFlightOrderPayload();
+            // return dd($flightOrderPayload);
             
             $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
             //   dd($orderResponse);   

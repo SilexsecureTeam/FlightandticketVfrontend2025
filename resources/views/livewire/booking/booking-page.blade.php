@@ -1217,7 +1217,7 @@
                                     @enderror
                                 </div>
 
-                                <div>
+                                {{--<div>
                                     <label
                                         class="block text-sm font-medium text-gray-700 mb-2">Issuance
                                         Date</label>
@@ -1228,7 +1228,7 @@
                                     <span
                                         class="text-red-500 text-sm mt-1">{{ $message }}</span>
                                     @enderror
-                                </div>
+                                </div>--}}
 
                                 <div>
                                     <label

@@ -5,6 +5,45 @@
         document.getElementById('hideforAdmid').style.display = 'none';
     </script>
     @endif
+    <style>
+        .support-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: #000000;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .support-card-icon {
+            /* width: 50px;
+            height: 50px;
+            background: #0d6efd; */
+            color: #97050C;
+            /* border-radius: 50%;
+            align-items: center;
+            justify-content: center; */
+            font-size: 22px;
+        }
+
+        .support-card .text {
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .support-card .line-one {
+            margin: 0;
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        .support-card .line-two a {
+            margin: 4px 0 0;
+            font-size: 14px;
+            color: #ffffff;
+        }
+    </style>
     @if ($status === 'processing')
     <style>
         /* Shimmer effect */
@@ -202,6 +241,8 @@
             color: unset !important;
         }
     </style>
+
+
 
     <div class="layout" wire:ignore>
         <!-- Sidebar -->
@@ -699,22 +740,38 @@
                         <!-- Dynamic content goes here -->
                     </div>
                 </div>
-                <div class="mb-6 flex justify-between pr-2">
+                <div class="w-full mb-4">
                     <div>
                         <h3 class="text-base font-medium mb-4">Sort By</h3>
-                        <div class="flex space-x-4">
-                            <!-- Cheapest Button -->
-                            <!-- Cheapest Button -->
-                            <button onclick="sortFlights('cheapest')" id="cheapest-btn"
-                                class="px-4 py-2  rounded-md bg-primary text-white">
-                                Cheapest
-                            </button>
+                        <div class="flex justify-between">
+                            <div class="flex space-x-4">
+                                <!-- Cheapest Button -->
+                                <!-- Cheapest Button -->
+                                <button onclick="sortFlights('cheapest')" id="cheapest-btn"
+                                    class="px-4 py-2  rounded-md bg-primary text-white">
+                                    Cheapest
+                                </button>
 
-                            <!-- Fastest Button -->
-                            <button onclick="sortFlights('fastest')" id="fastest-btn"
-                                class="px-4 py-2 rounded-md  text-black">
-                                Fastest
-                            </button>
+                                <!-- Fastest Button -->
+                                <button onclick="sortFlights('fastest')" id="fastest-btn"
+                                    class="px-4 py-2 rounded-md  text-black">
+                                    Fastest
+                                </button>
+                            </div>
+
+                            <div class="support-card">
+
+                                <div class="text">
+                                    <p class="line-one">
+                                        Our customer service team is happy to help you get the best deal
+                                    </p>
+                                    <p class="line-two">
+                                        <span class="support-card-icon"><i class="fa-solid fa-headset"></i></span>
+                                        <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp:</strong> 08022008793</a> &nbsp; | &nbsp;
+                                        <a href="tel:08022888712" target="_blank"><strong>Call:</strong> 08022888712</a>
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

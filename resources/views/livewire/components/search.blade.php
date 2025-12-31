@@ -96,11 +96,12 @@
         <div class="flex relative justify-between flex-wrap gap-5 mb-3 md:gap-3 ">
             <div
                 class="flex flex-wrap gap-1 md:gap-3 justify-center">
+                {{-- 'multi': { text: 'MULTI CITY', icon: 'M9 5l7 7-7 7' } --}}
                 <template
                     x-for="(label, type) in {
                     'one': { text: 'ONE WAY', icon: 'M14 5l7 7m0 0l-7 7m7-7H3' },
                     'round': { text: 'ROUND TRIP', icon: 'M8 7l4-4m0 0l4 4m-4-4v18' },
-                    'multi': { text: 'MULTI CITY', icon: 'M9 5l7 7-7 7' }
+                    
                 }"
                     :key="type">
                     <label @click="$dispatch('updateTrip', { type: type })" {{-- @click="tripType = type; $dispatch('updateTrip', type)" --}}
