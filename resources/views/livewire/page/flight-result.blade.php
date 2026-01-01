@@ -42,6 +42,26 @@
             margin: 4px 0 0;
             font-size: 14px;
             color: #ffffff;
+            text-decoration: underline;
+            text-decoration-color: #97050C;
+            /* underline color */
+            text-decoration-thickness: 2px;
+            /* optional */
+            text-underline-offset: 3px;
+            /* optional */
+        }
+
+        @media(max-width: 768px) {
+
+            .support-card .line-two a,
+            .support-card .line-one,
+            .support-card-icon {
+                font-size: 12px;
+            }
+
+            .displayNoneMobile {
+                display: none !important;
+            }
         }
     </style>
     @if ($status === 'processing')
@@ -743,7 +763,7 @@
                 <div class="w-full mb-4">
                     <div>
                         <h3 class="text-base font-medium mb-4">Sort By</h3>
-                        <div class="flex justify-between">
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center space-y-4 md:space-y-0">
                             <div class="flex space-x-4">
                                 <!-- Cheapest Button -->
                                 <!-- Cheapest Button -->
@@ -766,8 +786,8 @@
                                         Our customer service team is happy to help you get the best deal
                                     </p>
                                     <p class="line-two">
-                                        <span class="support-card-icon"><i class="fa-solid fa-headset"></i></span>
-                                        <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp:</strong> 08022008793</a> &nbsp; | &nbsp;
+                                        <span class="support-card-icon displayNoneMobile"><i class="fa-solid fa-headset"></i></span>
+                                        <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp:</strong> 08022008793</a> |
                                         <a href="tel:08022888712" target="_blank"><strong>Call:</strong> 08022888712</a>
                                     </p>
                                 </div>
