@@ -43,7 +43,7 @@
             font-size: 14px;
             color: #ffffff;
             text-decoration: underline;
-            text-decoration-color: #97050C;
+            text-decoration-color: #97050C; 
             /* underline color */
             text-decoration-thickness: 2px;
             /* optional */
