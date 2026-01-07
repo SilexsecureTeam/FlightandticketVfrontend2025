@@ -1301,12 +1301,8 @@
             <div class="flex items-center justify-between">
                 <h2 class="text-2xl font-bold">Price Summary</h2>
                 <div class="p-2 rounded-lg bg-primary/10 text-primary">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                            d="M6 5v14M18 5v14M6 9h12M6 15h12M6 5l12 14"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round" />
+                    <svg width="40" height="40" viewBox="0 0 81 91" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0 30.25H10.0833V0H20.1667L37.4092 30.25H60.5V0H70.5833V30.25H80.6667V40.3333H70.5833V50.4167H80.6667V60.5H70.5833V90.75H60.5L43.2071 60.5H20.1667V90.75H10.0833V60.5H0V50.4167H10.0833V40.3333H0V30.25ZM20.1667 30.25H25.8638L20.1667 20.3179V30.25ZM20.1667 40.3333V50.4167H37.4092L31.6617 40.3333H20.1667ZM60.5 70.5833V60.5H54.7021L60.5 70.5833ZM43.1567 40.3333L48.9546 50.4167H60.5V40.3333H43.1567Z" fill="#97060B" />
                     </svg>
 
                 </div>
