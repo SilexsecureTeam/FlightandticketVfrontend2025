@@ -1112,7 +1112,6 @@
                                     <!-- Flight Details -->
                                     <div class="text-right ml-2">
                                         <div class="text-sm text-gray-500">
-                                            {{$flight['price']['commission']}}
                                             {{ $flight['numberOfBookableSeats'] }} seats left
                                         </div>
                                     </div>
