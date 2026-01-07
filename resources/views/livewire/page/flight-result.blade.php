@@ -43,7 +43,7 @@
             font-size: 14px;
             color: #ffffff;
             text-decoration: underline;
-            text-decoration-color: #97050C; 
+            text-decoration-color: #97050C;
             /* underline color */
             text-decoration-thickness: 2px;
             /* optional */
@@ -787,8 +787,8 @@
                                     </p>
                                     <p class="line-two">
                                         <span class="support-card-icon displayNoneMobile"><i class="fa-solid fa-headset"></i></span>
-                                        <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp:</strong> 08022008793</a> |
-                                        <a href="tel:08022888712" target="_blank"><strong>Call:</strong> 08022888712</a>
+                                        <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp: 08022008793</strong></a> |
+                                        <a href="tel:08022888712" target="_blank"><strong>Call: 08022888712</strong></a>
                                     </p>
                                 </div>
                             </div>
@@ -1112,6 +1112,7 @@
                                     <!-- Flight Details -->
                                     <div class="text-right ml-2">
                                         <div class="text-sm text-gray-500">
+                                            {{$flight['price']['commission']}}
                                             {{ $flight['numberOfBookableSeats'] }} seats left
                                         </div>
                                     </div>

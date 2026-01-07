@@ -1224,74 +1224,74 @@
                                     <input type="date"
                                         class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                                         wire:model.defer="travelers.{{ $index }}.documents.0.issuanceDate">
-                                    @error("travelers.{$index}.documents.0.issuanceDate")
-                                    <span
-                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                    @enderror
-                                </div>--}}
+                                @error("travelers.{$index}.documents.0.issuanceDate")
+                                <span
+                                    class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                @enderror
+                            </div>--}}
 
-                                <div>
-                                    <label
-                                        class="block text-sm font-medium text-gray-700 mb-2">Expiry
-                                        Date</label>
-                                    <input type="date"
-                                        class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                                        wire:model.defer="travelers.{{ $index }}.documents.0.expiryDate">
-                                    @error("travelers.{$index}.documents.0.expiryDate")
-                                    <span
-                                        class="text-red-500 text-sm mt-1">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-gray-700 mb-2">Expiry
+                                    Date</label>
+                                <input type="date"
+                                    class="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                                    wire:model.defer="travelers.{{ $index }}.documents.0.expiryDate">
+                                @error("travelers.{$index}.documents.0.expiryDate")
+                                <span
+                                    class="text-red-500 text-sm mt-1">{{ $message }}</span>
+                                @enderror
                             </div>
                         </div>
-                        @if ($loop->last)
-                        <button type="submit"
-                            class="w-full bg-primary md:hidden text-white rounded-xl py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/25">
-                            <span wire:loading.remove>
-                                Continue to Payment
-                            </span>
-                            <div class="flex items-center justify-center text-center mx-auto"
-                                wire:loading.flex wire:target='createFlightOrder'>
-                                <span>Please Wait</span>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 24 24" aria-hidden="true"
-                                    class="size-10 pl-3 fill-white motion-safe:animate-spin">
-                                    <path
-                                        d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                                        opacity=".25" />
-                                    <path
-                                        d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
-                                </svg>
-                            </div>
-                        </button>
-                        @endif
                     </div>
+                    @if ($loop->last)
+                    <button type="submit"
+                        class="w-full bg-primary md:hidden text-white rounded-xl py-4 text-lg font-semibold hover:bg-opacity-90 transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-primary/25">
+                        <span wire:loading.remove>
+                            Continue to Payment
+                        </span>
+                        <div class="flex items-center justify-center text-center mx-auto"
+                            wire:loading.flex wire:target='createFlightOrder'>
+                            <span>Please Wait</span>
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24" aria-hidden="true"
+                                class="size-10 pl-3 fill-white motion-safe:animate-spin">
+                                <path
+                                    d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+                                    opacity=".25" />
+                                <path
+                                    d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+                            </svg>
+                        </div>
+                    </button>
                     @endif
                 </div>
+                @endif
             </div>
-            @endforeach
-            @else
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-yellow-700">
-                            Please select a flight first.
-                        </p>
-                    </div>
+        </div>
+        @endforeach
+        @else
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd"
+                            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        Please select a flight first.
+                    </p>
                 </div>
             </div>
-            @endif
-
-
         </div>
+        @endif
+
+
+    </div>
 
     </div>
 
@@ -1303,9 +1303,12 @@
                 <div class="p-2 rounded-lg bg-primary/10 text-primary">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path
-                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                            stroke-width="2" stroke-linecap="round" />
+                            d="M6 5v14M18 5v14M6 9h12M6 15h12M6 5l12 14"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
+
                 </div>
             </div>
 

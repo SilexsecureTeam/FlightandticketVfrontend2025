@@ -64,35 +64,137 @@
 
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-5">
-                                <div class="relative  md:col-span-1">
+                            <div class="flex justify-between gap-4">
+                                <div class="w-1/2">
                                     <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
-                                        Mark price
+                                        Economy Mark price
                                     </label>
                                     <div class="mt-2 relative rounded-md shadow-sm">
 
-                                        <input type="text" id="airlineName" wire:model="e_markup"
+                                        <input type="text" id="airlineName" wire:model="e_markprice_economy"
                                             placeholder="00.00"
                                             class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200" />
                                     </div>
-                                    @error('markprice')
+                                    @error('markprice_economy')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                     @enderror
 
                                 </div>
-                                <div class="relative  md:col-span-2">
+                                <div class="w-1/2">
                                     <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
-                                        Mark State
+                                        Economy Mark State
                                     </label>
                                     <div class="mt-2 relative rounded-md shadow-sm">
-                                        <select id="airlineName" wire:model="e_markstatus"
+                                        <select id="airlineName" wire:model="e_markstatus_economy"
                                             placeholder="00.00" class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200">
                                             <option value="null">Select option</option>
-                                            <option value="markup" {{$e_markstatus == "markup" ? 'selected' : ''}}>Markup</option>
-                                            <option value="markdown" {{$e_markstatus == "markdown" ? 'selected' : ''}}>Markdown</option>
+                                            <option value="markup" {{$e_markstatus_economy == "markup" ? 'selected' : ''}}>Markup</option>
+                                            <option value="markdown" {{$e_markstatus_economy == "markdown" ? 'selected' : ''}}>Markdown</option>
                                         </select>
                                     </div>
-                                    @error('e_markstatus')
+                                    @error('e_markstatus_economy')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        Premium Economy Mark price
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+
+                                        <input type="text" id="airlineName" wire:model="e_markprice_premium_economy"
+                                            placeholder="00.00"
+                                            class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200" />
+                                    </div>
+                                    @error('markprice_premium_economy')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        Premium Economy Mark State
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+                                        <select id="airlineName" wire:model="e_markstatus_premium_economy"
+                                            placeholder="00.00" class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200">
+                                            <option value="null">Select option</option>
+                                            <option value="markup" {{$e_markstatus_premium_economy == "markup" ? 'selected' : ''}}>Markup</option>
+                                            <option value="markdown" {{$e_markstatus_premium_economy == "markdown" ? 'selected' : ''}}>Markdown</option>
+                                        </select>
+                                    </div>
+                                    @error('e_markstatus_premium_economy')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        Business Mark price
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+
+                                        <input type="text" id="airlineName" wire:model="e_markprice_business"
+                                            placeholder="00.00"
+                                            class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200" />
+                                    </div>
+                                    @error('markprice_business')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        Business Mark State
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+                                        <select id="airlineName" wire:model="e_markstatus_business"
+                                            placeholder="00.00" class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200">
+                                            <option value="null">Select option</option>
+                                            <option value="markup" {{$e_markstatus_business == "markup" ? 'selected' : ''}}>Markup</option>
+                                            <option value="markdown" {{$e_markstatus_business == "markdown" ? 'selected' : ''}}>Markdown</option>
+                                        </select>
+                                    </div>
+                                    @error('e_markstatus_business')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                            </div>
+                            <div class="flex justify-between gap-4">
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        First Mark price
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+
+                                        <input type="text" id="airlineName" wire:model="e_markprice_first"
+                                            placeholder="00.00"
+                                            class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200" />
+                                    </div>
+                                    @error('markprice_first')
+                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+                                    @enderror
+
+                                </div>
+                                <div class="w-1/2">
+                                    <label for="airlineName" class="block text-sm font-medium leading-6 text-gray-900">
+                                        First Mark State
+                                    </label>
+                                    <div class="mt-2 relative rounded-md shadow-sm">
+                                        <select id="airlineName" wire:model="e_markstatus_first"
+                                            placeholder="00.00" class="block w-full rounded-md border-0 py-2.5 px-2  text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition duration-200">
+                                            <option value="null">Select option</option>
+                                            <option value="markup" {{$e_markstatus_first == "markup" ? 'selected' : ''}}>Markup</option>
+                                            <option value="markdown" {{$e_markstatus_first == "markdown" ? 'selected' : ''}}>Markdown</option>
+                                        </select>
+                                    </div>
+                                    @error('e_markstatus_first')
                                     <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
                                     @enderror
 

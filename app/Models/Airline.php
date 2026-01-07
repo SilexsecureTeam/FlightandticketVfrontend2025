@@ -15,7 +15,16 @@ class Airline extends Model
         'logo',
         'markprice',
         'markstatus' ,
-        'markup'     
+        'markup',
+        'markprice_economy',
+        'markstatus_economy',
+        'markprice_premium_economy',
+        'markstatus_premium_economy',
+        'markprice_first',
+        'markstatus_first',
+        'markprice_business',
+        'markstatus_business',
+        'markdown',     
     ];
 
 }

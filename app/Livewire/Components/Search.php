@@ -671,7 +671,7 @@ class Search extends Component
             'originDestinations' => $originDestinations,
             'travelers' => $travelers,
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
-            // 'includedAirlineCodes' => 'KQ',
+            // 'includedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             'searchCriteria' => [
                 'maxFlightOffers' => 10,
                 'flightFilters' => [
@@ -730,25 +730,31 @@ class Search extends Component
                     $segment['arrival']['airport'] = $arrivalDetails['airport'];
                     $segment['arrival']['city_country'] = $arrivalDetails['city_country'];
 
-                    $airlineDetails = $this->getAirlineDetailsByCode($segment['carrierCode']);
+                    $airlineDetails = (new GeneralService)->getAirlineDetailsByCode($segment['carrierCode']);
                     $segment['airline'] = [
+                        'id' => $airlineDetails['id'],
                         'name' => $airlineDetails['name'],
                         'logo' => $airlineDetails['logo'],
                     ];
                     $segment['airline'] = [
+                        'id' => $airlineDetails['id'],
                         'name' => $airlineDetails['name'],
                         'logo' => $airlineDetails['logo'],
                     ];
 
                     $markupValueSign = 0;
-                    if (count($travelers) == 1) {
+                    if (count($travelers) == 1 && $airlineDetails['id']) {
+                        $dataClassCabin = (new GeneralService)->getCabinClassMarkprice($validatedData['cabinClass'], $airlineDetails['id']);
                         // Add the fixed markup value as commission
-                        $markupValue = $airlineDetails['markup']; // Fixed markup value
-                        $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+                        $markupValue = $dataClassCabin['markprice']; // Fixed markup value
+                        $markupstatus = $dataClassCabin['markstatus']; // Fixed markup value
                         // Add commission to the price array
                         $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
                     }
                     $flightOffer['price']['commission'] = $markupValueSign;
+                    // if($segment['carrierCode'] == 'MS'){
+                    //     return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
+                    // }
                     $cheapestNew = [
                         "name" => $airlineDetails['name'],
                         "logo" => $airlineDetails['logo'],
@@ -757,7 +763,8 @@ class Search extends Component
                         "price" => floatval($flightOffer['price']['total'] + $markupValueSign),
                         "numberOfStops" => $numberOfStops
                     ];
-                    $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
+                    // $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
+                    $cheapest = (new GeneralService)->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
                 }
             }
         }
@@ -1121,6 +1128,7 @@ class Search extends Component
         $airline = Airline::where('airline_code', $carrierCode)->first();
         if ($airline) {
             return [
+                'id' => $airline->id,
                 'name' => $airline->airline_name,
                 'logo' => $airline->logo ?? null, // Ensure there's a fallback if no logo exists
                 'markup' => $airline->markup ?? 0,

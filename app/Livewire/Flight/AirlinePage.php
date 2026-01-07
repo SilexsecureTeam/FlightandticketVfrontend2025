@@ -25,6 +25,15 @@ class AirlinePage extends Component
         public $e_markdown;
         public $e_markprice;
         public $e_markstatus;
+        public $e_markprice_economy;
+        public $e_markstatus_economy;
+        public $e_markprice_premium_economy;
+        public $e_markstatus_premium_economy;
+        public $e_markprice_first;
+        public $e_markstatus_first;
+        public $e_markprice_business;
+        public $e_markstatus_business;
+
         public $e_logo;
           public $airline;
           public $search = '';
@@ -97,6 +106,14 @@ class AirlinePage extends Component
         $this->e_markdown = $this->airline->markdown;
         $this->e_markprice = $this->airline->markprice;
         $this->e_markstatus = $this->airline->markstatus ?? null;
+        $this->e_markprice_economy = $this->airline->markprice_economy;
+        $this->e_markstatus_economy = $this->airline->markstatus_economy ?? null;
+        $this->e_markprice_premium_economy = $this->airline->markprice_premium_economy;
+        $this->e_markstatus_premium_economy = $this->airline->markstatus_premium_economy ?? null;
+        $this->e_markprice_business = $this->airline->markprice_business;
+        $this->e_markstatus_business = $this->airline->markstatus_business ?? null;
+        $this->e_markprice_first = $this->airline->markprice_first;
+        $this->e_markstatus_first = $this->airline->markstatus_first ?? null;
         $this->e_logo = $this->airline->logo;
        
 
@@ -140,7 +157,9 @@ class AirlinePage extends Component
             // return dd($this->e_markstatus ?? null);
             
             // Update airline details
-            // return dd($this->e_markup);
+            // return dd([$this->e_markprice_economy, $this->e_markstatus_economy, $this->e_markprice_premium_economy, $this->e_markstatus_premium_economy,
+            // $this->e_markprice_business, $this->e_markstatus_business, $this->e_markprice_first, $this->e_markstatus_first]);
+            
             $this->airline->update([
                 'airline_code' => $this->e_airline_code,
                 'airline_name' => $this->e_airline_name,
@@ -148,6 +167,14 @@ class AirlinePage extends Component
                 'markdown' => $this->e_markdown,
                 'markprice' => $this->e_markprice,
                 'markstatus' => $this->e_markstatus == "null" ? null : $this->e_markstatus,
+                'markprice_economy' => $this->e_markprice_economy,
+                'markstatus_economy' => $this->e_markstatus_economy == "null" ? null : $this->e_markstatus_economy, 
+                'markprice_premium_economy' => $this->e_markprice_premium_economy,
+                'markstatus_premium_economy' => $this->e_markstatus_premium_economy == "null" ? null : $this->e_markstatus_premium_economy, 
+                'markprice_business' => $this->e_markprice_business,
+                'markstatus_business' => $this->e_markstatus_business == "null" ? null : $this->e_markstatus_business, 
+                'markprice_first' => $this->e_markprice_first,
+                'markstatus_first' => $this->e_markstatus_first == "null" ? null : $this->e_markstatus_first, 
                 'logo' => $logoPath,
             ]);
             
