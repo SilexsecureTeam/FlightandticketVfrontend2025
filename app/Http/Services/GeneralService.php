@@ -184,57 +184,60 @@ class GeneralService
 
     public function addOrReplaceByLowestPrice(array $flights, array $newFlight): array
     {
-        $newPrice = (int) str_replace(',', '', $newFlight['price']);
-        $stopIndex = $newFlight['numberOfStops'];
-        $codeKey = strtolower($newFlight['code']);
-        $updated = false;
+        $newPrice  = (int) str_replace(',', '', $newFlight['price']);
+        $stopIndex = (int) $newFlight['numberOfStops']; // 0,1,2
+        $codeKey   = strtolower($newFlight['code']);
+        $updated   = false;
 
         foreach ($flights as $index => $flight) {
             if (strtolower($flight['code']) === $codeKey) {
-                // If price is not yet an array, convert it
-                if (!is_array($flight['price'])) {
-                    $flight['price'] = [(int) str_replace(',', '', $flight['price'])];
+
+                // Normalize price array to 3 stops
+                $prices = is_array($flight['price'])
+                    ? array_replace([null, null, null], $flight['price'])
+                    : [null, null, null];
+
+                // Add or replace if lower
+                if ($prices[$stopIndex] === null || $newPrice < $prices[$stopIndex]) {
+                    $prices[$stopIndex] = $newPrice;
                 }
 
-                // Ensure the array is big enough to handle new stop index
-                if (!isset($flight['price'][$stopIndex])) {
-                    $flight['price'][$stopIndex] = $newPrice;
-                } else {
-                    // Replace only if new price is lower
-                    if ($newPrice < (int) $flight['price'][$stopIndex]) {
-                        $flight['price'][$stopIndex] = $newPrice;
-                    }
-                }
-
-                // Sort prices array to preserve index order
-                ksort($flight['price']);
-                $flights[$index]['price'] = $flight['price'];
+                $flights[$index]['price'] = $prices;
                 $updated = true;
                 break;
             }
         }
 
+        // If airline does not exist, add it
         if (!$updated) {
-            // New flight structure
-            $priceArray = ['', '', ''];
+            $priceArray = [null, null, null];
             $priceArray[$stopIndex] = $newPrice;
 
-            $new = [
-                "name" => $newFlight['name'],
-                "logo" => $newFlight['logo'],
-                "code" => $newFlight['code'],
+            $flights[] = [
+                "name"     => $newFlight['name'],
+                "logo"     => $newFlight['logo'],
+                "code"     => $newFlight['code'],
                 "currency" => $newFlight['currency'],
-                "price" => $priceArray
+                "price"    => $priceArray,
             ];
-
-            $flights[] = $new;
         }
 
-        // Sort final array by lowest price at index 0
+        /**
+         * Sort rules:
+         * 1. Lowest price at index 0
+         * 2. If equal/missing → index 1
+         * 3. If equal/missing → index 2
+         */
         usort($flights, function ($a, $b) {
-            $priceA = $a['price'][0] ?? PHP_INT_MAX;
-            $priceB = $b['price'][0] ?? PHP_INT_MAX;
-            return $priceA <=> $priceB;
+            for ($i = 0; $i < 3; $i++) {
+                $priceA = $a['price'][$i] ?? PHP_INT_MAX;
+                $priceB = $b['price'][$i] ?? PHP_INT_MAX;
+
+                if ($priceA !== $priceB) {
+                    return $priceA <=> $priceB;
+                }
+            }
+            return 0;
         });
 
         return $flights;

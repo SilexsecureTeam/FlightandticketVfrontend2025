@@ -752,9 +752,9 @@ class Search extends Component
                         $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
                     }
                     $flightOffer['price']['commission'] = $markupValueSign;
-                    // if($segment['carrierCode'] == 'MS'){
-                    //     return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
-                    // }
+                    if($segment['carrierCode'] == 'ET' && $flightOffer['price']['commission'] != 0){
+                        return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
+                    }
                     $cheapestNew = [
                         "name" => $airlineDetails['name'],
                         "logo" => $airlineDetails['logo'],
@@ -768,6 +768,8 @@ class Search extends Component
                 }
             }
         }
+        
+        // return dd($dictionaries);
 
         // return dd($cheapest);
 
@@ -803,6 +805,7 @@ class Search extends Component
         // Store in database
         FlightSearch::find($fligtBokked)->update($categorizedData);
 
+        // return dd($flightOffers);
         // Redirect with just the search ID
         return redirect()->route('search.results', ['id' => $searchId]);
 

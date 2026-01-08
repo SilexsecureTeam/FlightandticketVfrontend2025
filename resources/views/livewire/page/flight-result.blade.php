@@ -783,7 +783,7 @@
 
                                 <div class="text">
                                     <p class="line-one">
-                                        Our customer service team is happy to help you get the best deal
+                                        <strong>Our customer service team is happy to help you get the best deal</strong>
                                     </p>
                                     <p class="line-two">
                                         <span class="support-card-icon displayNoneMobile"><i class="fa-solid fa-headset"></i></span>
