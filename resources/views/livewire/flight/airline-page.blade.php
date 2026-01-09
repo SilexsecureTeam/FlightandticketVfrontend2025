@@ -392,8 +392,7 @@
                                             </button>
                                         </th>
                                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Visibility</th>
-                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Mark Price</th>
-                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Mark State</th>
+                                        <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Mark Price/State</th>
                                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Logo</th>
                                         <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 border-b-2 border-blue-200">Actions</th>
                                     </tr>
@@ -432,12 +431,12 @@
                                         </td>
                                         <td class="px-4 py-4">
                                             <span class="px-3 py-1 text-base md:text-sm font-medium rounded-full shadow-sm">
-                                                ₦{{ number_format($airline->markup ?? 0, 2) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-4">
-                                            <span class="px-3 py-1 text-base md:text-sm font-medium rounded-full shadow-sm">
-                                                {{ $airline->markstatus ?? 'null' }}
+                                                <p style="font-size: 10;">
+                                                    <b>Economy:</b> ₦{{ number_format($airline->markprice_economy ?? 0, 2) }} - {{ ucfirst($airline->markstatus_economy ?? 'N/A') }}<br>
+                                                    <b>P. Economy:</b> ₦{{ number_format($airline->markprice_premium_economy ?? 0, 2) }} - {{ ucfirst($airline->markstatus_premium_economy ?? 'N/A') }}<br>
+                                                    <b>Business:</b> ₦{{ number_format($airline->markprice_business ?? 0, 2) }} - {{ ucfirst($airline->markstatus_business ?? 'N/A') }}<br>
+                                                    <b>First:</b> ₦{{ number_format($airline->markprice_first ?? 0, 2) }} - {{ ucfirst($airline->markstatus_first ?? 'N/A') }}
+                                                </p>
                                             </span>
                                         </td>
 

@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('airlines', function (Blueprint $table) {
-            $table->string('markprice_economy')->nullable();
+            $table->double('markprice_economy')->nullable();
             $table->enum('markstatus_economy', ['markup', 'markdown'])->nullable();
-            $table->string('markprice_premium_economy')->nullable();
+            $table->double('markprice_premium_economy')->nullable();
             $table->enum('markstatus_premium_economy', ['markup', 'markdown'])->nullable();
-            $table->string('markprice_business')->nullable();
+            $table->double('markprice_business')->nullable();
             $table->enum('markstatus_business', ['markup', 'markdown'])->nullable();
-            $table->string('markprice_first')->nullable();
+            $table->double('markprice_first')->nullable();
             $table->enum('markstatus_first', ['markup', 'markdown'])->nullable();
         });
     }
