@@ -1,5 +1,5 @@
 <div class="modal-overlay" id="overlay-<?= $flight['id'] ?>"></div>
-<div class="modal" id="modal-<?= $flight['id'] ?>">
+<div class="modal" id="modal-<?= $flight['id'] ?>" wire:ignore>
     <div class="modal-header">
         <h3>Flight details</h3>
         <button class="modal-close modal-closeBtn" data-close="modal-<?= $flight['id'] ?>">&times;</button>
@@ -235,6 +235,27 @@
                                             {{ ucfirst(strtolower($traveler['travelerType']) === 'held_infant' ? 'Infant' : strtolower($traveler['travelerType'])) }}
                                         </h5>
 
+                                        @if (isset($traveler['fareDetailsBySegment'][0]['includedCheckedBags']['weight']))
+                                        <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span>
+                                                {{ $traveler['fareDetailsBySegment'][0]['includedCheckedBags']['weight'] }} {{ $traveler['fareDetailsBySegment'][0]['includedCheckedBags']['weightUnit'] }}
+                                            </span>
+                                        </div>
+                                        @else
+                                        <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                            <span>No checked bags Weight included</span>
+                                        </div>
+                                        @endif
                                         @if (isset($traveler['fareDetailsBySegment'][0]['includedCheckedBags']['quantity']))
                                         <div class="flex items-center space-x-2 text-sm text-gray-600">
                                             <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor"
