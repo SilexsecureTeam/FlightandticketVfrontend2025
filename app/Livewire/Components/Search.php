@@ -752,9 +752,9 @@ class Search extends Component
                         $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
                     }
                     $flightOffer['price']['commission'] = $markupValueSign;
-                    if($segment['carrierCode'] == 'ET' && $flightOffer['price']['commission'] != 0){
-                        return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
-                    }
+                    // if($segment['carrierCode'] == 'ET' && $flightOffer['price']['commission'] != 0){
+                    //     return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
+                    // }
                     $cheapestNew = [
                         "name" => $airlineDetails['name'],
                         "logo" => $airlineDetails['logo'],
