@@ -788,7 +788,7 @@
                                     <p class="line-two">
                                         <span class="support-card-icon displayNoneMobile"><i class="fa-solid fa-headset"></i></span>
                                         <a href="https://wa.me/2348022008793" target="_blank"><strong>WhatsApp: 08022008793</strong></a> |
-                                        <a href="tel:08022888712" target="_blank"><strong>Call: 08022888712</strong></a>
+                                        <a href="tel:08022888721" target="_blank"><strong>Call: 08022888721</strong></a>
                                     </p>
                                 </div>
                             </div>
