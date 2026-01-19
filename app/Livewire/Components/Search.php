@@ -620,7 +620,10 @@ class Search extends Component
             // return dd([$validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions]);
 
             $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
-            $this->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            
+            $searchResult = (new GeneralService)->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            
+            return redirect()->route('search.results', ['id' => $searchResult['searchId']]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
             session()->flash('errors', $e->errors());

@@ -947,7 +947,7 @@
                                                 <div class="flex-shrink-0 mr-3">
                                                     <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
                                                                         ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
-                                                                        : asset('images/default-airline-logo.png') }}"
+                                                                        : asset('images/plane-flying.png') }}"
                                                         alt="{{ $itinerary['segments'][0]['airline']['name'] }}"
                                                         class="object-contain w-12 h-12">
                                                 </div>

@@ -23,6 +23,8 @@ Route::post('resetForgetPassword', [Authcontroller::class, 'resetForgetPassword'
 Route::prefix('flights')->group(function () {
     Route::get('/popularCities', [ApiFlightSearchController::class, 'popularCities']);
     Route::post('/searchAirports', [ApiFlightSearchController::class, 'searchAirports']);
+    Route::post('/search', [ApiFlightSearchController::class, 'search']);
+    Route::get('/search/{id}', [ApiFlightSearchController::class, 'getSearchResults']);
 
     // Route::post('/search', [FlightSearchController::class, 'searchFlights']);
     // Route::get('/search-airports', [AirportSearchController::class, 'searchAirports']);

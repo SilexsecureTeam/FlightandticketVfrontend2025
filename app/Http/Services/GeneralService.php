@@ -2,13 +2,17 @@
 
 namespace App\Http\Services;
 
+use GuzzleHttp\Client;
 use App\Models\Airline;
 use App\Models\Airport;
-
-
+use App\Models\FlightSearch;
+use Illuminate\Support\Facades\Storage;
+use App\Traits\AmadeusApiTrait;
 
 class GeneralService
 {
+    use AmadeusApiTrait;
+    public $showToSource = "web";
 
     public function popularCities()
     {
@@ -120,6 +124,27 @@ class GeneralService
             return $airlines->toArray();
         }
         return [];
+    }
+
+    public function getCityNameByIata($iataCode)
+    {
+        $airline = Airport::where('airport_code', $iataCode)->first();
+
+        if ($airline) {
+            return [
+                'city' => $airline->city ?? 'Unknown',
+                'country' => $airline->country ?? 'Unknown',
+                'airport' => $airline->airport ?? 'Unknown',
+                'city_country' => $airline->city_country ?? 'Unknown',
+            ];
+        }
+
+        return [
+            'city' => 'Unknown',
+            'country' => 'Unknown',
+            'airport' => 'Unknown',
+            'city_country' => 'Unknown',
+        ];
     }
 
     public function getAirlineDetailsByCode($carrierCode)
@@ -241,5 +266,163 @@ class GeneralService
         });
 
         return $flights;
+    }
+
+    public function searchDirect($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions)
+    {
+
+        $client = new Client();
+        $baseUrl = config('services.amadeus.base_url');
+
+        $payload = [
+            'currencyCode' => $validatedData['currencyCode'],
+            'originDestinations' => $originDestinations,
+            'travelers' => $travelers,
+            'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
+            // 'includedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
+            'searchCriteria' => [
+                'maxFlightOffers' => 10,
+                'flightFilters' => [
+                    'cabinRestrictions' => $cabinRestrictions,
+                    // 'connectionRestriction' => [
+                    //     'maxNumberOfConnections' => 0 // 0 = direct, 1 = max 1 stop, 2 = max 2 stops
+                    // ],
+                ],
+                'additionalInformation' => [
+                    'chargeableCheckedBags' => false,
+                    'brandedFares' => true,
+                    'fareRules' => true,
+                ],
+                'pricingOptions' => [
+                    'fareType' => ['PUBLISHED'],
+                ],
+            ],
+        ];
+
+
+        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                'Content-Type' => 'application/json',
+                'ama-client-ref' => $clientRef,
+            ],
+            'json' => $payload
+
+        ]);
+
+        $data = json_decode($response->getBody()->getContents(), true);
+        $flightOffers = $data['data'] ?? [];
+        $dictionaries = $data['dictionaries'] ?? [];
+        $cheapest = [];
+
+        // return dd(json_encode($payload));
+        // return dd(json_encode($flightOffers));
+        // return dd(json_encode($dictionaries['carriers']));
+
+
+        foreach ($flightOffers as &$flightOffer) {
+            foreach ($flightOffer['itineraries'] as &$itinerary) {
+                $numberOfStops = count($itinerary['segments']) - 1;
+                foreach ($itinerary['segments'] as &$segment) {
+                    // Replace departure iataCode with city details
+                    $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
+                    $segment['departure']['city'] = $departureDetails['city'];
+                    $segment['departure']['country'] = $departureDetails['country'];
+                    $segment['departure']['airport'] = $departureDetails['airport'];
+                    $segment['departure']['city_country'] = $departureDetails['city_country'];
+
+                    // Replace arrival iataCode with city details
+                    $arrivalDetails = $this->getCityNameByIata($segment['arrival']['iataCode']);
+                    $segment['arrival']['city'] = $arrivalDetails['city'];
+                    $segment['arrival']['country'] = $arrivalDetails['country'];
+                    $segment['arrival']['airport'] = $arrivalDetails['airport'];
+                    $segment['arrival']['city_country'] = $arrivalDetails['city_country'];
+
+                    $airlineDetails = (new GeneralService)->getAirlineDetailsByCode($segment['carrierCode']);
+                    $segment['airline'] = [
+                        'id' => $airlineDetails['id'],
+                        'name' => $airlineDetails['name'],
+                        'logo' => $airlineDetails['logo'],
+                    ];
+                    $segment['airline'] = [
+                        'id' => $airlineDetails['id'],
+                        'name' => $airlineDetails['name'],
+                        'logo' => $airlineDetails['logo'],
+                    ];
+
+                    $markupValueSign = 0;
+                    if (count($travelers) == 1 && $airlineDetails['id']) {
+                        $dataClassCabin = (new GeneralService)->getCabinClassMarkprice($validatedData['cabinClass'], $airlineDetails['id']);
+                        // Add the fixed markup value as commission
+                        $markupValue = $dataClassCabin['markprice']; // Fixed markup value
+                        $markupstatus = $dataClassCabin['markstatus']; // Fixed markup value
+                        // Add commission to the price array
+                        $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+                    }
+                    $flightOffer['price']['commission'] = $markupValueSign;
+                    // if($segment['carrierCode'] == 'ET' && $flightOffer['price']['commission'] != 0){
+                    //     return dd($markupValue, $markupstatus, $segment['carrierCode'], $flightOffer['price']['total'], floatval($flightOffer['price']['total'] + $markupValueSign), $flightOffer['price']['commission']);
+                    // }
+                    $cheapestNew = [
+                        "name" => $airlineDetails['name'],
+                        "logo" => $airlineDetails['logo'],
+                        "code" => $segment['carrierCode'],
+                        "currency" => $flightOffer['price']['currency'],
+                        "price" => floatval($flightOffer['price']['total'] + $markupValueSign),
+                        "numberOfStops" => $numberOfStops
+                    ];
+                    // $cheapest = $this->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
+                    $cheapest = (new GeneralService)->addOrReplaceByLowestPrice($cheapest, $cheapestNew);
+                }
+            }
+        }
+
+        // return dd($dictionaries);
+
+        // return dd($cheapest);
+
+
+        // $this->searchId = 'search_' . uniqid();
+
+        // Store large data in files
+        $flightOffersFile = 'flight_searches/' . $searchId . '_offers.json';
+        $dictionariesFile = 'flight_searches/' . $searchId . '_dictionaries.json';
+
+        // Ensure directory exists
+        if (!Storage::exists('flight_searches')) {
+            Storage::makeDirectory('flight_searches');
+        }
+
+        // Store large data in files
+        Storage::put($flightOffersFile, json_encode($flightOffers));
+        Storage::put($dictionariesFile, json_encode($dictionaries));
+        session(['showToSource' => $this->showToSource]);
+
+        // return dd([$this->showToSource, session('showToSource')]);
+
+        // Create search results array with only essential data in DB
+        $categorizedData = [
+            'meta' => $data['meta'] ?? [],
+            'cheapest' => json_encode($cheapest),
+            'flight_offers_path' => $flightOffersFile,
+            'dictionaries_path' => $dictionariesFile,
+            'expires_at' => now()->addHours(24),
+            'status' => 'completed',
+        ];
+
+        // Store in database
+        $flight = FlightSearch::find($fligtBokked);
+        $flight->update($categorizedData);
+
+        // return dd($flightOffers);
+        // Redirect with just the search ID
+        return [
+            'searchId' => $searchId,
+            'flight' => $flight->refresh(),
+            'flightOffers' => $flightOffers,
+            'dictionaries' => $dictionaries,
+        ];
+
+        // return redirect()->route('search.results');
     }
 }
