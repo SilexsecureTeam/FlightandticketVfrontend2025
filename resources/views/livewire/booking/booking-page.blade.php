@@ -93,7 +93,7 @@
                                         <!-- Logo on left -->
                                         <div class="flex-shrink-0 mr-3">
                                             <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
-                                                                        ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
+                                                                        ? url('/').'/storage/' . $itinerary['segments'][0]['airline']['logo']
                                                                         : asset('images/default-airline-logo.png') }}"
                                                 alt="{{ $itinerary['segments'][0]['airline']['name'] }}"
                                                 class="object-contain w-12 h-12">
@@ -114,7 +114,7 @@
                                         <div
                                             class="hidden md:flex flex-col items-center justify-center">
                                             <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
-                                                                        ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
+                                                                        ? url('/').'/storage/' . $itinerary['segments'][0]['airline']['logo']
                                                                         : asset('images/default-airline-logo.png') }}"
                                                 alt="{{ $itinerary['segments'][0]['airline']['name'] }}"
                                                 class="object-contain w-12 h-12">
@@ -341,7 +341,7 @@
                                     <!-- Segment Header -->
                                     <div class="flex items-center justify-start mb-3 md:mb-0 md:mr-4">
                                         <img src="{{ !empty($itinerary['segments'][0]['airline']['logo'])
-                                                            ? 'https://main.mymoretravels.com/storage/' . $itinerary['segments'][0]['airline']['logo']
+                                                            ? url('/').'/storage/' . $itinerary['segments'][0]['airline']['logo']
                                                             : asset('images/default-airline-logo.png') }}"
                                             alt="{{ $segment['airline']['name'] }}"
                                             class="object-contain w-16 h-16 md:w-20 md:h-20">

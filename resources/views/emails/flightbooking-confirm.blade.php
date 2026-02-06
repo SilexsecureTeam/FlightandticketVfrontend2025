@@ -93,7 +93,7 @@
                             <tr>
                                 <td width="20%" style="vertical-align: middle; text-align: center;">
                                     <img src="{{ !empty($segment['airline']['logo'])
-                                                    ? 'https://main.mymoretravels.com/storage/' . str_replace(' ', '%20', $segment['airline']['logo'])
+                                                    ? url('/').'/storage/' . str_replace(' ', '%20', $segment['airline']['logo'])
                                                     : asset('images/default-airline-logo.png') }}"
                                         alt="{{ $segment['airline']['name'] ?? 'Airline' }}"
                                         style="width: 50px; height: 50px; object-fit: contain;">
