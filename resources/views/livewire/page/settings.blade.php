@@ -1,4 +1,10 @@
-<div class="h-full">
+<div class="h-full" x-data="{ editModal: @entangle('isEditModalOpen'), resetModal: @entangle('isResetModalOpen'), addModal: @entangle('isAddModalOpen') }">
+    <style>
+        input {
+            background-color: #BEBEBE !important;
+            height: 30px !important;
+        }
+    </style>
     <div class="min-h-full bg-gray-50">
         <main class="py-10">
             <div class="mx-auto md:max-w-[80%] w-[90%] px-4 sm:px-6 lg:px-8">
@@ -6,176 +12,225 @@
                     <!-- Breadcrumb -->
                     <x-breadcrumb title="home" subtitle="Settings" />
 
-                
-                    <!-- Settings Section -->
-                    <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <!-- Personal Information -->
-                        <div class="lg:col-span-2">
-                       
-
-
-                            <div class="bg-white shadow-sm ring-1 mt-5 ring-gray-900/5 sm:rounded-xl">
-                                <div class="px-4 py-6 sm:px-6">
-                                    <h2 class="text-lg font-semibold leading-6 text-gray-900">Personal Imformation</h2>
-                                    <p class="mt-1 text-sm text-gray-500">Update your Personal Detaiils here.</p>
-
-                                </div>
-                                <div class="border-t border-gray-100 px-4 py-6 sm:px-6">
-                                    <form wire:submit.prevent="updateProfile" x-on:submit.prevent class="space-y-6">
-                                        <div class="grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-2">
-                                            <div>
-                                                <label for="fullName" class="block text-sm font-medium leading-6 text-gray-900">Name</label>
-                                                <div class="mt-2 relative rounded-md shadow-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" wire:model="first_name"
-                                                        class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                    />
-                                                </div>
-                                            </div>
-                                           
-                                            <div>
-                                                <label for="fullName" class="block text-sm font-medium leading-6 text-gray-900">Phone Number</label>
-                                                <div class="mt-2 relative rounded-md shadow-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" wire:model="phone"
-                                                        class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                    />
-                                                </div>
-                                            </div>
-                                       
-                                        </div>
-
-                                        <div>
-                                            <label for="emailAddress" class="block text-sm font-medium leading-6 text-gray-900">Email</label>
-                                            <div class="mt-2 relative rounded-md shadow-sm">
-                                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                                    </svg>
-                                                </div>
-                                                <input type="email"  disabled wire:model="email"
-                                                    class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                />
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="flex justify-end space-x-3">
-                                           
-                                            <button type="submit"
-                                                class="rounded-md py-2 text-sm font-semibold text-white shadow-sm "
-                                            >
-                                              
-
-                                                
-                                            <div wire:loading.remove     wire:target="updateProfile" type="submit" class="rounded-md w-full bg-primary hover:bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm ">
-                                              
-                                                Update 
-                                                
-                                            </div>
-                                    
-                                            <div wire:loading     wire:target="updateProfile"
-  class="w-10 h-10 mr-3 border-4 border-t-primary-200 border-gray-300 rounded-full animate-spin"
-  ></div>
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                    <!-- Admin Users Section -->
+                    <div class="mt-8">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold leading-6 text-gray-900">Admin Users</h2>
+                            <button wire:click="openAddModal" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                                Add Admin
+                            </button>
                         </div>
-
-                        <!-- Photo Upload -->
-                        <div class="lg:col-span-1">
-                            <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
-                                <div class="px-4 py-6 sm:px-6">
-                                    <h2 class="text-lg font-semibold leading-6 text-gray-900">Change Password</h2>
-
-                                </div>
-                                <div class="border-t border-gray-100 px-4 py-6 sm:px-6">
-                                    <form wire:submit.prevent="updatePassword" x-on:submit.prevent class="space-y-6">
-                                        <div class="grid grid-cols-1 gap-x-6 gap-y-6 ">
-                                            <div>
-                                                <label for="fullName" class="block text-sm font-medium leading-6 text-gray-900">Current Password</label>
-                                                <div class="mt-2 relative rounded-md shadow-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" wire:model="currentPassword"
-                                                        class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label for="fullName" class="block text-sm font-medium leading-6 text-gray-900">New Password</label>
-                                                <div class="mt-2 relative rounded-md shadow-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" wire:model="newPassword"
-                                                        class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <label for="fullName" class="block text-sm font-medium leading-6 text-gray-900">Confirm New Password</label>
-                                                <div class="mt-2 relative rounded-md shadow-sm">
-                                                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
-                                                        </svg>
-                                                    </div>
-                                                    <input type="text" wire:model="confirmPassword"
-                                                        class="block w-full rounded-md border-0 py-1.5 pl-10 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                                                    />
-                                                </div>
-                                            </div>
-                                          
+                        
+                        <div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            @foreach($admins as $admin)
+                            <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                                <div class="px-4 py-5 sm:p-6">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 bg-primary rounded-full p-3 relative">
+                                            <svg class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                            <span class="absolute top-0 right-0 block h-3 w-3 rounded-full ring-2 ring-white {{ $admin->status == 'active' ? 'bg-green-400' : 'bg-red-400' }}"></span>
                                         </div>
-
-
-
-                                        <div class="flex justify-end space-x-3">
-                                           
-                                            <button type="submit"
-                                                class="rounded-md py-2 text-sm font-semibold text-white shadow-sm "
-                                            >
-                                              
-
-                                                
-                                            <div wire:loading.remove  wire:target="updatePassword"     type="submit" class="rounded-md w-full bg-primary hover:bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm ">
-                                              
-                                                Update 
-                                                
-                                            </div>
-                                    
-                                            <div wire:loading     wire:target="updatePassword"
-  class="w-10 h-10 mr-3 border-4 border-t-primary border-gray-300 rounded-full animate-spin"
-  ></div>
-                                            </button>
+                                        <div class="ml-5 w-0 flex-1">
+                                            <dl>
+                                                <dt class="text-sm font-medium text-gray-500 truncate flex items-center justify-between">
+                                                    <span>{{ $admin->name }}</span>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $admin->status == 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                        {{ ucfirst($admin->status) }}
+                                                    </span>
+                                                </dt>
+                                                <dd>
+                                                    <div class="text-sm font-semibold text-gray-900">
+                                                        {{ $admin->email }}
+                                                    </div>
+                                                    <div class="text-xs text-gray-400">
+                                                        {{ $admin->phone }}
+                                                    </div>
+                                                </dd>
+                                            </dl>
                                         </div>
-                                    </form>
+                                    </div>
                                 </div>
-                                
+                                <div class="bg-gray-50 px-4 py-4 sm:px-6 flex justify-between space-x-3">
+                                    <button wire:click="editUser({{ $admin->id }})" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        Edit
+                                    </button>
+                                    <button wire:click="openResetModal({{ $admin->id }})" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-full shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        Reset Password
+                                    </button>
+                                </div>
                             </div>
+                            @endforeach
                         </div>
                     </div>
+
+                    <!-- Personal Information (Existing Section - Optional to keep or remove, but user asked to update "This" so I'll keep it separate or integrate) -->
+                    <!-- The user asked to "Update this such that it get all user with type admin" -->
+                    <!-- I will keep the existing "Your Password Change" section but adapt it if needed -->
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Edit Admin Modal -->
+    <div x-show="editModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="editModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="editModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Admin Details</h3>
+                    <form wire:submit.prevent="updateAdmin" class="mt-4 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" wire:model="name" class="mt-1 block w-full border-gray-300 @error('name') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" wire:model="email" disabled class="mt-1 block w-full border-gray-300 bg-gray-50 rounded-md shadow-sm sm:text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="text" wire:model="phone" class="mt-1 block w-full border-gray-300 @error('phone') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('phone') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Enable OTP</label>
+                            <select wire:model="enable_otp" class="mt-1 block w-full border-gray-300 @error('enable_otp') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                            @error('enable_otp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select wire:model="status" class="mt-1 block w-full border-gray-300 @error('status') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="active">Active</option>
+                                <option value="block">Block</option>
+                            </select>
+                            @error('status') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
+                            <button type="button" @click="editModal = false" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 sm:text-sm">
+                                <span wire:loading.remove wire:target="updateAdmin">Save Changes</span>
+                                <span wire:loading wire:target="updateAdmin">Updating...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div x-show="resetModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="resetModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="resetModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Reset Admin Password</h3>
+                    <p class="text-sm text-gray-500">Please enter your current password to authorize this action.</p>
+                    <form wire:submit.prevent="resetAdminPassword" class="mt-4 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Current Password</label>
+                            <input type="password" wire:model="currentPassword" class="mt-1 block w-full border-gray-300 @error('currentPassword') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('currentPassword') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">New Password</label>
+                            <input type="password" wire:model="newPassword" class="mt-1 block w-full border-gray-300 @error('newPassword') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('newPassword') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                            <input type="password" wire:model="confirmPassword" class="mt-1 block w-full border-gray-300 @error('confirmPassword') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('confirmPassword') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
+                            <button type="button" @click="resetModal = false" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 sm:text-sm">
+                                <span wire:loading.remove wire:target="resetAdminPassword">Reset Password</span>
+                                <span wire:loading wire:target="resetAdminPassword">Resetting...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Admin Modal -->
+    <div x-show="addModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="addModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div x-show="addModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Add New Admin User</h3>
+                    <form wire:submit.prevent="storeAdmin" class="mt-4 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" wire:model="name" class="mt-1 block w-full border-gray-300 @error('name') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email</label>
+                            <input type="email" wire:model="email" class="mt-1 block w-full border-gray-300 @error('email') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Phone</label>
+                            <input type="text" wire:model="phone" class="mt-1 block w-full border-gray-300 @error('phone') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('phone') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" wire:model="password" class="mt-1 block w-full border-gray-300 @error('password') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @error('password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Enable OTP</label>
+                            <select wire:model="enable_otp" class="mt-1 block w-full border-gray-300 @error('enable_otp') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                            @error('enable_otp') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <select wire:model="status" class="mt-1 block w-full border-gray-300 @error('status') border-red-500 @enderror rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                <option value="active">Active</option>
+                                <option value="block">Block</option>
+                            </select>
+                            @error('status') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        </div>
+                        <div class="mt-5 sm:mt-6 flex justify-end space-x-3">
+                            <button type="button" @click="addModal = false" class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:text-sm">
+                                Cancel
+                            </button>
+                            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-blue-700 sm:text-sm">
+                                <span wire:loading.remove wire:target="storeAdmin">Create Admin</span>
+                                <span wire:loading wire:target="storeAdmin">Creating...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

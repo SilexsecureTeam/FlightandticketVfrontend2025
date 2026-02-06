@@ -17,6 +17,12 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('phone');
+            $table->enum('enable_otp',['yes','no'])->default('no');
+            $table->string('otp')->nullable();
+            $table->string('otp_expires_at')->nullable();
+            $table->enum('type',['user','admin'])->default('user');
+            $table->enum('status',['active','block'])->default('active');
             $table->rememberToken();
             $table->timestamps();
         });
