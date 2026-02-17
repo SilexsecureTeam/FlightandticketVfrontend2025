@@ -5,7 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>{{ $title ?? 'Flightandticketing - Mymore' }}</title>
+    {{--<title>{{ $title ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>--}}
+    <title>Flightandticketing - Mymore Travels Rc-1884387</title>
     <!-- Primary SEO -->
     <meta name="description" content="Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations. Fast search, secure payments, flexible cancellations." />
     <meta name="keywords" content="cheap flights, flight booking, flight tickets, compare airfare, airline tickets, Flightandticketing, Mymore" />
