@@ -815,8 +815,8 @@
                         </div>
                         @if(is_array($searchResults['cheapestFlight']))
                         @foreach($searchResults['cheapestFlight'] as $cheapflight)
-                        <div class="column" style="cursor: pointer;" onclick="toggleAirlineCheap('<?= $cheapflight['code'] ?>')">
-                            <div class="cell header-cell">
+                        <div class="column" style="cursor: pointer;">
+                            <div class="cell header-cell" onclick="toggleAirlineCheap('<?= $cheapflight['code'] ?>')">
                                 <img src="{{ !empty($cheapflight['logo'])
                                                                         ? url('/').'/storage/' . $cheapflight['logo']
                                                                         : asset('images/default-airline-logo.png') }}"
@@ -824,8 +824,11 @@
                                 {{$cheapflight['name']}}
                             </div>
                             @if(is_array($cheapflight['price']))
-                            <div class="cell">
+                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
                                 @if(isset($cheapflight['price'][0]))
+                                <label class=" flex items-center text-[16px] gap-5">
+                                    <input type="checkbox" value="0" style="display: none;">
+                                </label>
                                 {{
                                  $cheapflight['price'][0] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][0], 2) : '-'
                                 }}
@@ -833,8 +836,12 @@
                                 -
                                 @endif
                             </div>
-                            <div class="cell">
+
+                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
                                 @if(isset($cheapflight['price'][1]))
+                                <label class=" flex items-center text-[16px] gap-5">
+                                    <input type="checkbox" value="1" style="display: none;">
+                                </label>
                                 {{
                                  $cheapflight['price'][1] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][1], 2) : '-'
                                 }}
@@ -842,8 +849,11 @@
                                 -
                                 @endif
                             </div>
-                            <div class="cell">
+                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
                                 @if(isset($cheapflight['price'][2]))
+                                <label class=" flex items-center text-[16px] gap-5">
+                                    <input type="checkbox" value="2" style="display: none;">
+                                </label>
                                 {{
                                  $cheapflight['price'][2] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][2], 2) : '-'
                                 }}
@@ -1848,11 +1858,27 @@
         filterFlights();
     }
 
+    function handleCellClick(cell, aircode) {
+        toggleAirlineCheap('');
+        // toggleStopFilter('');
+        const checkbox = cell.querySelector('input[type="checkbox"]');
+
+        // Toggle checkbox state
+        checkbox.checked = !checkbox.checked;
+        toggleAirlineCheap(aircode);
+        // Pass checkbox value
+        toggleStopFilter(checkbox);
+    }
+
     // Toggle stop filter
     function toggleStopFilter(checkbox) {
+        console.log("checkbox:", checkbox)
+        // const stopValue = parseInt(checkbox.value || checkbok);
         const stopValue = parseInt(checkbox.value);
+        console.log("stopValue:", stopValue)
 
-        if (checkbox.checked) {
+        // if (checkbox.checked) {
+        if (stopValue) {
             selectedStops.push(stopValue);
         } else {
             selectedStops = selectedStops.filter(stop => stop !== stopValue);
