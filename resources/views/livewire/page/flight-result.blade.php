@@ -1849,7 +1849,7 @@
     function toggleAirlineCheap(valData) {
         document.getElementById('load-more-btn').style.display = 'none';
         const airlineCode = valData;
-
+        selectedStops = [];
         if (airlineCode) {
             selectedAirlines = [airlineCode];
         } else {
@@ -1860,6 +1860,8 @@
 
     function handleCellClick(cell, aircode) {
         toggleAirlineCheap('');
+        selectedStops = [];
+        filterFlights();
         // toggleStopFilter('');
         const checkbox = cell.querySelector('input[type="checkbox"]');
 
