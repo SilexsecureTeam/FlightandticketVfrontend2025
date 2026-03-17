@@ -434,31 +434,18 @@
 <!-- AlatPay Script -->
 <script src="https://web.alatpay.ng/js/alatpay.js"></script>
 <script>
-    console.log("Last Name:", "{{ $lastName }}");
-    console.log("Currency:", "{{ $currency }}");
-    console.log("Amount:", {
-        {
-            $totalamount
-        }
-    });
-    console.log("Email:", "{{ $email }}");
-    console.log("Phone:", "{{ $phone }}");
 
     // Initialize AlatPay with dynamic data
     let popup = Alatpay.setup({
         apiKey: "3e0c19b031fe4e5bb9b51a200cb86440", // Replace with your AlatPay API key
         businessId: "99fe948e-bafe-4bd3-92be-08dcabf3e16e", // Replace with your AlatPay Business ID
-        email: "{{ $email }}", // Customer email
-        phone: "{{ $phone }}", // Customer phone number
-        firstName: "{{ $firstName }}", // Customer first name
-        lastName: "{{ $lastName }}", // Customer last name
+        email: "<?= $email ?>", // Customer email
+        phone: "<?= $phone ?>", // Customer phone number
+        firstName: "<?= $firstName ?>", // Customer first name
+        lastName: "<?= $lastName ?>", // Customer last name
         metaData: null, // Optional metadata
-        currency: "{{ $currency }}", // Currency (e.g., NGN)
-        amount: {
-            {
-                $totalamount
-            }
-        }, // Payment amount
+        currency: "<?= $currency ?>", // Currency (e.g., NGN)
+        amount: <?= $totalamount ?>,
         onTransaction: function(response) {
             console.log("API response is ", response);
             // Handle transaction success or failure here
