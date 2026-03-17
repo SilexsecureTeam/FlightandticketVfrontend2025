@@ -254,13 +254,13 @@
                     class="h-6 mr-2" />
                 Alat Pay
             </button>
-            <button
+            {{--<button
                 class="w-1/2 py-3 text-center shadow-lg rounded-2xl font-semibold text-lg transition duration-300 ease-in-out flex items-center justify-center {{ $selectedPayment === 'Paystack' ? 'bg-primary text-white' : 'bg-white text-red-600 hover:bg-red-50' }}"
                 wire:click="updatePaymentMethod('Paystack')">
                 <img src="https://website-v3-assets.s3.amazonaws.com/assets/img/hero/Paystack-mark-white-twitter.png"
                     alt="Paystack" class="h-6 mr-2" />
                 Paystack
-            </button>
+            </button>--}}
         </div>
 
         <!-- Dynamic Payment Section - Improved -->
