@@ -179,7 +179,7 @@ class Search extends Component
         $multiCityFlights = [],
         $source = "web"
     ) {
-        $this->showToSource = session('showToSource') ?? $source;
+        $this->showToSource = $source ?? session('showToSource');
         // Enable debugging for this method
         // \Log::info('Search component mount called', [
         //     'editMode' => $editMode,
@@ -620,9 +620,11 @@ class Search extends Component
             // return dd([$validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions]);
 
             $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
-            
+
             $searchResult = (new GeneralService)->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
-            
+
+            session(['showToSource' => $this->showToSource]);
+
             return redirect()->route('search.results', ['id' => $searchResult['searchId']]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // dd( $e->errors() );
@@ -771,7 +773,7 @@ class Search extends Component
                 }
             }
         }
-        
+
         // return dd($dictionaries);
 
         // return dd($cheapest);
@@ -1143,6 +1145,7 @@ class Search extends Component
         }
 
         return [
+            'id' => null,
             'name' => 'Unknown',
             'logo' => null,
             'markup' => 0,

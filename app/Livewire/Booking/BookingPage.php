@@ -3,6 +3,7 @@
 namespace App\Livewire\Booking;
 
 use App\Http\Controllers\Payment\PaystackController;
+use App\Http\Services\GeneralService;
 use App\Mail\FlightBookingMail;
 use App\Models\Airline;
 use App\Models\Airport;
@@ -12,12 +13,12 @@ use App\Traits\AmadeusApiTrait;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Illuminate\Support\Facades\Mail;
 
 class BookingPage extends Component
 {
@@ -597,8 +598,15 @@ class BookingPage extends Component
             $markupValueSign = 0;
             if (count($this->travelers) == 1) {
                 // Add the fixed markup value as commission
-                $markupValue = $airlineDetails['markup']; // Fixed markup value
-                $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+                // $markupValue = $airlineDetails['markup']; // Fixed markup value
+                // $markupstatus = $airlineDetails['markstatus']; // Fixed markup value
+                // // Add commission to the price array
+                // $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
+
+                $dataClassCabin = (new GeneralService)->getCabinClassMarkprice($flightOffer['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'], $airlineDetails['id']);
+                // Add the fixed markup value as commission
+                $markupValue = $dataClassCabin['markprice']; // Fixed markup value
+                $markupstatus = $dataClassCabin['markstatus']; // Fixed markup value
                 // Add commission to the price array
                 $markupValueSign = $markupstatus == "markdown" ? -abs($markupValue) : +abs($markupValue);
             }
@@ -626,6 +634,7 @@ class BookingPage extends Component
         // dd( $airline);
         if ($airline) {
             return [
+                'id' => $airline->id,
                 'name' => $airline->airline_name,
                 'logo' => $airline->logo ?? null,
                 'markup' => $airline->markup ?? 0,
@@ -634,6 +643,7 @@ class BookingPage extends Component
         }
 
         return [
+            'id' => null,
             'name' => 'Unknown',
             'logo' => null,
             'markup' => 0,
