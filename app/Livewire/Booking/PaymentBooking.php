@@ -196,7 +196,7 @@ class PaymentBooking extends Component
 
     public function render()
     {
-        $price = $this->price['grandTotal'] + $this->markUp;
+        $price = $this->price['grandTotal'] + ($this->price['commission'] ?? 0);
         return view('livewire.booking.payment-booking', [
             'totalamount' => $price ?? 0,
             'currency' => $this->price['currency'] ?? 'NGN',

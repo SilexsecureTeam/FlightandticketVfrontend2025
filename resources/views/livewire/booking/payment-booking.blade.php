@@ -445,8 +445,7 @@
         lastName: "<?= $lastName ?>", // Customer last name
         metaData: null, // Optional metadata
         currency: "<?= $currency ?>", // Currency (e.g., NGN)
-        // amount: <?= $totalamount ?>,
-        amount: <?= $price['grandTotal'] + $price['commission'] ?>,
+        amount: <?= $totalamount ?>,
         onTransaction: function(response) {
             console.log("API response is ", response);
             // Handle transaction success or failure here
