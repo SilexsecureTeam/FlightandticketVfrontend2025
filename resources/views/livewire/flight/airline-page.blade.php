@@ -260,7 +260,7 @@
                                             <svg class="w-14 h-14 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                             </svg>
-                                            <p class="text-lg font-medium text-gray-700 mb-2">Drag & Drop or Click to Upload</p>
+                                            <p class="text-lg font-medium text-gray-700 mb-2">Drag & Drop or Click to Upload Logo</p>
                                             <p class="text-sm text-gray-500">Supported formats: PNG, JPG, </p>
                                             <p class="text-sm text-gray-500 mt-1">Maximum file size: 2MB</p>
                                         </div>

@@ -62,8 +62,11 @@ class AirlinePage extends Component
             // Handle logo upload
             $logoPath = null;
             if ($this->logo) {
-                $filename = 'airline_' . time() . '.' . $this->logo->getClientOriginalExtension();
-                $logoPath = $this->logo->storeAs('airlines/logos', $filename, 'public');
+                $filename = 'airline_' . time() . '_' . uniqid() . '.' . $this->logo->getClientOriginalExtension();
+                $targetDir = public_path('storage/airlines/logos');
+                \Illuminate\Support\Facades\File::ensureDirectoryExists($targetDir);
+                file_put_contents($targetDir . '/' . $filename, file_get_contents($this->logo->getRealPath()));
+                $logoPath = 'airlines/logos/' . $filename;
             }
     
             // Create new airline using mass assignment
@@ -135,13 +138,21 @@ class AirlinePage extends Component
                 $logoPath = null;
                 if ($this->e_logo) {
                     // Delete old logo if exists
-                    if ($this->airline->logo && Storage::disk('public')->exists($this->airline->logo)) {
-                        Storage::disk('public')->delete($this->airline->logo);
+                    if ($this->airline->logo) {
+                        $oldPath = public_path('storage/' . $this->airline->logo);
+                        if (file_exists($oldPath)) {
+                            unlink($oldPath);
+                        } elseif (Storage::disk('public')->exists($this->airline->logo)) {
+                            Storage::disk('public')->delete($this->airline->logo);
+                        }
                     }
                     
-                    // Store new logo with original filename
-                    $originalFilename = $this->e_logo->getClientOriginalName();
-                    $logoPath = $this->e_logo->storeAs('airlines/logos', $originalFilename, 'public');
+                    // Store new logo with unique timestamp filename
+                    $filename = 'airline_' . time() . '_' . uniqid() . '.' . $this->e_logo->getClientOriginalExtension();
+                    $targetDir = public_path('storage/airlines/logos');
+                    \Illuminate\Support\Facades\File::ensureDirectoryExists($targetDir);
+                    file_put_contents($targetDir . '/' . $filename, file_get_contents($this->e_logo->getRealPath()));
+                    $logoPath = 'airlines/logos/' . $filename;
                 }
             } else {
                 $this->validate([
@@ -190,6 +201,7 @@ class AirlinePage extends Component
             
         } catch (\Exception $e) {
             // Error alert
+            // return dd($e->getMessage());
             $this->alert('error', 'Failed to update airline: ' . $e->getMessage(), [
                 'position' => 'top-right',
                 'timer' => 3000,
