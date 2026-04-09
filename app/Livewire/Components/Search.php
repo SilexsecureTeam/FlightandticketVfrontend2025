@@ -605,6 +605,7 @@ class Search extends Component
 
             $fligtBokked = FlightSearch::create([
                 'search_id' => $searchId,
+                'clientRef' => $clientRef,
                 'trip_type' => $this->tripType,
                 'passengers' => $validatedData['passengers'],
                 'cabinClass' => $validatedData['cabinClass'],

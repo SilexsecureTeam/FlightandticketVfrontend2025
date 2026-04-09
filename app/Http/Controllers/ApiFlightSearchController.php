@@ -186,6 +186,7 @@ class ApiFlightSearchController extends Controller
 
             $fligtBokked = FlightSearch::create([
                 'search_id' => $searchId,
+                'clientRef' => $clientRef,
                 'trip_type' => $request->tripType,
                 'passengers' => $validatedData['passengers'],
                 'cabinClass' => $validatedData['cabinClass'],

@@ -2,13 +2,14 @@
 
 namespace App\Livewire\Booking;
 
+use App\Http\Services\FlightBookingService;
 use App\Mail\OfflineLineMail;
 use App\Models\Airline;
 use App\Models\Markup;
 use App\Models\Payment\Payment;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use Mail;
 
 class PaymentBooking extends Component
 {
@@ -147,15 +148,27 @@ class PaymentBooking extends Component
 
     public function offlineBooking()
     {
-// dd($this->bookingDetails);
-        $payment = Payment::where('flight_order_id', $this->orderResponse)->firstOrFail(); 
-    
-        $payment->update([
+        // return dd($this->bookingDetails);
+        // $payment = Payment::where('flight_order_id', $this->orderResponse)->firstOrFail();
+
+        $payment = \App\Models\Payment\Payment::create([
+            'flight_order_id' => $this->orderResponse,
+            'email' => $this->email,
+            'amount' => $this->price['grandTotal'],
             'provider' => 'Offline',
+            'payment_type' => 'Flight',
+            'payment_status' => 'pending',
             'payment_date' => now()->format('Y-m-d H:i:s'),
             'reference' => Str::upper(Str::random(12)),
-            'commission'=>$this->bookingDetails['commission'] ?? 0
         ]);
+        
+    
+        // $payment->update([
+        //     'provider' => 'Offline',
+        //     'payment_date' => now()->format('Y-m-d H:i:s'),
+        //     'reference' => Str::upper(Str::random(12)),
+        //     'commission'=>$this->bookingDetails['commission'] ?? 0
+        // ]);
     
         // dd($this->bookingDetails);
         Mail::to($this->email)->send(new OfflineLineMail(bookingData: $this->bookingDetails));

@@ -203,60 +203,45 @@ class BookingPage extends Component
 
     public function validateTravelers()
     {
-
         $this->validate();
-
-        foreach ($this->travelers as $index => $traveler) {
-            $birthDate = Carbon::parse($traveler['dateOfBirth']);
-            $age = $birthDate->age;
-            $type = $traveler['type'];
-
-            if ($type === 'ADULT' && $age < 12) {
-                throw ValidationException::withMessages([
-                    "travelers.$index.dateOfBirth" => "Adults must be 12 years or older.",
-                ]);
-            } elseif ($type === 'CHILD' && ($age < 2 || $age > 10)) {
-                throw ValidationException::withMessages([
-                    "travelers.$index.dateOfBirth" => "Children must be between 2 and 10 years old.",
-                ]);
-            } elseif ($type === 'HELD_INFANT' && $age >= 2) {
-                throw ValidationException::withMessages([
-                    "travelers.$index.dateOfBirth" => "Held infants must be under 2 years old.",
-                ]);
-            }
-        }
+        app(\App\Http\Services\FlightBookingService::class)->validateTravelers($this->travelers);
     }
 
     public function createFlightOrder()
     {
-
-
-        // // dd('Travelers Data:', $this->travelers);
         $this->validateTravelers();
-        // dd($validatedData['travelers']);
 
-
-        // // Debug the validated data
-        // dd('Validated Data:', $validatedData);
         try {
+            $service = app(\App\Http\Services\FlightBookingService::class);
 
-            // $flightOrderPayload = $this->prepareFlightOrderPayload($this->travelers);
-            // $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
-            // $order = $this->saveFlightOrder($orderResponse, $this->travelers);
-            // $this->initializePayment($order, $this->travelers);
-
-            $flightOrderPayload = $this->prepareFlightOrderPayload();
-            // return dd($flightOrderPayload);
+            $flightOrderPayload = $service->prepareFlightOrderPayload($this->travelers, $this->flight_offer_booking);
             
-            $orderResponse = $this->sendFlightOrderRequest($flightOrderPayload);
-            //   dd($orderResponse);   
+            $orderResponse = $service->sendFlightOrderRequest($flightOrderPayload, session('clientRef'));
 
-            $order = $this->saveFlightOrder($orderResponse);
+            $pnr = $orderResponse['data']['associatedRecords'][0]['reference'] ?? null;
+            $order = $service->saveFlightOrder($orderResponse, $this->flight_offer_booking, $this->travelers, $pnr);
+
+            // Special logic for web: set session and send emails
+            $email = $this->travelers[0]['contact']['emailAddress'] ?? null;
+            $bookingData = [
+                'travelers' => $orderResponse['data']['travelers'],
+                'pnr' => $pnr,
+                'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
+                'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
+                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+                'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
+                'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
+            ];
+
+            session()->put('booking_details', [
+                'data' => $bookingData,
+                'email' => $email,
+            ]);
+
+            $service->sendConfirmationEmails($bookingData, $email);
 
             $this->initializePayment($order);
         } catch (ValidationException $e) {
-            // $this->alert('error', 'Please check the form for errors.'. $e->getMessage() );
-
             $this->alert('error', 'Validation Error: ' .  $e->getMessage(), [
                 'position' => 'bottom-end',
                 'timer' => 3000,
@@ -271,275 +256,35 @@ class BookingPage extends Component
         }
     }
 
-    private function prepareFlightOrderPayload(): array
-    {
-        // Clean up travelers array to handle optional middleName
-        $cleanedTravelers = collect($this->travelers)->map(function ($traveler) {
-            // Clean up name array
-            if (isset($traveler['name'])) {
-                // Combine firstName and middleName if middleName exists
-                if (!empty($traveler['name']['middleName'])) {
-                    $traveler['name']['firstName'] = $traveler['name']['firstName'] . ' ' . $traveler['name']['middleName'];
-                }
-                // Remove middleName as it's now combined with firstName
-                unset($traveler['name']['middleName']);
-            }
-            return $traveler;
-        })->toArray();
-
-        // return dd($cleanedTravelers);
-
-        return [
-            'data' => [
-                'type' => 'flight-order',
-                'flightOffers' => [$this->flight_offer_booking],
-                'travelers' => $cleanedTravelers,
-                'remarks' => [
-                    'general' => [
-                        [
-                            'subType' => 'GENERAL_MISCELLANEOUS',
-                            'text' => 'ONLINE BOOKING FROM MYMORE',
-                        ]
-                    ]
-                ],
-                'ticketingAgreement' => [
-                    'option' => 'DELAY_TO_CANCEL',
-                    'delay' => '3D',
-                ],
-                // 'contacts' => [
-                //     [
-                //         'addresseeName' => [
-                //             'firstName' => 'PABLO',
-                //             'lastName' => 'RODRIGUEZ',
-                //         ],
-                //         'companyName' => 'INCREIBLE VIAJES',
-                //         'purpose' => 'STANDARD',
-                //         'phones' => [
-                //             [
-                //                 'deviceType' => 'LANDLINE',
-                //                 'countryCallingCode' => '34',
-                //                 'number' => '480080071',
-                //             ],
-                //             [
-                //                 'deviceType' => 'MOBILE',
-                //                 'countryCallingCode' => '33',
-                //                 'number' => '480080072',
-                //             ]
-                //         ],
-                //         'emailAddress' => 'support@increibleviajes.es',
-                //         'address' => [
-                //             'lines' => ['Calle Prado, 16'],
-                //             'postalCode' => '28014',
-                //             'cityName' => 'Madrid',
-                //             'countryCode' => 'ES',
-                //         ]
-                //     ]
-                // ]
-            ]
-        ];
-    }
-
-    private function sendFlightOrderRequest(array $payload): array
-    {
-
-        try {
-            $baseUrl = config('services.amadeus.base_url');
-            $clientRef = session('clientRef');
-
-            $client = new Client();
-            $response = $client->request('POST', "$baseUrl/v1/booking/flight-orders", [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->getAccessToken(),
-                    'Content-Type' => 'application/json',
-                    'ama-client-ref' => $clientRef,
-                ],
-                'json' => $payload,
-            ]);
-            // Get full path for downloading
-            $filePath = 'flight_result_payload.json';
-            $data = json_decode($response->getBody()->getContents(), true);
-            Storage::put($filePath, json_encode($data, JSON_PRETTY_PRINT));
-
-            $travelers = $data['data']['travelers'];
-            $firstTraveler = $travelers[0];
-            $email = $firstTraveler['contact']['emailAddress'] ?? null;
-            $this->pnr = $data['data']['associatedRecords'][0]['reference'] ?? null;
-            $flightOffer = $data['data']['flightOffers'][0] ?? null;
-
-            foreach ($flightOffer['itineraries'] as &$itinerary) {
-                foreach ($itinerary['segments'] as &$segment) {
-                    // Replace departure iataCode with city details
-                    $departureDetails = $this->getCityNameByIata($segment['departure']['iataCode']);
-                    $segment['departure']['city'] = $departureDetails['city'];
-                    $segment['departure']['country'] = $departureDetails['country'];
-                    $segment['departure']['airport'] = $departureDetails['airport'];
-                    $segment['departure']['city_country'] = $departureDetails['city_country'];
-
-                    // Replace arrival iataCode with city details
-                    $arrivalDetails = $this->getCityNameByIata($segment['arrival']['iataCode']);
-                    $segment['arrival']['city'] = $arrivalDetails['city'];
-                    $segment['arrival']['country'] = $arrivalDetails['country'];
-                    $segment['arrival']['airport'] = $arrivalDetails['airport'];
-                    $segment['arrival']['city_country'] = $arrivalDetails['city_country'];
-
-                    $airlineDetails = $this->getAirlineDetailsByCode($segment['carrierCode']);
-                    $segment['airline'] = [
-                        'name' => $airlineDetails['name'],
-                        'logo' => $airlineDetails['logo'],
-                        'markup' => $airlineDetails['markup'],
-                    ];
-                }
-            }
 
 
-            $bookingData = [
-                'travelers' => $travelers, // Travelers array
-                'pnr' => $this->pnr,
-                'itineraries' => $flightOffer['itineraries'] ?? [], // Fix itineraries key
-                'price' => $flightOffer['price'] ?? [],
-                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
-                'travelType' => $flightOffer['travelerPricings'] ?? [],
-                'remarks' => $data['data']['remarks']['general'] ?? [],
-            ];
 
-
-            // Pass this $bookingData to your email template
-
-
-            session()->put('booking_details', [
-                'data' => $bookingData,
-                'email' => $email,
-            ]);
-
-            Mail::to($email)->send(new FlightBookingMail($bookingData));
-            Mail::to("reservation@mymoretravel.com")->send(new FlightBookingMail($bookingData));
-
-
-            return $data;
-        } catch (\Exception $e) {
-            // Get the response from the exception
-            $message = $e->getMessage();
-
-            // If it's a GuzzleHttp exception, we can get the full response
-            if ($e instanceof \GuzzleHttp\Exception\ClientException) {
-                $response = $e->getResponse();
-                $fullBody = $response->getBody()->getContents();
-                $decodedBody = json_decode($fullBody, true);
-                // Print full formatted error
-                session()->put('error_details', [
-                    'errors' => $decodedBody['errors'] ?? [],
-                    'status_code' => $response->getStatusCode(),
-                    'message' => $message,
-                ]);
-
-
-                // Flash the error message to the user
-                $this->alert('error', 'An error occurred: ' . ($decodedBody['errors'][0]['detail'] ?? 'Invalid data'), [
-                    'position' => 'bottom-end',
-                    'timer' => 10000, // 10 seconds
-                    'toast' => true,
-                ]);
-            } else {
-                // For other exceptions, dump the full message
-                session()->put('error_details', [
-                    'error_message' => $message,
-                    'error_type' => get_class($e),
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ]);
-            }
-
-            // $this->alert('error', 'Failed to create flight order: ' . $message, [
-            //     'position' => 'bottom-end',
-            //     'timer' => 3000,
-            //     'toast' => true,
-            // ]);
-            return [];
-        }
-    }
-
-
-    private function saveFlightOrder(array $orderResponse): FlightOrder
-    {
-
-        try {
-
-            $Flight =    FlightOrder::create([
-                'order_id' => $orderResponse['data']['id'],
-                'pnr' => $this->pnr,
-                'flight_offers' => $this->flight_offer_booking,
-                'travelers' => $this->travelers,
-                'payment_status' => 'PENDING',
-                'order_status' => 'PROCESSING',
-            ]);
-            $this->orderResponse =  $Flight->id;
-            session()->put('orderResponse', $this->orderResponse);
-            return $Flight;
-        } catch (\Illuminate\Database\QueryException $e) {
-
-            $this->alert('error', 'Database error while saving your order: ' . $e->getMessage(), [
-                'position' => 'center',
-                'timer' => 3000,
-                'toast' => true,
-            ]);
-            throw $e; // Re-throw the exception after alerting
-
-        } catch (\Exception $e) {
-            $this->alert('error', 'Failed to save your flight order: ' . $e->getMessage(), [
-                'position' => 'center',
-                'timer' => 3000,
-                'toast' => true,
-            ]);
-            throw $e; // Re-throw the exception after alerting
-        }
-    }
 
 
     private function initializePayment(FlightOrder $order)
     {
         try {
-            $type = "Flight";
-
+            $service = app(\App\Http\Services\FlightBookingService::class);
             $amount = $this->flight_offer_price['grandTotal'];
 
-            // Initialize payment via PaystackController
-            $paystackResponse = app(PaystackController::class)
-                ->initializePayment($order->id, $this->travelers[0]['contact']['emailAddress'], $amount, $type);
-            $paymentResponseData = json_decode($paystackResponse->getContent(), true);
+            $paymentData = $service->initializePayment($order, $this->travelers[0]['contact']['emailAddress'], $amount);
 
+            // $this->paystackUrl = $paymentData['paystackURL'];
+            $this->paystackUrl = $paymentData['paystack_url'];
 
-            if (isset($paymentResponseData['paystackURL'])) {
-                $this->paystackUrl = $paymentResponseData['paystackURL'];
+            // Set session values
+            session()->put('paystackUrl', $this->paystackUrl);
+            session()->put('orderResponse', $order->id);
+            session()->put('payment_information', $this->flight_offer_price);
+            session(['showToSource' => $this->showToSource]);
 
-                // Set session values
-                session()->put('paystackUrl', $this->paystackUrl);
-                session()->put('payment_information', $this->flight_offer_price);
-                session(['showToSource' => $this->showToSource]);
-
-
-
-                // Ensure session data is set correctly
-                if (!session()->has('paystackUrl') || !session()->has('payment_information')) {
-                    $this->alert('error', 'Failed to set session data. Please try again.', [
-                        'position' => 'center',
-                        'timer' => 8000,
-                        'toast' => true,
-                    ]);
-                    return;
-                }
-
-                return redirect()->route('booking.payment');
-            }
-
-            throw new \Exception('Failed to initialize payment');
+            return redirect()->route('booking.payment');
         } catch (\Exception $e) {
-            // Handle error with alert
-            $this->alert('error', 'Database error while saving your order: ' . $e->getMessage(), [
+            $this->alert('error', 'Payment Error: ' . $e->getMessage(), [
                 'position' => 'center',
                 'timer' => 8000,
                 'toast' => true,
             ]);
-            return;
         }
     }
 

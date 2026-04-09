@@ -7,11 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable 
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'email_verified_at',
         'password',
         'phone',
         'type',
@@ -28,6 +30,16 @@ class User extends Authenticatable
         'enable_otp',
         'otp',
         'otp_expires_at',
+        'address',
+        'avatar',
+        'zipcode',
+        'country',
+        'state',
+        'city',
+        'daily_report',
+        'weekly_report',
+        'monthly_report',
+        'yearly_report',
     ];
 
 

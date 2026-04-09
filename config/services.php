@@ -37,7 +37,11 @@ return [
     'paystack' => [
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
     ],
-  'amadeus' => [
+    'alatpay' => [
+        'api_key' => env('ALATPAY_API_KEY', '3e0c19b031fe4e5bb9b51a200cb86440'),
+        'business_id' => env('ALATPAY_BUSINESS_ID', '99fe948e-bafe-4bd3-92be-08dcabf3e16e'),
+    ],
+    'amadeus' => [
         'base_url' => env('AMADEUS_BASE_URL', 'https://test.travel.api.amadeus.com'),
         'client_id' => env('AMADEUS_API_KEY'),
         'client_secret' => env('AMADEUS_API_SECRET'),
