@@ -26,9 +26,7 @@ class PaymentBooking extends Component
     public $email = false;
     public $markUp;
     public $showToSource = 'web';
-    public $data = [
-
-    ];
+    public $data = [];
     public $orderResponse;
 
 
@@ -39,14 +37,14 @@ class PaymentBooking extends Component
         $this->paystackUrl = session('paystackUrl', "");
         $this->orderResponse = session('orderResponse', "");
         $this->price = session('payment_information', []);
-    
+
         // Retrieve booking details from session
         $bookingDetails = session('booking_details');
         $this->bookingDetails = $bookingDetails['data'];
 
-    
 
-    
+
+
         // Process itineraries and segments
         if (isset($this->bookingDetails['itineraries']) && is_array($this->bookingDetails['itineraries'])) {
             foreach ($this->bookingDetails['itineraries'] as &$itinerary) {
@@ -59,15 +57,14 @@ class PaymentBooking extends Component
                             'logo' => $airlineDetails['logo'],
                             'markup' => $airlineDetails['markup'],
                         ];
-    
                     }
                 }
             }
         }
-    
+
         // Debugging: Uncomment the line below to inspect the updated structure
-     
-    
+
+
         // Extract traveler and contact details
         $this->data = [
             'firstName' => $this->bookingDetails['travelers'][0]['name']['firstName'] ?? '',
@@ -81,13 +78,13 @@ class PaymentBooking extends Component
 
     // public function mount()
     // {
-  
+
     //     // Retrieve data from session
     //     $this->paystackUrl = session('paystackUrl', "");
     //     $this->orderResponse = session('orderResponse', "");
     //     $this->price = session('payment_information', []);
-  
- 
+
+
 
 
 
@@ -119,7 +116,7 @@ class PaymentBooking extends Component
     //         'email' => $bookingDetails['email']?? '',
     //     ];
     //     $this->email = $bookingDetails['email'];
-      
+
     // }
     public function updatePaymentMethod($method)
     {
@@ -161,25 +158,25 @@ class PaymentBooking extends Component
             'payment_date' => now()->format('Y-m-d H:i:s'),
             'reference' => Str::upper(Str::random(12)),
         ]);
-        
-    
+
+
         // $payment->update([
         //     'provider' => 'Offline',
         //     'payment_date' => now()->format('Y-m-d H:i:s'),
         //     'reference' => Str::upper(Str::random(12)),
         //     'commission'=>$this->bookingDetails['commission'] ?? 0
         // ]);
-    
+
         // dd($this->bookingDetails);
         Mail::to($this->email)->send(new OfflineLineMail(bookingData: $this->bookingDetails));
         Mail::to("reservation@mymoretravel.com")->send(new OfflineLineMail(bookingData: $this->bookingDetails));
+        Mail::to("csmymoretravels@gmail.com")->send(new OfflineLineMail(bookingData: $this->bookingDetails));
         $hashedOrder = base64_encode($this->orderResponse);
         session(['showToSource' => $this->showToSource]);
         return redirect()->route('payment.offline', ['orderResponse' => $hashedOrder]);
-
     }
 
-     
+
 
     protected function processAlatPayment()
     {
@@ -187,18 +184,19 @@ class PaymentBooking extends Component
     }
 
 
-    public function getAirlineDetailsByCode($carrierCode) {
+    public function getAirlineDetailsByCode($carrierCode)
+    {
         // Fetch airline details from the database
         $airline = Airline::where('airline_code', $carrierCode)->first();
         // dd( $airline);
         if ($airline) {
             return [
                 'name' => $airline->airline_name,
-                'logo' => $airline->logo ?? null, 
+                'logo' => $airline->logo ?? null,
                 'markup' => $airline->markup ?? 0,
             ];
         }
-    
+
         return [
             'name' => 'Unknown',
             'logo' => null,
@@ -220,7 +218,4 @@ class PaymentBooking extends Component
             'phone' => $this->data['phone'] ?? '',
         ]);
     }
-
- 
 }
-

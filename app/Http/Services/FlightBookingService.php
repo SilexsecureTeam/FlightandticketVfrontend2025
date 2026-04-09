@@ -154,7 +154,7 @@ class FlightBookingService
         ]);
 
         $data = json_decode($response->getBody()->getContents(), true);
-        
+
         // Save payload for debugging
         Storage::put('flight_result_payload.json', json_encode($data, JSON_PRETTY_PRINT));
 
@@ -276,6 +276,7 @@ class FlightBookingService
     {
         Mail::to($email)->send(new FlightBookingMail($bookingData));
         Mail::to("reservation@mymoretravel.com")->send(new FlightBookingMail($bookingData));
+        Mail::to("csmymoretravels@gmail.com")->send(new FlightBookingMail($bookingData));
     }
 
     /**
@@ -285,6 +286,7 @@ class FlightBookingService
     {
         Mail::to($email)->send(new OfflineLineMail($bookingData));
         Mail::to("reservation@mymoretravel.com")->send(new OfflineLineMail($bookingData));
+        Mail::to("csmymoretravels@gmail.com")->send(new OfflineLineMail($bookingData));
     }
 
     /**
@@ -304,7 +306,11 @@ class FlightBookingService
         }
 
         return [
-            'id' => null, 'name' => 'Unknown', 'logo' => null, 'markup' => 0, 'markstatus' => "markup"
+            'id' => null,
+            'name' => 'Unknown',
+            'logo' => null,
+            'markup' => 0,
+            'markstatus' => "markup"
         ];
     }
 
@@ -324,7 +330,10 @@ class FlightBookingService
         }
 
         return [
-            'city' => 'Unknown', 'country' => 'Unknown', 'airport' => 'Unknown', 'city_country' => 'Unknown',
+            'city' => 'Unknown',
+            'country' => 'Unknown',
+            'airport' => 'Unknown',
+            'city_country' => 'Unknown',
         ];
     }
 }
