@@ -256,10 +256,10 @@
             </button>
             {{--<button
                 class="w-1/2 py-3 text-center shadow-lg rounded-2xl font-semibold text-lg transition duration-300 ease-in-out flex items-center justify-center {{ $selectedPayment === 'Paystack' ? 'bg-primary text-white' : 'bg-white text-red-600 hover:bg-red-50' }}"
-                wire:click="updatePaymentMethod('Paystack')">
-                <img src="https://website-v3-assets.s3.amazonaws.com/assets/img/hero/Paystack-mark-white-twitter.png"
-                    alt="Paystack" class="h-6 mr-2" />
-                Paystack
+            wire:click="updatePaymentMethod('Paystack')">
+            <img src="https://website-v3-assets.s3.amazonaws.com/assets/img/hero/Paystack-mark-white-twitter.png"
+                alt="Paystack" class="h-6 mr-2" />
+            Paystack
             </button>--}}
         </div>
 
@@ -434,7 +434,6 @@
 <!-- AlatPay Script -->
 <script src="https://web.alatpay.ng/js/alatpay.js"></script>
 <script>
-
     // Initialize AlatPay with dynamic data
     let popup = Alatpay.setup({
         apiKey: "3e0c19b031fe4e5bb9b51a200cb86440", // Replace with your AlatPay API key

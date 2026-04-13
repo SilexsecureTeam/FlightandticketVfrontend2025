@@ -38,34 +38,61 @@ class BookingPage extends Component
 
     public $searchResultsId;
 
-    protected $rules = [
-        'travelers' => 'required|array|min:1',
-        'travelers.*.id' => 'required|string',
-        'travelers.*.dateOfBirth' => 'required|date|before:today',
-        'travelers.*.name' => 'required|array',
-        'travelers.*.name.firstName' => 'required|string|max:255',
-        'travelers.*.name.middleName' => 'nullable|string|max:255',
-        'travelers.*.name.lastName' => 'required|string|max:255',
-        'travelers.*.gender' => 'nullable|string',
-        // 'travelers.*.title' => 'nullable|string',
-        'travelers.*.contact' => 'required|array',
-        'travelers.*.contact.emailAddress' => 'required|email',
-        'travelers.*.contact.phones' => 'required|array|min:1',
-        'travelers.*.contact.phones.*.deviceType' => 'required|string|in:MOBILE,LANDLINE',
-        'travelers.*.contact.phones.*.countryCallingCode' => 'required|string',
-        'travelers.*.contact.phones.*.number' => 'required|string|min:10',
-        'travelers.*.documents' => 'required|array|min:1',
-        'travelers.*.documents.*.documentType' => 'required|string|in:PASSPORT,ID_CARD',
-        'travelers.*.documents.*.birthPlace' => 'required|string|max:255',
-        'travelers.*.documents.*.issuanceLocation' => 'required|string|max:255',
-        // 'travelers.*.documents.*.issuanceDate' => 'nullable|date|before:today',
-        'travelers.*.documents.*.number' => 'required|string|max:255',
-        'travelers.*.documents.*.expiryDate' => 'required|date|after:today',
-        'travelers.*.documents.*.issuanceCountry' => 'required|string',
-        'travelers.*.documents.*.validityCountry' => 'required|string',
-        'travelers.*.documents.*.nationality' => 'required|string',
-        'travelers.*.documents.*.holder' => 'required|boolean',
-    ];
+    /**
+     * First itinerary: departure country and arrival country are both Nigeria (domestic).
+     */
+    public function isNigeriaDomesticFlight(): bool
+    {
+        $itineraries = $this->selectedFlight['itineraries'] ?? [];
+        $segments = $itineraries[0]['segments'] ?? [];
+        if ($segments === []) {
+            return false;
+        }
+
+        $first = $segments[0];
+        $last = $segments[count($segments) - 1];
+        $from = strtolower((string) ($first['departure']['city_country'] ?? ''));
+        $to = strtolower((string) ($last['arrival']['city_country'] ?? ''));
+
+        return str_contains($from, 'nigeria') && str_contains($to, 'nigeria');
+    }
+
+    protected function rules(): array
+    {
+        $base = [
+            'travelers' => 'required|array|min:1',
+            'travelers.*.id' => 'required|string',
+            'travelers.*.dateOfBirth' => 'required|date|before:today',
+            'travelers.*.name' => 'required|array',
+            'travelers.*.name.firstName' => 'required|string|max:255',
+            'travelers.*.name.middleName' => 'nullable|string|max:255',
+            'travelers.*.name.lastName' => 'required|string|max:255',
+            'travelers.*.gender' => 'nullable|string',
+            'travelers.*.contact' => 'required|array',
+            'travelers.*.contact.emailAddress' => 'required|email',
+            'travelers.*.contact.phones' => 'required|array|min:1',
+            'travelers.*.contact.phones.*.deviceType' => 'required|string|in:MOBILE,LANDLINE',
+            'travelers.*.contact.phones.*.countryCallingCode' => 'required|string',
+            'travelers.*.contact.phones.*.number' => 'required|string|min:10',
+        ];
+
+        if ($this->isNigeriaDomesticFlight()) {
+            return $base;
+        }
+
+        return array_merge($base, [
+            'travelers.*.documents' => 'required|array|min:1',
+            'travelers.*.documents.*.documentType' => 'required|string|in:PASSPORT,ID_CARD',
+            'travelers.*.documents.*.birthPlace' => 'required|string|max:255',
+            'travelers.*.documents.*.issuanceLocation' => 'required|string|max:255',
+            'travelers.*.documents.*.number' => 'required|string|max:255',
+            'travelers.*.documents.*.expiryDate' => 'required|date|after:today',
+            'travelers.*.documents.*.issuanceCountry' => 'required|string',
+            'travelers.*.documents.*.validityCountry' => 'required|string',
+            'travelers.*.documents.*.nationality' => 'required|string',
+            'travelers.*.documents.*.holder' => 'required|boolean',
+        ]);
+    }
 
     protected $messages = [
         'travelers.*.dateOfBirth.before' => 'Date of birth must be in the past',
@@ -214,7 +241,11 @@ class BookingPage extends Component
         try {
             $service = app(\App\Http\Services\FlightBookingService::class);
 
-            $flightOrderPayload = $service->prepareFlightOrderPayload($this->travelers, $this->flight_offer_booking);
+            $flightOrderPayload = $service->prepareFlightOrderPayload(
+                $this->travelers,
+                $this->flight_offer_booking,
+                $this->isNigeriaDomesticFlight()
+            );
             
             $orderResponse = $service->sendFlightOrderRequest($flightOrderPayload, session('clientRef'));
 

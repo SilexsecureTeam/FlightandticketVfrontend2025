@@ -972,8 +972,12 @@
                         <!-- Document Information -->
                         <div class="bg-gray-50 rounded-xl p-6 space-y-6 shadow-inner">
                             <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">
-                                Document Information</h3>
+                                @if (!$this->isNigeriaDomesticFlight())
+                                Document Information
+                                @endif
+                            </h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                @if (!$this->isNigeriaDomesticFlight())
                                 <div>
                                     <label
                                         class="block text-sm font-medium text-gray-700 mb-2">Passport
@@ -1242,6 +1246,7 @@
                                     class="text-red-500 text-sm mt-1">{{ $message }}</span>
                                 @enderror
                             </div>
+                            @endif
                         </div>
                     </div>
                     @if ($loop->last)

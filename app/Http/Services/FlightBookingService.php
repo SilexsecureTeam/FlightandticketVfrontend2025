@@ -98,14 +98,17 @@ class FlightBookingService
      * @param array $flightOffer
      * @return array
      */
-    public function prepareFlightOrderPayload(array $travelers, array $flightOffer): array
+    public function prepareFlightOrderPayload(array $travelers, array $flightOffer, bool $omitTravelerDocuments = false): array
     {
-        $cleanedTravelers = collect($travelers)->map(function ($traveler) {
+        $cleanedTravelers = collect($travelers)->map(function ($traveler) use ($omitTravelerDocuments) {
             if (isset($traveler['name'])) {
                 if (!empty($traveler['name']['middleName'])) {
                     $traveler['name']['firstName'] = $traveler['name']['firstName'] . ' ' . $traveler['name']['middleName'];
                 }
                 unset($traveler['name']['middleName']);
+            }
+            if ($omitTravelerDocuments && isset($traveler['documents'])) {
+                unset($traveler['documents']);
             }
             return $traveler;
         })->toArray();

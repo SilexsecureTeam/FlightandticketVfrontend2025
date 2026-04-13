@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('flight_orders', function (Blueprint $table) {
             $table->id();
+            $table->integer('user_id')->nullable();
             $table->string('order_id')->unique();
             $table->json('flight_offers');
             $table->json('travelers');
