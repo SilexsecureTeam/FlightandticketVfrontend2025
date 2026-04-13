@@ -37,7 +37,7 @@ class ApiFlightBookingController extends Controller
         $pricedOffer = $result['pricedOffer'];
         $orderResponse = $result['orderResponse'];
         $pnr = $result['pnr'];
-        
+
         try {
             // Step 7: Initialize payments
             $paymentData = $this->bookingService->initializePayment($order, $email, $grandTotal);
@@ -48,7 +48,7 @@ class ApiFlightBookingController extends Controller
                 'pnr' => $pnr,
                 'itineraries' => $pricedOffer['itineraries'] ?? [],
                 'price' => $pricedOffer['price'] ?? [],
-                'commission' => 0, 
+                'commission' => 0,
                 'travelType' => $pricedOffer['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
@@ -95,20 +95,20 @@ class ApiFlightBookingController extends Controller
             // Step 7: Initialize Payment Record
             $paymentMethod = $request->input('payment_method', 'Offline');
             $paymentData = $this->bookingService->createApiPaymentRecord($order, $grandTotal, $paymentMethod);
-            if($paymentMethod !== 'Offline'){
+            if ($paymentMethod !== 'Offline') {
                 $order->update([
                     'payment_status' => 'APPROVED',
                 ]);
             }
-            
-            
+
+
             // Step 8: Send confirmation emails
             $bookingData = [
                 'travelers' => $orderResponse['data']['travelers'],
                 'pnr' => $pnr,
                 'itineraries' => $pricedOffer['itineraries'] ?? [],
                 'price' => $pricedOffer['price'] ?? [],
-                'commission' => 0, 
+                'commission' => 0,
                 'travelType' => $pricedOffer['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
@@ -166,16 +166,16 @@ class ApiFlightBookingController extends Controller
                 'travelers.*.contact.phones.*.deviceType' => 'required|string|in:MOBILE,LANDLINE',
                 'travelers.*.contact.phones.*.countryCallingCode' => 'required|string',
                 'travelers.*.contact.phones.*.number' => 'required|string|min:10',
-                'travelers.*.documents' => 'required|array|min:1',
-                'travelers.*.documents.*.documentType' => 'required|string|in:PASSPORT,ID_CARD',
-                'travelers.*.documents.*.birthPlace' => 'required|string|max:255',
-                'travelers.*.documents.*.issuanceLocation' => 'required|string|max:255',
-                'travelers.*.documents.*.number' => 'required|string|max:255',
-                'travelers.*.documents.*.expiryDate' => 'required|date|after:today',
-                'travelers.*.documents.*.issuanceCountry' => 'required|string',
-                'travelers.*.documents.*.validityCountry' => 'required|string',
-                'travelers.*.documents.*.nationality' => 'required|string',
-                'travelers.*.documents.*.holder' => 'required|boolean',
+                'travelers.*.documents' => 'nullable|array|min:1',
+                'travelers.*.documents.*.documentType' => 'nullable|string|in:PASSPORT,ID_CARD',
+                'travelers.*.documents.*.birthPlace' => 'nullable|string|max:255',
+                'travelers.*.documents.*.issuanceLocation' => 'nullable|string|max:255',
+                'travelers.*.documents.*.number' => 'nullable|string|max:255',
+                'travelers.*.documents.*.expiryDate' => 'nullable|date|after:today',
+                'travelers.*.documents.*.issuanceCountry' => 'nullable|string',
+                'travelers.*.documents.*.validityCountry' => 'nullable|string',
+                'travelers.*.documents.*.nationality' => 'nullable|string',
+                'travelers.*.documents.*.holder' => 'nullable|boolean',
             ]);
 
 
@@ -226,7 +226,6 @@ class ApiFlightBookingController extends Controller
                 'orderResponse' => $orderResponse,
                 'pnr' => $pnr,
             ];
-
         } catch (ValidationException $e) {
             return response()->json([
                 'status' => 'error',
