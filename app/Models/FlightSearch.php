@@ -12,6 +12,7 @@ class FlightSearch extends Model
 
     protected $fillable = [
         'search_id',
+        'user_id',
         'clientRef',
         'flight_offers_path',
         'dictionaries_path',

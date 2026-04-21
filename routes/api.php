@@ -25,6 +25,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('profile', [Authcontroller::class, 'getProfile']);
     Route::post('profile/update', [Authcontroller::class, 'updateProfile']);
     Route::post('password/change', [Authcontroller::class, 'changePassword']);
+
+    // User Flight History
+    Route::get('flights/orders', [ApiFlightBookingController::class, 'getUserOrders']);
+    Route::get('flights/searches', [ApiFlightSearchController::class, 'getUserSearches']);
 });
 
 Route::prefix('flights')->group(function () {

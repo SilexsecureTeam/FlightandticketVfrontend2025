@@ -76,7 +76,7 @@
                 <div style="font-size: 13px; color: #0a0a0a;">
                     {{ $itinerary['segments'][0]['departure']['city_country'] ?? 'N/A' }}
                     <span style="margin: 0 8px; color: #888;">to</span>
-                    {{ end($itinerary['segments'])['arrival']['city_country'] ?? 'N/A' }}
+                    {{ (isset($itinerary['segments']) && count($itinerary['segments']) > 0) ? (end($itinerary['segments'])['arrival']['city_country'] ?? 'N/A') : 'N/A' }}
                 </div>
             </div>
 
@@ -278,8 +278,8 @@
                                     <img src="https://img.icons8.com/material-rounded/24/555555/marker.png"
                                         alt="Location"
                                         style="width: 16px; height: 16px; vertical-align: middle; margin-right: 5px;">
-                                    {{ $segment['arrival']['city_country'] }}
-                                    ({{ $segment['arrival']['iataCode'] }} )
+                                    {{ $segment['arrival']['city_country'] ?? 'N/A' }}
+                                    ({{ $segment['arrival']['iataCode'] ?? 'N/A' }} )
                                     <span style="margin-left: 10px; font-size: 13px; color: #777;">
                                         {{ $currentArrival->format('H:i') }} -
                                         {{ $nextDeparture->format('H:i') }}

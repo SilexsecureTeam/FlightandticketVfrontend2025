@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Services\FlightBookingService;
 use App\Models\FlightSearch;
+use App\Models\User;
+use App\Models\Flight\FlightOrder;
+use App\Mail\WelcomeUserMail;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ApiFlightBookingController extends Controller
@@ -52,7 +57,10 @@ class ApiFlightBookingController extends Controller
                 'travelType' => $pricedOffer['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
-            // $this->bookingService->sendConfirmationEmails($bookingData, $email);
+            $this->bookingService->sendConfirmationEmails($bookingData, $email);
+
+            // Link booking to user account (create if not exists)
+            $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $request->search_id);
 
             return response()->json([
                 'status' => 'success',
@@ -113,6 +121,9 @@ class ApiFlightBookingController extends Controller
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
             $this->bookingService->sendOfflineConfirmationEmails($bookingData, $email);
+
+            // Link booking to user account (create if not exists)
+            $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $request->search_id);
 
             return response()->json([
                 'status' => 'success',
@@ -245,5 +256,62 @@ class ApiFlightBookingController extends Controller
                 'message' => 'An unexpected error occurred: ' . $e->getMessage(),
             ], 500);
         }
+    }
+    /**
+     * Handle user account creation and linking
+     */
+    private function handleUserAccount($email, $traveler, $order, $searchId)
+    {
+        try {
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                // Create user if not present
+                $firstName = $traveler['name']['firstName'] ?? '';
+                $lastName = $traveler['name']['lastName'] ?? '';
+                $name = trim($firstName . ' ' . $lastName);
+                $phone = $traveler['contact']['phones'][0]['number'] ?? null;
+
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => bcrypt(Str::random(12)), // Random password
+                    'phone' => $phone,
+                    'status' => 'active', // Assuming default status
+                ]);
+
+                // Send welcome email
+                Mail::to($email)->send(new WelcomeUserMail($name));
+            }
+
+            // Update flight order with user_id
+            $order->update(['user_id' => $user->id]);
+
+            // Update flight search with user_id
+            $flightSearch = FlightSearch::where('search_id', $searchId)->first();
+            if ($flightSearch) {
+                $flightSearch->update(['user_id' => $user->id]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error handling user account: ' . $e->getMessage());
+            // We don't throw exception here to avoid breaking the booking flow if user creation fails
+        }
+    }
+
+    /**
+     * GET: Retrieve flight orders for the authenticated user
+     */
+    public function getUserOrders(Request $request)
+    {
+        $user = $request->user();
+        $orders = FlightOrder::where('user_id', $user->id)
+            ->latest()
+            ->paginate($request->input('per_page', 15));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Orders retrieved successfully',
+            'data' => $orders,
+        ], 200);
     }
 }

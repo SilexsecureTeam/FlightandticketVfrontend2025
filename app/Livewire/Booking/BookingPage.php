@@ -16,9 +16,14 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
+use App\Mail\WelcomeUserMail;
+use App\Models\FlightSearch;
+use Illuminate\Support\Str;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Illuminate\Support\Facades\Log;
 
 class BookingPage extends Component
 {
@@ -271,6 +276,8 @@ class BookingPage extends Component
 
             $service->sendConfirmationEmails($bookingData, $email);
 
+            $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $this->searchResultsId);
+
             $this->initializePayment($order);
         } catch (ValidationException $e) {
             $this->alert('error', 'Validation Error: ' .  $e->getMessage(), [
@@ -457,5 +464,45 @@ class BookingPage extends Component
         return view('livewire.booking.booking-page', [
             'passengers' => $this->passengers,
         ]);
+    }
+    /**
+     * Handle user account creation and linking
+     */
+    private function handleUserAccount($email, $traveler, $order, $searchId)
+    {
+        try {
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                // Create user if not present
+                $firstName = $traveler['name']['firstName'] ?? '';
+                $lastName = $traveler['name']['lastName'] ?? '';
+                $name = trim($firstName . ' ' . $lastName);
+                $phone = $traveler['contact']['phones'][0]['number'] ?? null;
+
+                $user = User::create([
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => bcrypt(Str::random(12)), // Random password
+                    'phone' => $phone,
+                    'status' => 'active', // Assuming default status
+                ]);
+
+                // Send welcome email
+                Mail::to($email)->send(new WelcomeUserMail($name));
+            }
+
+            // Update flight order with user_id
+            $order->update(['user_id' => $user->id]);
+
+            // Update flight search with user_id
+            $flightSearch = FlightSearch::where('search_id', $searchId)->first();
+            if ($flightSearch) {
+                $flightSearch->update(['user_id' => $user->id]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error handling user account: ' . $e->getMessage());
+            // We don't throw exception here to avoid breaking the booking flow if user creation fails
+        }
     }
 }

@@ -406,4 +406,21 @@ class ApiFlightSearchController extends Controller
                 ->all();
         }
     }
+
+    /**
+     * GET: Retrieve flight searches for the authenticated user
+     */
+    public function getUserSearches(Request $request)
+    {
+        $user = $request->user();
+        $searches = FlightSearch::where('user_id', $user->id)
+            ->latest()
+            ->paginate($request->input('per_page', 15));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Searches retrieved successfully',
+            'data' => $searches,
+        ], 200);
+    }
 }
