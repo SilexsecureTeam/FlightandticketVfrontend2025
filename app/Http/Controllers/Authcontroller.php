@@ -191,7 +191,7 @@ class Authcontroller extends Controller
         try {
             $user = User::where('email', $request->email)->firstOrFail();
 
-            $key = 'otp-' . $user->id;
+            // $key = 'otp-' . $user->id;
             // if (RateLimiter::remaining($key, 5) === 0) {
             //     return $this->error(' limit exceeded. Please try again later.', [], 429);
             // }
@@ -446,15 +446,16 @@ class Authcontroller extends Controller
     {
         try {
             $validated = $request->validate([
-                'previous_password' => 'required|string',
+                'previous_password' => 'nullable|string',
                 'password' => 'required|string|min:8',
                 'confirm_password' => 'required|same:password',
             ]);
 
             $user = Auth::user();
-
-            if (!Hash::check($validated['previous_password'], $user->password)) {
-                return $this->error([], 'The previous password is incorrect.', 422);
+            if($request->request_type !== "forgot_password") {
+                if (!Hash::check($validated['previous_password'], $user->password)) {
+                    return $this->error([], 'The previous password is incorrect.', 422);
+                }
             }
 
             $user->update([
