@@ -21,7 +21,8 @@ use App\Livewire\Flight\SearchFlightPage;
 use App\Livewire\Flight\OfflineSuccessPage;
 
 Route::get('/', Landing::class)->name('landing');
-
+Route::get('/about-us', App\Livewire\Page\AboutUs::class)->name('about.us');
+Route::get('/terms-and-conditions', App\Livewire\Page\TermsAndConditions::class)->name('terms');
 
 // Route::middleware('guest')->group(function () {
     Route::get('/mail', MailTest::class);
@@ -59,7 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/payment', Payment::class)->name('payment');
     Route::get('/customers', Customers::class)->name('customers');
     Route::get('/settings', Settings::class)->name('settings');
-
+    Route::get('/admin/pages', \App\Livewire\Admin\ManagePages::class)->name('admin.pages');
 
     Route::prefix('flight')->group(function () {
         Route::get('/search', SearchFlightPage::class)->name('flight.search');

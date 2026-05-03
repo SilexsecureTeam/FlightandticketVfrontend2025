@@ -160,6 +160,14 @@
                     <span>Customers</span>
                 </a>
 
+                <a href="/admin/pages" wire:navigate class=" {{ request()->is('admin/pages*') ? ' bg-primary text-white font-bold' : '' }} flex items-center rounded-md gap-2 px-2 py-1.5 text-sm font-medium text-neutral-600 underline-offset-2 focus-visible:underline focus:outline-none ">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 shrink-0" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M14.5 2H5.5A1.5 1.5 0 0 0 4 3.5v13A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 14.5 2ZM6 5h8v1.5H6V5Zm0 3.5h8V10H6V8.5Zm0 3.5h8V13.5H6V12Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>Manage Pages</span>
+                </a>
+
+
 
 
 
