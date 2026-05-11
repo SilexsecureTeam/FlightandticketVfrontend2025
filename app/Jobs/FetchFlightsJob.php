@@ -85,10 +85,6 @@ class FetchFlightsJob implements ShouldQueue
                 'maxFlightOffers' => $validatedData['max'],
                 'flightFilters' => [
                     'cabinRestrictions' => $this->cabinRestrictions,
-                    'carrierRestrictions' => [
-                        'excludedCarrierCodes' => $excludedAirlineCodes ?? ["00"], //KQ = Kenya Airways, QR = Qatar Airways
-                        // 'includedCarrierCodes' => ['QR'], //KQ = Kenya Airways, QR = Qatar Airways
-                    ],
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
@@ -100,6 +96,12 @@ class FetchFlightsJob implements ShouldQueue
                 ],
             ],
         ];
+
+        if (!empty($excludedAirlineCodes)) {
+            $payload['searchCriteria']['flightFilters']['carrierRestrictions'] = [
+                'excludedCarrierCodes' => $excludedAirlineCodes, //KQ = Kenya Airways, QR = Qatar Airways
+            ];
+        }
 
 
         $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [

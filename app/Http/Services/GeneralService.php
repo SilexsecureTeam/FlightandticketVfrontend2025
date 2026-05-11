@@ -298,10 +298,6 @@ class GeneralService
                     // 'connectionRestriction' => [
                     //     'maxNumberOfConnections' => 0 // 0 = direct, 1 = max 1 stop, 2 = max 2 stops
                     // ],
-                    'carrierRestrictions' => [
-                        'excludedCarrierCodes' => $excludedAirlineCodes ?? ["00"], //KQ = Kenya Airways, QR = Qatar Airways
-                        // 'includedCarrierCodes' => ['QR'], //KQ = Kenya Airways, QR = Qatar Airways
-                    ],
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
@@ -313,6 +309,12 @@ class GeneralService
                 ],
             ],
         ];
+
+        if (!empty($excludedAirlineCodes)) {
+            $payload['searchCriteria']['flightFilters']['carrierRestrictions'] = [
+                'excludedCarrierCodes' => $excludedAirlineCodes, //KQ = Kenya Airways, QR = Qatar Airways
+            ];
+        }
 
         // return dd($payload);
 
