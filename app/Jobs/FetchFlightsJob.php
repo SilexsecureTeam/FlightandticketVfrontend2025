@@ -70,6 +70,11 @@ class FetchFlightsJob implements ShouldQueue
         $client = new Client();
         $baseUrl = config('services.amadeus.base_url');
 
+        $excludedAirlineCodes = Airline::query()
+            ->where('visible', '=', 0)
+            ->pluck('airline_code')
+            ->toArray();
+
         $payload = [
             'currencyCode' => $validatedData['currencyCode'],
             'originDestinations' => $this->originDestinations,
@@ -80,6 +85,10 @@ class FetchFlightsJob implements ShouldQueue
                 'maxFlightOffers' => $validatedData['max'],
                 'flightFilters' => [
                     'cabinRestrictions' => $this->cabinRestrictions,
+                    'carrierRestrictions' => [
+                        'excludedCarrierCodes' => $excludedAirlineCodes, //KQ = Kenya Airways, QR = Qatar Airways
+                        // 'includedCarrierCodes' => ['QR'], //KQ = Kenya Airways, QR = Qatar Airways
+                    ],
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,

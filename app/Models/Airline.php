@@ -14,7 +14,7 @@ class Airline extends Model
         'airline_name',
         'logo',
         'markprice',
-        'markstatus' ,
+        'markstatus',
         'markup',
         'markprice_economy',
         'markstatus_economy',
@@ -24,7 +24,14 @@ class Airline extends Model
         'markstatus_first',
         'markprice_business',
         'markstatus_business',
-        'markdown',     
+        'markdown',
+        'visible',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'visible' => 'boolean',
+        ];
+    }
 }

@@ -125,21 +125,17 @@ public function save()
     {
         try {
             $airport = Airport::findOrFail($airportId);
-            
-            // Toggle the visibility status
+
             $airport->update([
-                'visible' => !$airport->visible
+                'visible' => $airport->visible ? 0 : 1,
             ]);
-            
-            // Show success message
+
             $this->alert('success', 'Airport visibility updated!', [
                 'position' => 'top-right',
                 'timer' => 3000,
                 'toast' => true,
             ]);
-            
         } catch (\Exception $e) {
-            // Show error message if something goes wrong
             $this->alert('error', 'Failed to update visibility: ' . $e->getMessage(), [
                 'position' => 'top-right',
                 'timer' => 3000,

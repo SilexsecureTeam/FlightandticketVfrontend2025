@@ -209,6 +209,29 @@ class AirlinePage extends Component
             ]);
         }
     }
+
+    public function toggleVisibility($airlineId)
+    {
+        try {
+            $airline = Airline::findOrFail($airlineId);
+
+            $airline->update([
+                'visible' => $airline->visible ? 0 : 1,
+            ]);
+
+            $this->alert('success', 'Airline visibility updated!', [
+                'position' => 'top-right',
+                'timer' => 3000,
+                'toast' => true,
+            ]);
+        } catch (\Exception $e) {
+            $this->alert('error', 'Failed to update visibility: ' . $e->getMessage(), [
+                'position' => 'top-right',
+                'timer' => 3000,
+                'toast' => true,
+            ]);
+        }
+    }
     // public function editAirline()
     // {
     //     try {

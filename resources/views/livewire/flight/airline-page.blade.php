@@ -417,16 +417,18 @@
                                         </td>
                                         <td class="px-4 py-4">
                                             <div class="flex items-center">
-                                                <label class="relative inline-flex items-center cursor-pointer">
-                                                    <input type="checkbox"
-                                                        class="sr-only peer"
-                                                        wire:click="toggleVisibility({{ $airline->id }})"
-                                                        {{ $airline->visible ? 'checked' : '' }}>
-                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                                    <span class="ml-2 text-sm font-medium text-gray-700">
-                                                        {{ $airline->visible ? 'Visible' : 'Hidden' }}
-                                                    </span>
-                                                </label>
+                                                <button type="button"
+                                                    wire:click="toggleVisibility({{ $airline->id }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="toggleVisibility({{ $airline->id }})"
+                                                    role="switch"
+                                                    aria-checked="{{ $airline->visible ? 'true' : 'false' }}"
+                                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 {{ $airline->visible ? 'bg-primary' : 'bg-gray-200' }}">
+                                                    <span class="inline-block h-5 w-5 transform rounded-full border border-gray-300 bg-white transition duration-200 {{ $airline->visible ? 'translate-x-5' : 'translate-x-0.5' }}"></span>
+                                                </button>
+                                                <span class="ml-2 text-sm font-medium text-gray-700">
+                                                    {{ $airline->visible ? 'Visible' : 'Hidden' }}
+                                                </span>
                                             </div>
                                         </td>
                                         <td class="px-4 py-4">

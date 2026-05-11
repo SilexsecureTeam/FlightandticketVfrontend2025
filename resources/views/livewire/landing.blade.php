@@ -1,30 +1,28 @@
+<div class="relative min-h-screen w-full  ">
 
-<div class="relative min-h-screen w-full  " >
-    
     <!-- HEADER SECTION -->
     <header class="horizontal-scroll-header text-white relative md:h-[80vh] w-full bg-cover bg-no-repeat"
-        style="background-image: url('./images/hero-img.png');"
-    >
+        style="background-image: url('./images/hero-img.png');">
         <!-- Dark overlay for header background -->
         <div class="absolute inset-0 md:min-h-full bg-[#00000080]"></div>
-        
-       
 
-        <div class="mx-auto max-w-[90%] pt-[2%] mb-[30px] flex flex-col gap-5 relative z-20 text-center" >
-            <h1 class="text-2xl md:text-4xl lg:text-5xl xl:text-[52px]" style="font-family: Caprasimo, serif;" >Your Gateway to Seamless Travel.</h1>
-            <p class="text-[#FFFFFFB2] text-sm md:text-lg lg:text-xl" >Book flights, explore destinations, and plan your perfect trip—all in one trusted platform.</p>
+
+
+        <div class="mx-auto max-w-[90%] pt-[2%] mb-[30px] flex flex-col gap-5 relative z-20 text-center">
+            <h1 class="text-2xl md:text-4xl lg:text-5xl xl:text-[52px]" style="font-family: Caprasimo, serif;">Your Gateway to Seamless Travel.</h1>
+            <p class="text-[#FFFFFFB2] text-sm md:text-lg lg:text-xl">Book flights, explore destinations, and plan your perfect trip—all in one trusted platform.</p>
         </div>
 
         <!-- Search Section Placeholder -->
-        <div class="" >
-           @livewire('components.search')
+        <div class="">
+            @livewire('components.search')
         </div>
     </header>
 
 
 
     <!-- MAIN CONTENT -->
-    <main class="" >      
+    <main class="">
 
         {{-- <!-- Explore Cheap Flights Section -->
         <section class="mx-auto py-10 lg:py-16 bg-[#9797970D] pl-5 md:pl-8 lg:pl-20 w-full">
@@ -133,7 +131,7 @@
         </section> --}}
 
         <!-- Brands Section -->
-        <section class="py-12 lg:py-14 z-10 bg-white px-5 w-full">            
+        <section class="py-12 lg:py-14 z-10 bg-white px-5 w-full">
             <div class="scroll-wrapper">
                 <div class="scroll-container">
                     <div class="scroll-content">
@@ -151,7 +149,7 @@
                         <img src="./images/brands/tnanta.png" class="bg-blend-luminosity" alt="logo5">
                         <img src="https://alatpay.ng/static/media/logo.8bdf3d450f27d18190ab.png" class="bg-blend-luminosity" alt="logo5">
 
-                        
+
                     </div>
                 </div>
                 <div class="w-10 md:w-24 lg:w-28 xl:w-32 gradient-fade-left rounded-r"></div>
@@ -160,7 +158,7 @@
         </section>
 
         <!-- Email Subscription Section -->
-        <section class="py-10 lg:py-16 bg-[#9797970D] text-black   px-5 md:px-8 lg:px-24 w-full flex flex-col md:flex-row gap-10 items-center">            
+        <section class="py-10 lg:py-16 bg-[#9797970D] text-black   px-5 md:px-8 lg:px-24 w-full flex flex-col md:flex-row gap-10 items-center">
             <img src="./images/couple-pulling-luggage.png" alt="couple-pulling-luggage" class="w-auto h-auto md:flex-1 md:max-w-[50%]">
             <div class="mx-auto text-center md:max-w-[40%] flex-1 flex-shrink-0">
                 <h3 class="text-2xl md:text-xl xl:text-3xl font-semibold mb-2 xl:mb-4">Don’t Miss Out a Great Deal</h3>
@@ -176,11 +174,11 @@
 
     </main>
 
-    <footer class="bg-[#262626] pt-10 pb-7 text-white" >
-        <section class="mb-10 px-5 md:px-8 lg:px-24 flex flex-col md:flex-row gap-7 justify-between" >
+    <footer class="bg-[#262626] pt-10 pb-7 text-white">
+        <section class="mb-10 px-5 md:px-8 lg:px-24 flex flex-col md:flex-row gap-7 justify-between">
             <img src="./images/logo.png" alt="" class="max-w-[156px] h-[74px]" />
-            <div class="flex flex-wrap justify-between gap-10 ld:gap-20 text-xs" >
-                <div class="flex flex-col gap-3" >
+            <div class="flex flex-wrap justify-between gap-10 ld:gap-20 text-xs">
+                <div class="flex flex-col gap-3">
                     <h3 class="text-base">Company</h3>
                     <p>About Us</p>
                     <p>FAQ</p>
@@ -193,7 +191,7 @@
                     <p>Cookies Policy</p>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <h3 class="text-base">Currency</h3>                    
+                    <h3 class="text-base">Currency</h3>
                     <div class="relative flex items-center gap-2 border border-white px-2 py-1 w-fit min-w-[140px] pr-6">
                         <select class="bg-transparent text-white outline-none appearance-none w-full">
                             <option class="text-black" value="naira" selected>🇳🇬&emsp;Naira</option>
@@ -208,9 +206,9 @@
             </div>
         </section>
 
-        <section class="" >
-            <div class="mb-5 pl-5 md:pl-8 lg:pl-20" >
-                <p class="mb-3" >Connect with Us</p>
+        <section class="">
+            <div class="mb-5 pl-5 md:pl-8 lg:pl-20">
+                <p class="mb-3">Connect with Us</p>
                 <div class="flex gap-4">
                     <img src="./images/facebook.svg" alt="facebook icon">
                     <img src="./images/instagram.svg" alt="instagram icon">
@@ -222,12 +220,12 @@
 
             <div class="flex items-center justify-center text-center gap-1">
                 <img src="./images/copyright.svg" alt="copyright icon" class="w-5 h-5">
-                <p class="text-sm" >2025 Mymore Inc.</p>
+                <p class="text-sm">2025 Mymore Inc.</p>
             </div>
         </section>
     </footer>
 
-    
+
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -245,9 +243,9 @@
             ];
 
             let currentIndex = 0;
-   
+
             function changeBackground() {
-              
+
                 const header = document.querySelector(".horizontal-scroll-header");
                 currentIndex = (currentIndex + 1) % images.length;
                 header.style.transition = "background-image 1s ease-in-out";
@@ -289,14 +287,20 @@
 
             if (flightContainer && scrollLeft && scrollRight) {
                 scrollLeft.addEventListener("click", () => {
-                    flightContainer.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+                    flightContainer.scrollBy({
+                        left: -scrollAmount,
+                        behavior: "smooth"
+                    });
                 });
 
                 scrollRight.addEventListener("click", () => {
-                    flightContainer.scrollBy({ left: scrollAmount, behavior: "smooth" });
+                    flightContainer.scrollBy({
+                        left: scrollAmount,
+                        behavior: "smooth"
+                    });
                 });
             }
         }
     </script>
-</div>
 
+</div>

@@ -100,7 +100,8 @@ class GeneralService
     public function getAirPort($query)
     {
         if (strlen($query) >= 2) {
-            $airlines = Airport::where('visible', true)
+            $airlines = Airport::query()
+                ->where('visible', '=', 1)
                 ->where(function ($q) use ($query) {
                     $q->where('airport', 'like', "%$query%")
                         ->orWhere('airport_code', 'like', "%$query%")
@@ -128,7 +129,9 @@ class GeneralService
 
     public function getCityNameByIata($iataCode)
     {
-        $airline = Airport::where('airport_code', $iataCode)->first();
+        $airline = Airport::query()
+            ->where('airport_code', '=', $iataCode)
+            ->first();
 
         if ($airline) {
             return [
@@ -150,7 +153,9 @@ class GeneralService
     public function getAirlineDetailsByCode($carrierCode)
     {
         // Fetch airline details from the database
-        $airline = Airline::where('airline_code', $carrierCode)->first();
+        $airline = Airline::query()
+            ->where('airline_code', '=', $carrierCode)
+            ->first();
         if ($airline) {
             return [
                 'id' => $airline->id,
@@ -274,12 +279,18 @@ class GeneralService
         $client = new Client();
         $baseUrl = config('services.amadeus.base_url');
 
+        $excludedAirlineCodes = Airline::query()
+            ->where('visible', '=', 0)
+            ->pluck('airline_code')
+            ->toArray();
+
         $payload = [
             'currencyCode' => $validatedData['currencyCode'],
             'originDestinations' => $originDestinations,
             'travelers' => $travelers,
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
             // 'includedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
+            // 'excludedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             'searchCriteria' => [
                 'maxFlightOffers' => 10,
                 'flightFilters' => [
@@ -287,6 +298,10 @@ class GeneralService
                     // 'connectionRestriction' => [
                     //     'maxNumberOfConnections' => 0 // 0 = direct, 1 = max 1 stop, 2 = max 2 stops
                     // ],
+                    'carrierRestrictions' => [
+                        'excludedCarrierCodes' => $excludedAirlineCodes, //KQ = Kenya Airways, QR = Qatar Airways
+                        // 'includedCarrierCodes' => ['QR'], //KQ = Kenya Airways, QR = Qatar Airways
+                    ],
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
@@ -298,6 +313,8 @@ class GeneralService
                 ],
             ],
         ];
+
+        // return dd($payload);
 
 
         $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [
@@ -411,7 +428,7 @@ class GeneralService
         ];
 
         // Store in database
-        $flight = FlightSearch::find($fligtBokked);
+        $flight = FlightSearch::query()->find($fligtBokked);
         $flight->update($categorizedData);
 
         // return dd($flightOffers);
