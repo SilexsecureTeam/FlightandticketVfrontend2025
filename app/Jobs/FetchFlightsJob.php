@@ -86,7 +86,7 @@ class FetchFlightsJob implements ShouldQueue
                 'flightFilters' => [
                     'cabinRestrictions' => $this->cabinRestrictions,
                     'carrierRestrictions' => [
-                        'excludedCarrierCodes' => $excludedAirlineCodes, //KQ = Kenya Airways, QR = Qatar Airways
+                        'excludedCarrierCodes' => $excludedAirlineCodes ?? ["00"], //KQ = Kenya Airways, QR = Qatar Airways
                         // 'includedCarrierCodes' => ['QR'], //KQ = Kenya Airways, QR = Qatar Airways
                     ],
                 ],
