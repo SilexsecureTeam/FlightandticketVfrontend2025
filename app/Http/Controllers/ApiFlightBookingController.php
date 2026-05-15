@@ -51,12 +51,13 @@ class ApiFlightBookingController extends Controller
             $bookingData = [
                 'travelers' => $orderResponse['data']['travelers'],
                 'pnr' => $pnr,
-                'itineraries' => $pricedOffer['itineraries'] ?? [],
-                'price' => $pricedOffer['price'] ?? [],
-                'commission' => 0,
-                'travelType' => $pricedOffer['travelerPricings'] ?? [],
+                'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
+                'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
+                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+                'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
+
             $this->bookingService->sendConfirmationEmails($bookingData, $email);
 
             // Link booking to user account (create if not exists)
@@ -114,10 +115,10 @@ class ApiFlightBookingController extends Controller
             $bookingData = [
                 'travelers' => $orderResponse['data']['travelers'],
                 'pnr' => $pnr,
-                'itineraries' => $pricedOffer['itineraries'] ?? [],
-                'price' => $pricedOffer['price'] ?? [],
-                'commission' => 0,
-                'travelType' => $pricedOffer['travelerPricings'] ?? [],
+                'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
+                'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
+                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+                'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
             $this->bookingService->sendOfflineConfirmationEmails($bookingData, $email);

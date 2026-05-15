@@ -110,6 +110,7 @@ class FlightBookingService
             if ($omitTravelerDocuments && isset($traveler['documents'])) {
                 unset($traveler['documents']);
             }
+            $traveler['gender'] = 'UNSPECIFIED';
             return $traveler;
         })->toArray();
 
