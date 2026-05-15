@@ -73,6 +73,9 @@ class ApiFlightBookingController extends Controller
                     'alatpay_url' => $paymentData['alatpay_url'],
                     'payment_ids' => $paymentData['payment_ids'],
                     'priced_offer' => $pricedOffer,
+                    'bookingData' => $bookingData,
+                    'orderResponse' => $orderResponse,
+                    'email' => $email,
                 ],
             ], 201);
         } catch (\Exception $e) {
@@ -88,20 +91,20 @@ class ApiFlightBookingController extends Controller
      */
     public function reserve(Request $request)
     {
-        $result = $this->processBooking($request);
-        if ($result instanceof \Illuminate\Http\JsonResponse) {
-            return $result;
-        }
+        // $result = $this->processBooking($request);
+        // if ($result instanceof \Illuminate\Http\JsonResponse) {
+        //     return $result;
+        // }
 
-        $order = $result['order'];
-        $email = $result['email'];
-        $grandTotal = $result['grandTotal'];
-        $pricedOffer = $result['pricedOffer'];
-        $orderResponse = $result['orderResponse'];
-        $pnr = $result['pnr'];
+        // $order = $result['order'];
+        // $email = $result['email'];
+        // $grandTotal = $result['grandTotal'];
+        // $pricedOffer = $result['pricedOffer'];
+        // $orderResponse = $result['orderResponse'];
+        // $pnr = $result['pnr'];
 
-        try {
-            // Step 7: Initialize Payment Record
+        // try {
+        //     // Step 7: Initialize Payment Record
             $paymentMethod = $request->input('payment_method', 'Offline');
             $paymentData = $this->bookingService->createApiPaymentRecord($order, $grandTotal, $paymentMethod);
             if ($paymentMethod !== 'Offline') {
@@ -112,15 +115,20 @@ class ApiFlightBookingController extends Controller
 
 
             // Step 8: Send confirmation emails
-            $bookingData = [
-                'travelers' => $orderResponse['data']['travelers'],
-                'pnr' => $pnr,
-                'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
-                'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
-                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
-                'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
-                'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
-            ];
+            // $bookingData = [
+            //     'travelers' => $orderResponse['data']['travelers'],
+            //     'pnr' => $pnr,
+            //     'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
+            //     'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
+            //     'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+            //     'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
+            //     'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
+            // ];
+
+            $bookingData = $request->bookingData;
+            $orderResponse = $request->orderResponse;
+            $email = $request->email;
+            
             $this->bookingService->sendOfflineConfirmationEmails($bookingData, $email);
 
             // Link booking to user account (create if not exists)
