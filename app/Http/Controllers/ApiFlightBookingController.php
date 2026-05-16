@@ -105,52 +105,55 @@ class ApiFlightBookingController extends Controller
 
         // try {
         //     // Step 7: Initialize Payment Record
-            $paymentMethod = $request->input('payment_method', 'Offline');
-            $paymentData = $this->bookingService->createApiPaymentRecord($order, $grandTotal, $paymentMethod);
-            if ($paymentMethod !== 'Offline') {
-                $order->update([
-                    'payment_status' => 'APPROVED',
-                ]);
-            }
 
+        $bookingData = $request->bookingData;
+        $orderResponse = $request->orderResponse;
+        $email = $request->email;
 
-            // Step 8: Send confirmation emails
-            // $bookingData = [
-            //     'travelers' => $orderResponse['data']['travelers'],
-            //     'pnr' => $pnr,
-            //     'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
-            //     'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
-            //     'commission' => $this->selectedFlight['price']['commission'] ?? 0,
-            //     'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
-            //     'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
-            // ];
-
-            $bookingData = $request->bookingData;
-            $orderResponse = $request->orderResponse;
-            $email = $request->email;
-            
-            $this->bookingService->sendOfflineConfirmationEmails($bookingData, $email);
-
-            // Link booking to user account (create if not exists)
-            $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $request->search_id);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Flight reservation created successfully (Offline Payment)',
-                'data' => [
-                    'order_id' => $order->id,
-                    'pnr' => $pnr,
-                    'reference' => $paymentData['reference'],
-                    'payment_id' => $paymentData['payment_id'],
-                    'priced_offer' => $pricedOffer,
-                ],
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An unexpected error occurred during reservation: ' . $e->getMessage(),
-            ], 500);
+        $order = FlightOrder::where('pnr', $bookingData['pnr'])->firstOrFail();
+        $paymentMethod = $request->input('payment_method', 'Offline');
+        $paymentData = $this->bookingService->createApiPaymentRecord($order, $request->grandTotal, $paymentMethod);
+        if ($paymentMethod !== 'Offline') {
+            $order->update([
+                'payment_status' => 'APPROVED',
+            ]);
         }
+
+
+        // Step 8: Send confirmation emails
+        // $bookingData = [
+        //     'travelers' => $orderResponse['data']['travelers'],
+        //     'pnr' => $pnr,
+        //     'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
+        //     'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
+        //     'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+        //     'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
+        //     'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
+        // ];
+
+
+        $this->bookingService->sendOfflineConfirmationEmails($bookingData, $email);
+
+        // Link booking to user account (create if not exists)
+        $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $request->search_id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Flight reservation created successfully (Offline Payment)',
+            'data' => [
+                'order_id' => $order->id,
+                'pnr' => $order->pnr,
+                'reference' => $paymentData['reference'],
+                'payment_id' => $paymentData['payment_id'],
+                'priced_offer' => $request->grandTotal,
+            ],
+        ], 201);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status' => 'error',
+        //         'message' => 'An unexpected error occurred during reservation: ' . $e->getMessage(),
+        //     ], 500);
+        // }
     }
 
     /**
