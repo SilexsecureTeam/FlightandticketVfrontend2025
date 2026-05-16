@@ -32,6 +32,7 @@ class ApiFlightBookingController extends Controller
     public function book(Request $request)
     {
         $result = $this->processBooking($request);
+
         if ($result instanceof \Illuminate\Http\JsonResponse) {
             return $result;
         }

@@ -251,7 +251,7 @@ class BookingPage extends Component
                 $this->flight_offer_booking,
                 $this->isNigeriaDomesticFlight()
             );
-            
+
             $orderResponse = $service->sendFlightOrderRequest($flightOrderPayload, session('clientRef'));
 
             $pnr = $orderResponse['data']['associatedRecords'][0]['reference'] ?? null;
@@ -273,6 +273,12 @@ class BookingPage extends Component
                 'data' => $bookingData,
                 'email' => $email,
             ]);
+
+            FlightOrder::query()
+                ->where('id', '=', $order->id)
+                ->update([
+                    'amount' => $bookingData['price']['total'] + $bookingData['commission'],
+                ]);
 
             $service->sendConfirmationEmails($bookingData, $email);
 
