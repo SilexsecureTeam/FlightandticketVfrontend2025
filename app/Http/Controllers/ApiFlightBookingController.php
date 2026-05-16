@@ -58,6 +58,12 @@ class ApiFlightBookingController extends Controller
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
 
+            FlightOrder::query()
+                ->where('id', '=', $order->id)
+                ->update([
+                    'amount' => $bookingData['price']['total'] + $bookingData['commission'],
+                ]);
+
             $this->bookingService->sendConfirmationEmails($bookingData, $email);
 
             // Link booking to user account (create if not exists)

@@ -202,7 +202,6 @@ class FlightBookingService
             'pnr' => $pnr,
             'flight_offers' => $flightOffer,
             'travelers' => $travelers,
-            'amount' => $orderResponse['data']['flightOffers'][0]['price']['grandTotal'] ?? null,
             'payment_status' => 'PENDING',
             'order_status' => 'PROCESSING',
         ]);
