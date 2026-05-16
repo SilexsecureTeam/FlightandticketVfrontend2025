@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->integer('user_id')->nullable();
             $table->string('order_id')->unique();
+            $table->double('amount')->nullable();
             $table->json('flight_offers');
             $table->json('travelers');
             $table->string('payment_status')->default('PENDING'); // PENDING, PAID, FAILED
