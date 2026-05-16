@@ -277,7 +277,7 @@ class BookingPage extends Component
             FlightOrder::query()
                 ->where('id', '=', $order->id)
                 ->update([
-                    'amount' => $bookingData['price']['total'] + $bookingData['commission'],
+                    'amount' => $bookingData['price']['grandTotal'] + $bookingData['commission'],
                 ]);
 
             $service->sendConfirmationEmails($bookingData, $email);
