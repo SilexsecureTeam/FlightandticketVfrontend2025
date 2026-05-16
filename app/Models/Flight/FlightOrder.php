@@ -17,6 +17,7 @@ class FlightOrder extends Model
         'travelers',
         'payment_status',
         'order_status',
+        'amount',
     ];
 
     protected function casts(): array
