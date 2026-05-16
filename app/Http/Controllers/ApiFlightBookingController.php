@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\FlightBookingService;
+use App\Http\Services\GeneralService;
 use App\Models\FlightSearch;
 use App\Models\User;
 use App\Models\Flight\FlightOrder;
@@ -18,9 +19,12 @@ class ApiFlightBookingController extends Controller
 {
     protected $bookingService;
 
-    public function __construct(FlightBookingService $bookingService)
+    protected GeneralService $generalService;
+
+    public function __construct(FlightBookingService $bookingService, GeneralService $generalService)
     {
         $this->bookingService = $bookingService;
+        $this->generalService = $generalService;
     }
 
     /**
@@ -48,13 +52,16 @@ class ApiFlightBookingController extends Controller
             // Step 7: Initialize payments
             $paymentData = $this->bookingService->initializePayment($order, $email, $grandTotal);
 
+            $travelersCount = count($orderResponse['data']['travelers'] ?? []);
+            $commission = $this->resolveMarkupCommission($pricedOffer, $travelersCount);
+
             // Step 8: Send emails (Confirmation)
             $bookingData = [
                 'travelers' => $orderResponse['data']['travelers'],
                 'pnr' => $pnr,
                 'itineraries' => $orderResponse['data']['flightOffers'][0]['itineraries'] ?? [],
                 'price' => $orderResponse['data']['flightOffers'][0]['price'] ?? [],
-                'commission' => $this->selectedFlight['price']['commission'] ?? 0,
+                'commission' => $commission,
                 'travelType' => $orderResponse['data']['flightOffers'][0]['travelerPricings'] ?? [],
                 'remarks' => $orderResponse['data']['remarks']['general'] ?? [],
             ];
@@ -280,6 +287,43 @@ class ApiFlightBookingController extends Controller
             ], 500);
         }
     }
+    /**
+     * Match GeneralService / BookingPage: fixed cabin markup (or markdown) as commission when exactly one traveler.
+     */
+    protected function resolveMarkupCommission(array $pricedOffer, int $travelersCount): float
+    {
+        if ($travelersCount !== 1) {
+            return 0.0;
+        }
+
+        $carrierCode = $pricedOffer['itineraries'][0]['segments'][0]['carrierCode'] ?? null;
+        if (!$carrierCode) {
+            return 0.0;
+        }
+
+        $airlineDetails = $this->generalService->getAirlineDetailsByCode($carrierCode);
+        if (empty($airlineDetails['id'])) {
+            return 0.0;
+        }
+
+        $cabin = $pricedOffer['travelerPricings'][0]['fareDetailsBySegment'][0]['cabin'] ?? null;
+        if (!$cabin) {
+            return 0.0;
+        }
+
+        $dataClassCabin = $this->generalService->getCabinClassMarkprice($cabin, $airlineDetails['id']);
+        $markupValue = $dataClassCabin['markprice'];
+        $markupstatus = $dataClassCabin['markstatus'];
+
+        if ($markupValue === null) {
+            return 0.0;
+        }
+
+        $amount = abs((float) $markupValue);
+
+        return ($markupstatus === 'markdown') ? -$amount : $amount;
+    }
+
     /**
      * Handle user account creation and linking
      */
