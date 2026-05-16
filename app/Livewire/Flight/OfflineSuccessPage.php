@@ -14,46 +14,46 @@ class OfflineSuccessPage extends Component
 
 
 
-public function mount($orderResponse)
-{
-    $this->showToSource = session('showToSource') ?? "web";
-    // Decode the orderResponse
-    $decodedOrderResponse = base64_decode($orderResponse, true); 
+    public function mount($orderResponse)
+    {
+        $this->showToSource = session('showToSource') ?? "web";
+        // Decode the orderResponse
+        $decodedOrderResponse = base64_decode($orderResponse, true);
 
-    // Check if decoding was successful
-    if (!$decodedOrderResponse) {
-        abort(404); 
+        // Check if decoding was successful
+        if (!$decodedOrderResponse) {
+            abort(404);
+        }
+
+        $this->orderResponse = $decodedOrderResponse;
+
+        $this->payment = Payment::where('flight_order_id', $this->orderResponse)
+            ->with(['flightOrder:id,order_id,amount'])
+            ->first();
     }
 
-    $this->orderResponse = $decodedOrderResponse;
 
-    $this->payment = Payment::where('flight_order_id', $this->orderResponse)
-        ->with(['flightOrder:id,order_id']) 
-        ->first();
-}
+    public function download()
+    {
+        if (!$this->payment || !$this->payment->flightOrder) {
+            abort(404, 'Payment record not found.');
+        }
 
+        $payment = $this->payment;
 
-public function download()
-{
-    if (!$this->payment || !$this->payment->flightOrder) {
-        abort(404, 'Payment record not found.');
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.offline-pdf', ['payment' => $payment]);
+
+        // Stream the PDF for download
+        return response()->streamDownload(
+            fn() => print($pdf->output()),
+            "Receipt_{$payment->flightOrder->order_id}.pdf"
+        );
     }
 
-    $payment = $this->payment;
-
-    // Generate PDF
-    $pdf = Pdf::loadView('pdf.offline-pdf', ['payment' => $payment]);
-
-    // Stream the PDF for download
-    return response()->streamDownload(fn () => print($pdf->output()), 
-        "Receipt_{$payment->flightOrder->order_id}.pdf"
-    );
-}
-
-public function render()
-{
-    $payment =   $this->payment;
-    return view('livewire.flight.offline-success-page', compact('payment'));
-}
-
+    public function render()
+    {
+        $payment =   $this->payment;
+        return view('livewire.flight.offline-success-page', compact('payment'));
+    }
 }
