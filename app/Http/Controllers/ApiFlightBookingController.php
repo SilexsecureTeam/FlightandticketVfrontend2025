@@ -107,10 +107,13 @@ class ApiFlightBookingController extends Controller
         //     // Step 7: Initialize Payment Record
 
         $bookingData = $request->bookingData;
-        $orderResponse = $request->orderResponse;
-        $email = $request->email;
+        $orderResponse = $bookingData['orderResponse'];
+        $email = $bookingData['email'];
 
-        $order = FlightOrder::where('pnr', $bookingData['pnr'])->firstOrFail();
+        $order = FlightOrder::query()
+            ->where('pnr', '=', $bookingData['pnr'])
+            ->firstOrFail();
+
         $paymentMethod = $request->input('payment_method', 'Offline');
         $paymentData = $this->bookingService->createApiPaymentRecord($order, $request->grandTotal, $paymentMethod);
         if ($paymentMethod !== 'Offline') {
@@ -161,7 +164,9 @@ class ApiFlightBookingController extends Controller
      */
     protected function processBooking(Request $request)
     {
-        $flightSearch = FlightSearch::where('search_id', $request->search_id)->first();
+        $flightSearch = FlightSearch::query()
+            ->where('search_id', '=', $request->search_id)
+            ->first();
         if (!$flightSearch) {
             return response()->json([
                 'status' => 'error',
@@ -275,7 +280,9 @@ class ApiFlightBookingController extends Controller
     private function handleUserAccount($email, $traveler, $order, $searchId)
     {
         try {
-            $user = User::where('email', $email)->first();
+            $user = User::query()
+                ->where('email', '=', $email)
+                ->first();
 
             if (!$user) {
                 // Create user if not present
@@ -300,7 +307,9 @@ class ApiFlightBookingController extends Controller
             $order->update(['user_id' => $user->id]);
 
             // Update flight search with user_id
-            $flightSearch = FlightSearch::where('search_id', $searchId)->first();
+            $flightSearch = FlightSearch::query()
+                ->where('search_id', '=', $searchId)
+                ->first();
             if ($flightSearch) {
                 $flightSearch->update(['user_id' => $user->id]);
             }
@@ -316,7 +325,8 @@ class ApiFlightBookingController extends Controller
     public function getUserOrders(Request $request)
     {
         $user = $request->user();
-        $orders = FlightOrder::where('user_id', $user->id)
+        $orders = FlightOrder::query()
+            ->where('user_id', '=', $user->id)
             ->latest()
             ->paginate($request->input('per_page', 15));
 
