@@ -292,7 +292,7 @@ class GeneralService
             // 'includedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             // 'excludedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             'searchCriteria' => [
-                'maxFlightOffers' => 10,
+                'maxFlightOffers' => 50,
                 'flightFilters' => [
                     'cabinRestrictions' => $cabinRestrictions,
                     // 'connectionRestriction' => [
@@ -301,8 +301,8 @@ class GeneralService
                 ],
                 'additionalInformation' => [
                     'chargeableCheckedBags' => false,
-                    'brandedFares' => true,
-                    'fareRules' => true,
+                    'brandedFares' => false,
+                    'fareRules' => false,
                 ],
                 'pricingOptions' => [
                     'fareType' => ['PUBLISHED'],
