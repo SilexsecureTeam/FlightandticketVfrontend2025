@@ -19,6 +19,9 @@
         style="background: linear-gradient(180deg, #ffffff 0%, #f0f4ff 100%); padding: 35px 25px; text-align: center; border-bottom: 1px solid #e0e6ff;">
         <h1 style="color: #97050C; margin: 0; font-weight: 300; letter-spacing: 1px; font-size: 28px;">Reservation
             Confirmation</h1>
+                <p style="font-size: 16px; color: #000; margin-bottom: 0;">
+                    This itinerary is for reservation purposes only. A valid ticket /travel itinerary will be issued upon payment confirmation. 
+            </p>
     </div>
 
     <!-- Main Content Container -->
