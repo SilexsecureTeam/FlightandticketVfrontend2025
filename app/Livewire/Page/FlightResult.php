@@ -43,6 +43,7 @@ class FlightResult extends Component
     public $showAllResults = false;
     public $initialDisplayLimit = 50;
     public $moreResultsReady = false;
+    public $allResultsLoaded = false;
 
     public function mount()
     {
@@ -78,7 +79,7 @@ class FlightResult extends Component
         $this->filteredFlightOffers = [];
         $this->showAllResults = true;
         $this->loadMore = 'loaded';
-        $this->moreResultsReady = false;
+        $this->allResultsLoaded = true;
     }
 
     public function checkStatusLoader()
@@ -115,7 +116,7 @@ class FlightResult extends Component
         $moreResultsReady = ($search->meta['more_results_ready'] ?? false) || $search->status === 'view';
 
         // During polling, keep current results on screen once loaded.
-        if ($hasLoadedOffers && !$this->showAllResults) {
+        if ($hasLoadedOffers && !$this->showAllResults && !$this->allResultsLoaded) {
             $this->moreResultsReady = $moreResultsReady;
             return;
         }
@@ -441,6 +442,7 @@ class FlightResult extends Component
             'showAllResults' => $this->showAllResults,
             'initialDisplayLimit' => $this->initialDisplayLimit,
             'moreResultsReady' => $this->moreResultsReady,
+            'allResultsLoaded' => $this->allResultsLoaded,
         ]);
     }
 }

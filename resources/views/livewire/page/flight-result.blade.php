@@ -900,14 +900,6 @@
                     </div>
                 </button>
                 @endif--}}
-                @if ($status === 'completed')
-                <button
-                    class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
-                    disabled
-                    style="opacity:0.5; cursor:not-allowed;">
-                    🔄 searching for more flights..
-                </button>
-                @endif
             </div>
 
             <div class=" space-y-4" id="flight-list">
@@ -1777,13 +1769,13 @@
 @endif
 
 </div>
-@if (($status === 'view' || $moreResultsReady) && $loadMore != 'loaded' && !$showAllResults)
+@if ($moreResultsReady && !$allResultsLoaded)
 <button wire:click="loadMoreFlights" wire:loading.attr="disabled" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
     <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
     <span wire:loading wire:target="loadMoreFlights">Loading...</span>
 </button>
 @endif
-@if ($status === 'completed' && !$moreResultsReady)
+@if ($status === 'completed' && !$moreResultsReady && !$allResultsLoaded)
 <div style="color:#000; text-align:center;">Please wait!</div>
 <button
     class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
@@ -1791,7 +1783,7 @@
     style="opacity:0.5; cursor:not-allowed;">
     🔄 searching for more flights..
 </button>
-{{-- Poll every 3 seconds --}}
+{{-- Poll every 3 seconds while background job is running --}}
 <div wire:poll.3000ms="checkStatus"></div>
 
 @endif
@@ -1824,15 +1816,50 @@
         return array.sort(() => Math.random() - 0.5);
     }
 
-    // Target all buttons with the class
-    document.querySelectorAll(".loading-message").forEach((messageBox) => {
-        const shuffledMessages = shuffle([...messages]);
-        let index = 0;
+    // Rotate waiting messages only while the loading button is visible
+    const loadingMessageIntervals = [];
 
-        setInterval(() => {
-            messageBox.textContent = shuffledMessages[index];
-            index = (index + 1) % shuffledMessages.length; // loop back
-        }, 3000);
+    function startLoadingMessageRotation() {
+        stopLoadingMessageRotation();
+
+        document.querySelectorAll('.loading-message').forEach((messageBox) => {
+            const shuffledMessages = shuffle([...messages]);
+            let index = 0;
+
+            const intervalId = setInterval(() => {
+                if (!document.body.contains(messageBox)) {
+                    clearInterval(intervalId);
+                    return;
+                }
+
+                messageBox.textContent = shuffledMessages[index];
+                index = (index + 1) % shuffledMessages.length;
+            }, 3000);
+
+            loadingMessageIntervals.push(intervalId);
+        });
+    }
+
+    function stopLoadingMessageRotation() {
+        loadingMessageIntervals.forEach((intervalId) => clearInterval(intervalId));
+        loadingMessageIntervals.length = 0;
+    }
+
+    function initLoadingMessages() {
+        if (document.querySelector('.loading-message')) {
+            startLoadingMessageRotation();
+        } else {
+            stopLoadingMessageRotation();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initLoadingMessages);
+    document.addEventListener('livewire:navigated', initLoadingMessages);
+
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('morph.updated', () => {
+            initLoadingMessages();
+        });
     });
 </script>
 
