@@ -24,7 +24,7 @@
             </p>
     </div>
 
-    <!-- Main Content Container -->
+    <!-- Main Content Container -->   
     <div
         style="background-color: white; padding: 0; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin: 20px;">
         <!-- Personal Greeting -->
