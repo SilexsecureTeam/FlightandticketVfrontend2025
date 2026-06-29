@@ -601,8 +601,6 @@ class Search extends Component
                 }
             }
 
-            // return dd($this->multiCityFlights);
-
             $fligtBokked = FlightSearch::create([
                 'search_id' => $searchId,
                 'clientRef' => $clientRef,
@@ -620,9 +618,21 @@ class Search extends Component
 
             // return dd([$validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions]);
 
-            $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            $initialMax = 50;
+            $validatedData['max'] = $validatedData['max'] ?? $this->max;
 
-            $searchResult = (new GeneralService)->searchDirect($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
+            $searchResult = (new GeneralService)->searchDirect(
+                $validatedData,
+                $clientRef,
+                $searchId,
+                $fligtBokked->id,
+                $originDestinations,
+                $travelers,
+                $cabinRestrictions,
+                $initialMax
+            );
+
+            $this->searchJob($validatedData, $clientRef, $searchId, $fligtBokked->id, $originDestinations, $travelers, $cabinRestrictions);
 
             session(['showToSource' => $this->showToSource]);
 

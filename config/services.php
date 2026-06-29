@@ -45,6 +45,7 @@ return [
         'base_url' => env('AMADEUS_BASE_URL', 'https://test.travel.api.amadeus.com'),
         'client_id' => env('AMADEUS_API_KEY'),
         'client_secret' => env('AMADEUS_API_SECRET'),
+        'verify_ssl' => env('AMADEUS_VERIFY_SSL', env('APP_ENV', 'production') === 'production'),
     ],
 
 ];

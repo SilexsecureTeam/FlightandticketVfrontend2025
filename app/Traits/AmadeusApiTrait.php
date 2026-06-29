@@ -9,44 +9,49 @@ use Illuminate\Support\Facades\Http;
 
 trait AmadeusApiTrait
 {
-    public function getAccessToken()
+    protected function amadeusHttpVerifyOption(): array
     {
+        if (config('services.amadeus.verify_ssl', true)) {
+            return [];
+        }
+
+        return ['verify' => false];
+    }
+
+    public function getAccessToken(): string
+    {
+        $baseUrl = config('services.amadeus.base_url');
+        $clientId = config('services.amadeus.client_id');
+        $clientSecret = config('services.amadeus.client_secret');
+
+        if (empty($clientId) || empty($clientSecret)) {
+            throw new \RuntimeException('Amadeus API credentials are not configured.');
+        }
+
         try {
-            // Fetch Amadeus API credentials from configuration
-            $baseUrl = config('services.amadeus.base_url');
-            $clientId = config('services.amadeus.client_id');
-            $clientSecret = config('services.amadeus.client_secret');
-    
-            // Request payload for access token
-            $data = [
-                'client_id' => $clientId,
-                'client_secret' => $clientSecret,
-                'grant_type' => 'client_credentials',
-            ];
-    
-            // Make the POST request using the Http facade
-            $response = Http::asForm()
-            ->post("$baseUrl/v1/security/oauth2/token", $data);
-    
-            // Decode and retrieve the JSON response
+            $response = Http::withOptions($this->amadeusHttpVerifyOption())
+                ->asForm()
+                ->post("$baseUrl/v1/security/oauth2/token", [
+                    'client_id' => $clientId,
+                    'client_secret' => $clientSecret,
+                    'grant_type' => 'client_credentials',
+                ]);
+
             $responseData = $response->json();
-    
-            // Check if the response contains an access token
-            if ($response->ok() && isset($responseData['access_token'])) {
+
+            if ($response->ok() && !empty($responseData['access_token'])) {
                 return $responseData['access_token'];
             }
-    
-            // Return the response errors if the request failed
-            return [
-                'status' => $response->status(),
-                'error' => $responseData,
-            ];
+
+            $error = $responseData['error_description']
+                ?? $responseData['error']
+                ?? json_encode($responseData);
+
+            throw new \RuntimeException("Failed to obtain Amadeus access token (HTTP {$response->status()}): {$error}");
+        } catch (\RuntimeException $e) {
+            throw $e;
         } catch (\Exception $e) {
-            // Catch and return unexpected errors
-            return [
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ];
+            throw new \RuntimeException('Failed to obtain Amadeus access token: ' . $e->getMessage(), 0, $e);
         }
     }
     

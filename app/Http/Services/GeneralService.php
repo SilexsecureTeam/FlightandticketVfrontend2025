@@ -273,9 +273,8 @@ class GeneralService
         return $flights;
     }
 
-    public function searchDirect($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions)
+    public function searchDirect($validatedData, $clientRef, $searchId, $fligtBokked, $originDestinations, $travelers, $cabinRestrictions, int $maxOffers = 50)
     {
-
         $client = new Client();
         $baseUrl = config('services.amadeus.base_url');
 
@@ -292,7 +291,7 @@ class GeneralService
             // 'includedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             // 'excludedAirlineCodes' => 'QR', //KQ = Kenya Airways, QR = Qatar Airways
             'searchCriteria' => [
-                'maxFlightOffers' => 50,
+                'maxFlightOffers' => $maxOffers,
                 'flightFilters' => [
                     'cabinRestrictions' => $cabinRestrictions,
                     // 'connectionRestriction' => [
@@ -318,16 +317,20 @@ class GeneralService
 
         // return dd($payload);
 
+        $accessToken = $this->getAccessToken();
 
-        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [
+        $requestOptions = [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
                 'ama-client-ref' => $clientRef,
             ],
-            'json' => $payload
+            'json' => $payload,
+        ];
 
-        ]);
+        $requestOptions = array_merge($requestOptions, $this->amadeusHttpVerifyOption());
+
+        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", $requestOptions);
 
         $data = json_decode($response->getBody()->getContents(), true);
         $flightOffers = $data['data'] ?? [];

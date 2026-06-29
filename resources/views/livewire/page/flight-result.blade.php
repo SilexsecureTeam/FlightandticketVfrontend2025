@@ -418,7 +418,7 @@
                         ->values();
 
                         $airlinesWithNames = $uniqueAirlines->map(function ($code) use ($searchResults) {
-                        $name = $searchResults['dictionaries']['carriers'][$code] ?? '';
+                        $name = ($searchResults['dictionaries']['carriers'] ?? [])[$code] ?? '';
                         return ['code' => $code, 'name' => $name];
                         });
                         @endphp
@@ -435,7 +435,7 @@
                                         class="flex items-center space-x-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded">
                                         <input type="checkbox" value="{{ $code }}"
                                             class="airline-filter rounded text-primary focus:ring-primary"
-                                            onclick="toggleAirline(this)">
+                                            onclick="toggleAirline(this)" {{ in_array($code, $selectedAirlines ?? []) ? 'checked' : '' }}>
                                         <span class="text-gray-700">{{ $name }}</span>
                                     </label>
                                 </li>
@@ -453,7 +453,8 @@
                                 @foreach ($stopOptionsWithLabels as $option)
                                 <li>
                                     <label class=" flex items-center text-[16px] gap-5">
-                                        <input type="checkbox" value="1{{$option['value'] }}"
+                                        <input type="checkbox" value="{{ $option['value'] }}"
+                                            class="stop-filter rounded text-primary focus:ring-primary"
                                             onclick="toggleStopFilter(this)">
                                         {{ $option['label'] }}
                                     </label>
@@ -555,7 +556,7 @@
                     </div>
                 </div>
 
-                @if($searchParams['fromDisplayName'])
+                @if(!empty($searchParams['fromDisplayName']))
                 <div class="form-box" x-show="!isEditOpen">
                     <label>Flying from</label>
                     <div class="location">
@@ -563,7 +564,7 @@
                     </div>
                 </div>
                 @endif
-                @if($searchParams['toDisplayName'])
+                @if(!empty($searchParams['toDisplayName']))
                 <div class="form-box" x-show="!isEditOpen">
                     <label>Flying to</label>
                     <div class="location">
@@ -571,7 +572,7 @@
                     </div>
                 </div>
                 @endif
-                @if($searchParams['departureDate'])
+                @if(!empty($searchParams['departureDate']))
                 <div class="dispNonme form-box" x-show="!isEditOpen">
                     <label>Departure</label>
                     <div class="location">
@@ -580,7 +581,7 @@
                     </div>
                 </div>
                 @endif
-                @if($searchParams['returnDate'])
+                @if(!empty($searchParams['returnDate']))
                 <div class="dispNonme form-box" x-show="!isEditOpen">
                     <label>Return</label>
                     <div class="location">
@@ -589,13 +590,17 @@
                     </div>
                 </div>
                 @endif
+                @if(!empty($searchParams['passengers']))
                 <div class="passenger-box dispNonme" x-show="!isEditOpen">
-                    Adult {{$searchParams['passengers']['adult']}} &nbsp;&nbsp; Child {{$searchParams['passengers']['child']}} &nbsp;&nbsp; Infant {{$searchParams['passengers']['infant']}} &nbsp; | &nbsp; <strong>Total: {{$searchParams['passengers']['adult'] + $searchParams['passengers']['child'] + $searchParams['passengers']['infant']}}</strong>
+                    Adult {{$searchParams['passengers']['adult'] ?? 0}} &nbsp;&nbsp; Child {{$searchParams['passengers']['child'] ?? 0}} &nbsp;&nbsp; Infant {{$searchParams['passengers']['infant'] ?? 0}} &nbsp; | &nbsp; <strong>Total: {{($searchParams['passengers']['adult'] ?? 0) + ($searchParams['passengers']['child'] ?? 0) + ($searchParams['passengers']['infant'] ?? 0)}}</strong>
                 </div>
+                @endif
 
+                @if(!empty($searchParams['cabinClass']))
                 <div class="btn-group dispNonme" x-show="!isEditOpen">
                     <button class="btn active">Cabin: {{$searchParams['cabinClass']}}</button>
                 </div>
+                @endif
 
                 <!-- Edit/Cancel Button -->
                 <div class="flex items-center justify-end">
@@ -676,7 +681,7 @@
                 ->values();
 
                 $airlinesWithNames = $uniqueAirlines->map(function ($code) use ($searchResults) {
-                $name = $searchResults['dictionaries']['carriers'][$code] ?? '';
+                $name = ($searchResults['dictionaries']['carriers'] ?? [])[$code] ?? '';
                 return ['code' => $code, 'name' => $name];
                 });
                 @endphp
@@ -692,7 +697,7 @@
                                 class="flex items-center space-x-2 text-sm cursor-pointer hover:bg-gray-50 p-2 rounded">
                                 <input type="checkbox" value="{{ $code }}"
                                     class="airline-filter rounded text-primary focus:ring-primary"
-                                    onclick="toggleAirline(this)">
+                                    onclick="toggleAirline(this)" {{ in_array($code, $selectedAirlines ?? []) ? 'checked' : '' }}>
                                 <span class="text-gray-700">{{ $name }}</span>
                             </label>
                         </li>
@@ -711,6 +716,7 @@
                         <li>
                             <label class=" flex items-center text-[16px] gap-5">
                                 <input type="checkbox" value="{{ $option['value'] }}"
+                                    class="stop-filter rounded text-primary focus:ring-primary"
                                     onclick="toggleStopFilter(this)">
                                 {{ $option['label'] }}
                             </label>
@@ -795,7 +801,7 @@
                         </div>
                     </div>
                 </div>
-                @if(isset($searchResults['cheapestFlight']))
+                @if(isset($searchResults['cheapestFlight']) && is_array($searchResults['cheapestFlight']) && count($searchResults['cheapestFlight']))
                 <div class="table-wrapper">
                     <!-- Fixed Left Column -->
                     <div class="fixed-column">
@@ -807,7 +813,7 @@
 
                     <!-- Scrollable Airline Columns -->
                     <div class="scrollable-columns" id="scrollableTable">
-                        <div class="column" style="cursor: pointer;" onclick="toggleAirlineCheap('')">
+                        <div class="column" data-airline-code="" style="cursor: pointer;" onclick="toggleAirlineCheap('')">
                             <div class="cell header-cell">All Airlines</div>
                             <div class="cell">—</div>
                             <div class="cell">—</div>
@@ -815,8 +821,8 @@
                         </div>
                         @if(is_array($searchResults['cheapestFlight']))
                         @foreach($searchResults['cheapestFlight'] as $cheapflight)
-                        <div class="column" style="cursor: pointer;">
-                            <div class="cell header-cell" onclick="toggleAirlineCheap('<?= $cheapflight['code'] ?>')">
+                        <div class="column" data-airline-code="{{ $cheapflight['code'] }}" style="cursor: pointer;">
+                            <div class="cell header-cell" onclick="toggleAirlineCheap('{{ $cheapflight['code'] }}')">
                                 <img src="{{ !empty($cheapflight['logo'])
                                                                         ? url('/').'/storage/' . $cheapflight['logo']
                                                                         : asset('images/default-airline-logo.png') }}"
@@ -824,10 +830,10 @@
                                 {{$cheapflight['name']}}
                             </div>
                             @if(is_array($cheapflight['price']))
-                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
+                            <div class="cell" onclick="handleCellClick(this, '{{ $cheapflight['code'] }}')">
                                 @if(isset($cheapflight['price'][0]))
                                 <label class=" flex items-center text-[16px] gap-5">
-                                    <input type="checkbox" value="0" style="display: none;">
+                                    <input type="checkbox" value="0" class="table-stop-filter" style="display: none;">
                                 </label>
                                 {{
                                  $cheapflight['price'][0] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][0], 2) : '-'
@@ -837,10 +843,10 @@
                                 @endif
                             </div>
 
-                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
+                            <div class="cell" onclick="handleCellClick(this, '{{ $cheapflight['code'] }}')">
                                 @if(isset($cheapflight['price'][1]))
                                 <label class=" flex items-center text-[16px] gap-5">
-                                    <input type="checkbox" value="1" style="display: none;">
+                                    <input type="checkbox" value="1" class="table-stop-filter" style="display: none;">
                                 </label>
                                 {{
                                  $cheapflight['price'][1] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][1], 2) : '-'
@@ -849,10 +855,10 @@
                                 -
                                 @endif
                             </div>
-                            <div class="cell" onclick="handleCellClick(this, '<?= $cheapflight['code'] ?>')">
+                            <div class="cell" onclick="handleCellClick(this, '{{ $cheapflight['code'] }}')">
                                 @if(isset($cheapflight['price'][2]))
                                 <label class=" flex items-center text-[16px] gap-5">
-                                    <input type="checkbox" value="2" style="display: none;">
+                                    <input type="checkbox" value="2" class="table-stop-filter" style="display: none;">
                                 </label>
                                 {{
                                  $cheapflight['price'][2] ? $cheapflight['currency']. " ". number_format((float) $cheapflight['price'][2], 2) : '-'
@@ -908,6 +914,7 @@
                 @if (isset($searchResults['flightOffers']) && count($searchResults['flightOffers']))
                 <div id="flight-offers-container">
                     @foreach ($searchResults['flightOffers'] as $index => $flight)
+                    @if ($showAllResults || $index < $initialDisplayLimit)
                     @php
                     // Calculate total price
                     $flight['totalPrice'] = floatval($flight['price']['grandTotal']);
@@ -940,7 +947,6 @@
                         data-total-stops="{{$stopNm == 10 ? 0 : $stopNm}}"
                         data-price="{{ $flight['totalPrice'] }}"
                         data-duration="{{ $flight['totalDuration'] }}"
-                        style="{{ $index >= 10 ? 'display: none;' : '' }}"
                         class="flight-offer bg-white rounded-xl shadow-2xl border-b border-t border-dotted-2 mb-6 overflow-hidden  border-primary">
                         <div x-data="{ isOpen: false }">
 
@@ -1760,6 +1766,7 @@
 </div>
 
 </div>
+@endif
 @endforeach
 </div>
 </div>
@@ -1770,12 +1777,13 @@
 @endif
 
 </div>
-@if ($status === 'view' && $loadMore != 'loaded')
-<button onclick="toggleAirlineCheap('')" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
-    <b>Load More</b>
+@if (($status === 'view' || $moreResultsReady) && $loadMore != 'loaded' && !$showAllResults)
+<button wire:click="loadMoreFlights" wire:loading.attr="disabled" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
+    <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
+    <span wire:loading wire:target="loadMoreFlights">Loading...</span>
 </button>
 @endif
-@if ($status === 'completed')
+@if ($status === 'completed' && !$moreResultsReady)
 <div style="color:#000; text-align:center;">Please wait!</div>
 <button
     class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
@@ -1833,59 +1841,92 @@
     let selectedStops = [];
     let sortBy = 'cheapest'; // 'cheapest' or 'fastest'
 
-    // Toggle airline filter
+    function syncSidebarAirlineCheckboxes() {
+        document.querySelectorAll('.airline-filter').forEach((checkbox) => {
+            checkbox.checked = selectedAirlines.includes(checkbox.value);
+        });
+    }
+
+    function syncSidebarStopCheckboxes() {
+        document.querySelectorAll('.stop-filter').forEach((checkbox) => {
+            const stopValue = parseInt(checkbox.value, 10);
+            checkbox.checked = selectedStops.includes(stopValue);
+        });
+    }
+
+    function syncTableColumnHighlight() {
+        document.querySelectorAll('#scrollableTable .column[data-airline-code]').forEach((column) => {
+            const code = column.getAttribute('data-airline-code');
+            const isSelected = code === ''
+                ? selectedAirlines.length === 0
+                : selectedAirlines.includes(code);
+
+            column.classList.toggle('airline-column-selected', isSelected);
+        });
+    }
+
+    function syncFilterUi() {
+        syncSidebarAirlineCheckboxes();
+        syncSidebarStopCheckboxes();
+        syncTableColumnHighlight();
+    }
+
+    // Toggle airline filter from sidebar
     function toggleAirline(checkbox) {
         const airlineCode = checkbox.value;
 
         if (checkbox.checked) {
-            selectedAirlines.push(airlineCode);
+            if (!selectedAirlines.includes(airlineCode)) {
+                selectedAirlines.push(airlineCode);
+            }
         } else {
-            selectedAirlines = selectedAirlines.filter(code => code !== airlineCode);
+            selectedAirlines = selectedAirlines.filter((code) => code !== airlineCode);
         }
 
+        syncTableColumnHighlight();
         filterFlights();
     }
 
-    function toggleAirlineCheap(valData) {
-        document.getElementById('load-more-btn').style.display = 'none';
-        const airlineCode = valData;
-        selectedStops = [];
-        if (airlineCode) {
-            selectedAirlines = [airlineCode];
-        } else {
-            selectedAirlines = [];
+    function toggleAirlineCheap(airlineCode) {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.style.display = 'none';
         }
+
+        selectedStops = [];
+        selectedAirlines = airlineCode ? [airlineCode] : [];
+
+        syncFilterUi();
         filterFlights();
     }
 
-    function handleCellClick(cell, aircode) {
-        toggleAirlineCheap('');
-        selectedStops = [];
-        filterFlights();
-        // toggleStopFilter('');
+    function handleCellClick(cell, airlineCode) {
         const checkbox = cell.querySelector('input[type="checkbox"]');
+        if (!checkbox) {
+            return;
+        }
 
-        // Toggle checkbox state
-        checkbox.checked = !checkbox.checked;
-        toggleAirlineCheap(aircode);
-        // Pass checkbox value
-        toggleStopFilter(checkbox);
+        const stopValue = parseInt(checkbox.value, 10);
+        selectedAirlines = [airlineCode];
+        selectedStops = [stopValue];
+
+        syncFilterUi();
+        filterFlights();
     }
 
     // Toggle stop filter
     function toggleStopFilter(checkbox) {
-        console.log("checkbox:", checkbox)
-        // const stopValue = parseInt(checkbox.value || checkbok);
-        const stopValue = parseInt(checkbox.value);
-        console.log("stopValue:", stopValue)
+        const stopValue = parseInt(checkbox.value, 10);
 
-        // if (checkbox.checked) {
-        if (stopValue) {
-            selectedStops.push(stopValue);
+        if (checkbox.checked) {
+            if (!selectedStops.includes(stopValue)) {
+                selectedStops.push(stopValue);
+            }
         } else {
-            selectedStops = selectedStops.filter(stop => stop !== stopValue);
+            selectedStops = selectedStops.filter((stop) => stop !== stopValue);
         }
 
+        syncSidebarStopCheckboxes();
         filterFlights();
     }
 
@@ -1899,6 +1940,10 @@
     function updateButtonClasses() {
         const cheapestBtn = document.getElementById('cheapest-btn');
         const fastestBtn = document.getElementById('fastest-btn');
+
+        if (!cheapestBtn || !fastestBtn) {
+            return;
+        }
 
         // Reset both buttons to default state
         cheapestBtn.classList.remove('bg-primary', 'text-white');
@@ -1920,10 +1965,14 @@
     // Filter and sort flights
     function filterFlights() {
         const flightList = document.getElementById('flight-list');
+        if (!flightList) {
+            return;
+        }
+
         const flights = Array.from(flightList.getElementsByClassName('flight-offer'));
 
         // Apply filters
-        flights.forEach(flight => {
+        flights.forEach((flight) => {
             let hasMatchingAirline = false;
             let hasMatchingStop = false;
 
@@ -1933,18 +1982,17 @@
             } else {
                 // Get all carrier codes from segments
                 const segments = flight.querySelectorAll('[data-carrier-code]');
-                const carrierCodes = Array.from(segments).map(segment => segment.getAttribute(
-                    'data-carrier-code'));
+                const carrierCodes = Array.from(segments).map((segment) => segment.getAttribute('data-carrier-code'));
 
                 // Check if any of the selected airlines match either the validating airline or any carrier code
                 const validatingAirlineCode = flight.getAttribute('data-airline');
-                hasMatchingAirline = selectedAirlines.some(code =>
+                hasMatchingAirline = selectedAirlines.some((code) =>
                     code === validatingAirlineCode || carrierCodes.includes(code)
                 );
             }
 
             // Check stop filter
-            const totalStops = parseInt(flight.getAttribute('data-total-stops'));
+            const totalStops = parseInt(flight.getAttribute('data-total-stops'), 10);
             if (selectedStops.length === 0 || selectedStops.includes(totalStops)) {
                 hasMatchingStop = true;
             }
@@ -1957,22 +2005,31 @@
         if (sortBy === 'cheapest') {
             flights.sort((a, b) => parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price')));
         } else if (sortBy === 'fastest') {
-            flights.sort((a, b) => parseFloat(a.getAttribute('data-duration')) - parseFloat(b.getAttribute(
-                'data-duration')));
+            flights.sort((a, b) => parseFloat(a.getAttribute('data-duration')) - parseFloat(b.getAttribute('data-duration')));
         }
 
         // Re-append sorted flights to maintain order
-        const container = document.getElementById('flight-list');
-        flights.forEach(flight => container.appendChild(flight));
+        flights.forEach((flight) => flightList.appendChild(flight));
+    }
+
+    function initFlightFilters() {
+        updateButtonClasses();
+        syncFilterUi();
+        filterFlights();
     }
 
     // Initialize the page
-    document.addEventListener('DOMContentLoaded', function() {
-        // Set initial button states
-        updateButtonClasses();
+    document.addEventListener('DOMContentLoaded', initFlightFilters);
 
-        // Initialize flight display
-        filterFlights();
+    document.addEventListener('livewire:navigated', initFlightFilters);
+
+    document.addEventListener('livewire:init', () => {
+        Livewire.hook('morph.updated', ({ el }) => {
+            if (el.id === 'flight-list' || el.querySelector?.('#flight-offers-container')) {
+                syncFilterUi();
+                filterFlights();
+            }
+        });
     });
 </script>
 

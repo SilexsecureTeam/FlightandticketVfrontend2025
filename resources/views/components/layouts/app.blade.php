@@ -62,6 +62,20 @@
             font-weight: bold;
         }
 
+        .column.airline-column-selected {
+            background-color: #fff5f5;
+        }
+
+        .column.airline-column-selected .header-cell {
+            background-color: #fff5f5;
+            color: #000;
+            border-bottom: 2px solid #97050C;
+        }
+
+        .column.airline-column-selected .cell {
+            background-color: #fff5f5;
+        }
+
         .nav-buttons {
             display: flex;
             justify-content: space-between;

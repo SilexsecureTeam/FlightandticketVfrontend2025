@@ -82,7 +82,7 @@ class FetchFlightsJob implements ShouldQueue
             'sources' => ["GDS"], // Can be extended: "LTC","PYTON","EAC"
 
             'searchCriteria' => [
-                'maxFlightOffers' => $validatedData['max'],
+                'maxFlightOffers' => 250,
                 'flightFilters' => [
                     'cabinRestrictions' => $this->cabinRestrictions,
                 ],
@@ -104,15 +104,20 @@ class FetchFlightsJob implements ShouldQueue
         }
 
 
-        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", [
+        $accessToken = $this->getAccessToken();
+
+        $requestOptions = [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->getAccessToken(),
+                'Authorization' => 'Bearer ' . $accessToken,
                 'Content-Type' => 'application/json',
                 'ama-client-ref' => $clientRef,
             ],
-            'json' => $payload
+            'json' => $payload,
+        ];
 
-        ]);
+        $requestOptions = array_merge($requestOptions, $this->amadeusHttpVerifyOption());
+
+        $response = $client->request('POST', "$baseUrl/v2/shopping/flight-offers", $requestOptions);
 
         $data = json_decode($response->getBody()->getContents(), true);
         $flightOffers = $data['data'] ?? [];
@@ -178,27 +183,30 @@ class FetchFlightsJob implements ShouldQueue
 
         // return dd($cheapest);
 
-        // Store large data in files
-        $flightOffersFile = 'flight_searches/' . $this->searchId . '_offers.json';
-        $dictionariesFile = 'flight_searches/' . $this->searchId . '_dictionaries.json';
-
         // Ensure directory exists
         if (!Storage::exists('flight_searches')) {
             Storage::makeDirectory('flight_searches');
         }
 
-        // Store large data in files
-        Storage::put($flightOffersFile, json_encode($flightOffers));
-        Storage::put($dictionariesFile, json_encode($dictionaries));
+        // Store full result set separately so the initial 50 stays on screen until load more.
+        $flightOffersFullFile = 'flight_searches/' . $this->searchId . '_offers_full.json';
+        $dictionariesFullFile = 'flight_searches/' . $this->searchId . '_dictionaries_full.json';
+
+        Storage::put($flightOffersFullFile, json_encode($flightOffers));
+        Storage::put($dictionariesFullFile, json_encode($dictionaries));
+
+        $existingSearch = FlightSearch::find($this->flightBookedId);
 
         // Create search results array with only essential data in DB
         $categorizedData = [
-            'meta' => $data['meta'] ?? [],
+            'meta' => array_merge($existingSearch?->meta ?? [], [
+                'full_offers_path' => $flightOffersFullFile,
+                'full_dictionaries_path' => $dictionariesFullFile,
+                'more_results_ready' => true,
+            ]),
             'cheapest' => json_encode($cheapest),
-            'flight_offers_path' => $flightOffersFile,
-            'dictionaries_path' => $dictionariesFile,
             'expires_at' => now()->addHours(24),
-            'status' => 'view',
+            'status' => 'completed',
         ];
 
         // Store in database
