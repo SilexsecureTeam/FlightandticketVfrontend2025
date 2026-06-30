@@ -63,6 +63,82 @@
                 display: none !important;
             }
         }
+
+        .flight-pagination {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 24px auto;
+            padding: 16px 12px;
+            width: 100%;
+            clear: both;
+            position: relative;
+            z-index: 20;
+            box-sizing: border-box;
+        }
+
+        .flight-pagination__btn {
+            background: #97050C;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            min-width: 130px;
+            min-height: 42px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+
+        .flight-pagination__btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .flight-pagination__info {
+            flex: 0 0 100%;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .flight-pagination__spinner {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 640px) {
+            .flight-pagination__info {
+                flex: 0 0 auto;
+                order: 0;
+                width: auto;
+                margin-bottom: 0;
+                padding: 0 12px;
+            }
+        }
+
+        @media (max-width: 639px) {
+            .flight-pagination__info {
+                order: -1;
+            }
+
+            .flight-pagination__btn {
+                flex: 1 1 calc(50% - 6px);
+                max-width: calc(50% - 6px);
+            }
+        }
     </style>
     @if ($status === 'process')
     <style>
@@ -1724,10 +1800,40 @@
 </div>
 
 @if (($totalPages ?? 1) > 1)
-<div class="nav-buttons" style="margin-top: 20px; margin-bottom: 20px;">
-    <button type="button" class="btn" wire:click="previousFlightPage" @disabled(($currentPage ?? 1) <= 1)>⬅ Previous</button>
-    <span style="align-self: center;">Page {{ $currentPage ?? 1 }} of {{ $totalPages ?? 1 }}</span>
-    <button type="button" class="btn" wire:click="nextFlightPage" @disabled(($currentPage ?? 1) >= ($totalPages ?? 1))>Next ➡</button>
+<div class="flight-pagination">
+    <button
+        type="button"
+        class="flight-pagination__btn"
+        wire:click="previousFlightPage"
+        wire:loading.attr="disabled"
+        wire:target="previousFlightPage"
+        @disabled(($currentPage ?? 1) <= 1)>
+        <span wire:loading.remove wire:target="previousFlightPage">Previous</span>
+        <span wire:loading wire:target="previousFlightPage" class="inline-flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" class="flight-pagination__spinner fill-white motion-safe:animate-spin">
+                <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
+                <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+            </svg>
+            Loading...
+        </span>
+    </button>
+    <span class="flight-pagination__info">Page {{ $currentPage ?? 1 }} of {{ $totalPages ?? 1 }}</span>
+    <button
+        type="button"
+        class="flight-pagination__btn"
+        wire:click="nextFlightPage"
+        wire:loading.attr="disabled"
+        wire:target="nextFlightPage"
+        @disabled(($currentPage ?? 1) >= ($totalPages ?? 1))>
+        <span wire:loading.remove wire:target="nextFlightPage">Next</span>
+        <span wire:loading wire:target="nextFlightPage" class="inline-flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" class="flight-pagination__spinner fill-white motion-safe:animate-spin">
+                <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
+                <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
+            </svg>
+            Loading...
+        </span>
+    </button>
 </div>
 @endif
 
