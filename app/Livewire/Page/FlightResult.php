@@ -47,6 +47,9 @@ class FlightResult extends Component
     /** @var array<int, array>|null */
     protected ?array $filteredFlightOffersCache = null;
 
+    /** @var array<int, array>|null */
+    protected ?array $allOffersCache = null;
+
     public function mount(): void
     {
         $this->searchId = request()->get('id');
@@ -57,6 +60,7 @@ class FlightResult extends Component
             $this->loadMore = 'loaded';
             $this->currentPage = 1;
             $this->filteredFlightOffersCache = null;
+            $this->allOffersCache = null;
         }
 
         $this->checkStatus(initialLoad: true);
@@ -77,6 +81,7 @@ class FlightResult extends Component
         $this->showAllResults = true;
         $this->currentPage = 1;
         $this->filteredFlightOffersCache = null;
+        $this->allOffersCache = null;
 
         return $this->redirectRoute('search.results', [
             'id' => $this->searchId,
@@ -86,10 +91,6 @@ class FlightResult extends Component
 
     public function checkStatus(bool $initialLoad = false)
     {
-        if (!$initialLoad && !$this->shouldPollStatus()) {
-            return $this->skipRender();
-        }
-
         $search = $this->flightSearchRecord(fresh: !$initialLoad);
 
         if (!$search) {
@@ -132,6 +133,21 @@ class FlightResult extends Component
                 session()->flash('error', 'Error retrieving search data: ' . $e->getMessage());
                 return redirect()->route('landing');
             }
+        }
+    }
+
+    public function applySearchStatusUpdate(string $status, bool $moreResultsReady = false)
+    {
+        if ($this->status === $status && $this->moreResultsReady === $moreResultsReady) {
+            return $this->skipRender();
+        }
+
+        $this->status = $status;
+        $this->moreResultsReady = $moreResultsReady;
+
+        if ($status === 'failed') {
+            session()->flash('error', '❌ Search failed, please try again later.');
+            return $this->redirectRoute('landing');
         }
     }
 
@@ -233,6 +249,15 @@ class FlightResult extends Component
         return json_decode(Storage::get($path), true) ?? [];
     }
 
+    protected function readAllOffersCached(): array
+    {
+        if ($this->allOffersCache === null) {
+            $this->allOffersCache = $this->readOffersFromStorage();
+        }
+
+        return $this->allOffersCache;
+    }
+
     protected function readDictionariesFromStorage(?FlightSearch $search = null): array
     {
         $search ??= $this->flightSearchRecord();
@@ -281,7 +306,7 @@ class FlightResult extends Component
         $this->viewSearchResults = [
             'tripType' => $search->trip_type,
             'meta' => $search->meta,
-            'flightOffers' => $this->readOffersFromStorage($search),
+            'flightOffers' => $this->readAllOffersCached(),
             'dictionaries' => $this->readDictionariesFromStorage($search),
             'cheapestFlight' => is_array($cheapestFlight) ? $cheapestFlight : [],
             'passengers' => $search->passengers,
@@ -425,7 +450,7 @@ class FlightResult extends Component
 
         $offers = array_map(
             fn (array $flight) => $this->enrichFlightOffer($flight),
-            $this->readOffersFromStorage()
+            $this->readAllOffersCached()
         );
 
         $offers = array_values(array_filter(

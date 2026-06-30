@@ -19,6 +19,7 @@ use App\Livewire\Page\PaymentSettings;
 use App\Livewire\Booking\PaymentBooking;
 use App\Livewire\Flight\SearchFlightPage;
 use App\Livewire\Flight\OfflineSuccessPage;
+use App\Models\FlightSearch;
 
 Route::get('/', Landing::class)->name('landing');
 Route::get('/about-us', App\Livewire\Page\AboutUs::class)->name('about.us');
@@ -30,6 +31,21 @@ Route::get('/terms-and-conditions', App\Livewire\Page\TermsAndConditions::class)
     Route::get('/login', Login::class)->name('login');
 
     Route::get('/search', FlightResult::class)->name('search.results');
+    Route::get('/search/status/{searchId}', function (string $searchId) {
+        $search = FlightSearch::query()->firstWhere('search_id', $searchId);
+
+        if (!$search) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
+
+        $meta = $search->meta ?? [];
+
+        return response()->json([
+            'status' => $search->status,
+            'more_results_ready' => ($meta['more_results_ready'] ?? false)
+                || in_array($search->status, ['completed', 'view'], true),
+        ]);
+    })->name('search.status');
     Route::get('/booking', BookingPage::class)->name('booking.page');
     Route::get('/booking/payment', PaymentBooking::class)->name('booking.payment');
 

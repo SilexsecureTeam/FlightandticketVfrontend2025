@@ -342,9 +342,6 @@
 <div x-data="{
     showFilters: false
 }">
-    @if ($shouldPoll)
-    <div wire:poll.3000ms="checkStatus" class="hidden" aria-hidden="true"></div>
-    @endif
     <!-- Mobile Filter Modal -->
     <div x-cloak x-show="showFilters" class="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -1827,9 +1824,9 @@
     document.addEventListener('livewire:navigated', initLoadingMessages);
 
     document.addEventListener('livewire:init', () => {
-        Livewire.hook('morph.updated', () => {
+        if (document.querySelector('.loading-message')) {
             initLoadingMessages();
-        });
+        }
     });
 </script>
 
@@ -2005,12 +2002,112 @@
     document.addEventListener('livewire:init', () => {
         resolveFlightResultWire();
 
-        Livewire.hook('morph.updated', () => {
+        Livewire.hook('morph.updated', ({ component }) => {
+            if (component.name !== 'page.flight-result') {
+                return;
+            }
+
             flightResultWire = null;
             resolveFlightResultWire();
             syncFilterUi();
-            initLoadingMessages();
+
+            if (document.querySelector('.loading-message')) {
+                initLoadingMessages();
+            } else {
+                stopLoadingMessageRotation();
+            }
         });
+
+        startSearchStatusPoll();
+    });
+
+    const searchStatusPoll = {
+        timer: null,
+        searchId: @json($searchId ?? null),
+        shouldPoll: @json($shouldPoll ?? false),
+        lastStatus: @json($status ?? 'processing'),
+        statusUrl: @json($searchId ? route('search.status', ['searchId' => $searchId]) : null),
+    };
+
+    function stopSearchStatusPoll() {
+        if (searchStatusPoll.timer) {
+            clearInterval(searchStatusPoll.timer);
+            searchStatusPoll.timer = null;
+        }
+    }
+
+    async function pollSearchStatusOnce() {
+        if (!searchStatusPoll.shouldPoll || !searchStatusPoll.statusUrl) {
+            stopSearchStatusPoll();
+            return;
+        }
+
+        if (searchStatusPoll.lastStatus !== 'processing' || document.hidden) {
+            stopSearchStatusPoll();
+            return;
+        }
+
+        try {
+            const response = await fetch(searchStatusPoll.statusUrl, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                cache: 'no-store',
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json();
+            const newStatus = data.status ?? searchStatusPoll.lastStatus;
+            const moreResultsReady = Boolean(data.more_results_ready);
+
+            if (newStatus === searchStatusPoll.lastStatus) {
+                return;
+            }
+
+            searchStatusPoll.lastStatus = newStatus;
+
+            if (newStatus === 'failed') {
+                stopSearchStatusPoll();
+                window.location.href = @json(route('landing'));
+                return;
+            }
+
+            const component = resolveFlightResultWire();
+            if (component) {
+                component.call('applySearchStatusUpdate', newStatus, moreResultsReady);
+            }
+
+            if (newStatus !== 'processing') {
+                searchStatusPoll.shouldPoll = false;
+                stopSearchStatusPoll();
+            }
+        } catch (error) {
+            // Ignore transient network errors during background polling.
+        }
+    }
+
+    function startSearchStatusPoll() {
+        if (searchStatusPoll.timer || !searchStatusPoll.shouldPoll || !searchStatusPoll.statusUrl) {
+            return;
+        }
+
+        pollSearchStatusOnce();
+        searchStatusPoll.timer = setInterval(pollSearchStatusOnce, 5000);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stopSearchStatusPoll();
+            return;
+        }
+
+        if (searchStatusPoll.shouldPoll && searchStatusPoll.lastStatus === 'processing') {
+            startSearchStatusPoll();
+        }
     });
 </script>
 
