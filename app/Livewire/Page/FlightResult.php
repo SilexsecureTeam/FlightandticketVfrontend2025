@@ -5,19 +5,10 @@ namespace App\Livewire\Page;
 use App\Models\FlightSearch;
 use Livewire\Component;
 use Carbon\Carbon;
-use Livewire\Attributes\On;
 use Illuminate\Support\Facades\Storage;
 
 class FlightResult extends Component
 {
-    public $searchResults = [
-        'flightOffers' => [],
-        'dictionaries' => [],
-        'cheapestFlight' => [],
-    ];
-    public $selectedIncludes = [];
-    public $markUp;
-    public $sortBy = 'cheapest';
     public $searchParams = [
         'from' => '',
         'to' => '',
@@ -30,74 +21,49 @@ class FlightResult extends Component
         'cabinClass' => 'ECONOMY',
         'multiCityFlights' => [],
     ];
-    public $airlinesWithNames = [];
-    public $selectedAirlines = [];
-    public $filteredFlightOffers = []; 
+
+    public $selectedIncludes = [];
     public $searchResultsId;
     public $searchId;
     public $status = 'processing';
     public $showToSource = 'web';
-    public $cheapest = null;
-    public $seachNow;
     public $loadMore = false;
     public $showAllResults = false;
     public $initialDisplayLimit = 50;
     public $moreResultsReady = false;
     public $allResultsLoaded = false;
+    public $resultsHydrated = false;
 
-    public function mount()
+    protected ?FlightSearch $flightSearchRecord = null;
+
+    /** @var array<string, mixed>|null */
+    protected ?array $viewSearchResults = null;
+
+    public function mount(): void
     {
         $this->searchId = request()->get('id');
+
+        if (request()->boolean('all')) {
+            $this->showAllResults = true;
+            $this->allResultsLoaded = true;
+            $this->loadMore = 'loaded';
+        }
+
         $this->checkStatus();
-        $this->showToSource = session('showToSource') ?? "web";
+        $this->showToSource = session('showToSource') ?? 'web';
     }
 
     public function loadMoreFlights()
     {
-        $search = FlightSearch::where('search_id', $this->searchId)->first();
-
-        if (!$search) {
-            return;
-        }
-
-        $meta = $search->meta ?? [];
-        $fullOffersPath = $meta['full_offers_path'] ?? 'flight_searches/' . $this->searchId . '_offers_full.json';
-        $fullDictionariesPath = $meta['full_dictionaries_path'] ?? 'flight_searches/' . $this->searchId . '_dictionaries_full.json';
-
-        if (!Storage::exists($fullOffersPath)) {
-            return;
-        }
-
-        $flightOffers = json_decode(Storage::get($fullOffersPath), true) ?? [];
-        $dictionaries = Storage::exists($fullDictionariesPath)
-            ? json_decode(Storage::get($fullDictionariesPath), true) ?? []
-            : ($this->searchResults['dictionaries'] ?? []);
-
-        $this->processAirlines($dictionaries);
-        $this->searchResults['flightOffers'] = $flightOffers;
-        $this->searchResults['dictionaries'] = $dictionaries;
-        $this->filteredFlightOffers = [];
-        $this->showAllResults = true;
-        $this->loadMore = 'loaded';
-        $this->allResultsLoaded = true;
-    }
-
-    public function checkStatusLoader()
-    {
-        // $search = FlightSearch::where('search_id', $this->searchId)->first();
-        // $this->status = $search->status;
-        // if($search->status === 'view'){
-        //     $this->loadMore = true;
-        // } else {
-        //     $this->loadMore = false;
-        // }
-        $this->loadMore = "loaded";
+        return $this->redirectRoute('search.results', [
+            'id' => $this->searchId,
+            'all' => 1,
+        ]);
     }
 
     public function checkStatus()
     {
-        $search = FlightSearch::where('search_id', $this->searchId)->first();
-        $this->seachNow = $search;
+        $search = $this->flightSearchRecord();
 
         if (!$search) {
             session()->flash('error', 'No search ID provided.');
@@ -105,6 +71,8 @@ class FlightResult extends Component
         }
 
         $this->searchResultsId = $this->searchId;
+        $previousStatus = $this->status;
+        $previousMoreReady = $this->moreResultsReady;
         $this->status = $search->status;
 
         if ($search->status === 'failed') {
@@ -112,12 +80,15 @@ class FlightResult extends Component
             return redirect()->route('landing');
         }
 
-        $hasLoadedOffers = !empty($this->searchResults['flightOffers']);
         $moreResultsReady = ($search->meta['more_results_ready'] ?? false) || $search->status === 'view';
 
-        // During polling, keep current results on screen once loaded.
-        if ($hasLoadedOffers && !$this->showAllResults && !$this->allResultsLoaded) {
+        if ($this->resultsHydrated && !$this->showAllResults && !$this->allResultsLoaded) {
             $this->moreResultsReady = $moreResultsReady;
+
+            if ($previousStatus === $this->status && $previousMoreReady === $moreResultsReady) {
+                return $this->skipRender();
+            }
+
             return;
         }
 
@@ -126,8 +97,9 @@ class FlightResult extends Component
 
         if ($shouldLoadResults) {
             try {
-                $this->populateSearchResultsFromRecord($search);
+                $this->hydrateFromSearchRecord($search);
                 $this->moreResultsReady = $moreResultsReady;
+                $this->viewSearchResults = null;
             } catch (\Exception $e) {
                 session()->flash('error', 'Error retrieving search data: ' . $e->getMessage());
                 return redirect()->route('landing');
@@ -135,46 +107,26 @@ class FlightResult extends Component
         }
     }
 
-    protected function populateSearchResultsFromRecord(FlightSearch $flightSearch): void
+    protected function flightSearchRecord(): ?FlightSearch
+    {
+        if ($this->flightSearchRecord === null && $this->searchId) {
+            $this->flightSearchRecord = FlightSearch::where('search_id', $this->searchId)->first();
+        }
+
+        return $this->flightSearchRecord;
+    }
+
+    protected function hydrateFromSearchRecord(FlightSearch $flightSearch): void
     {
         if ($flightSearch->expires_at && $flightSearch->expires_at < Carbon::now()) {
             throw new \RuntimeException('Search data expired or not found.');
         }
-
-        $flightOffers = $flightSearch->flight_offers;
-        if (is_string($flightOffers)) {
-            $flightOffers = json_decode($flightOffers, true);
-        }
-        $flightOffers = is_array($flightOffers) ? $flightOffers : [];
-
-        $dictionaries = $flightSearch->dictionaries;
-        if (is_string($dictionaries)) {
-            $dictionaries = json_decode($dictionaries, true);
-        }
-        $dictionaries = is_array($dictionaries) ? $dictionaries : [];
 
         $cheapestFlight = $flightSearch->cheapest;
         if (is_string($cheapestFlight)) {
             $cheapestFlight = json_decode($cheapestFlight, true);
         }
         $cheapestFlight = is_array($cheapestFlight) ? $cheapestFlight : [];
-
-        $this->processAirlines($dictionaries);
-
-        $this->searchResults = [
-            'tripType' => $flightSearch->trip_type,
-            'meta' => $flightSearch->meta,
-            'flightOffers' => $flightOffers,
-            'dictionaries' => $dictionaries,
-            'cheapestFlight' => $cheapestFlight,
-            'passengers' => $flightSearch->passengers,
-            'cabinClass' => $flightSearch->cabinClass,
-            'fromCityName' => $flightSearch->from_city_name,
-            'toCityName' => $flightSearch->to_city_name,
-            'departureDate' => $flightSearch->departure_date,
-            'returnDate' => $flightSearch->return_date,
-            'multiCityFlights' => $flightSearch->multicity ? json_decode($flightSearch->multicity, true) : [],
-        ];
 
         $this->searchParams = [
             'editMode' => true,
@@ -191,6 +143,7 @@ class FlightResult extends Component
         ];
 
         if (empty($this->searchParams['from']) || empty($this->searchParams['to'])) {
+            $flightOffers = $this->readOffersFromStorage($flightSearch);
             if (!empty($flightOffers) && isset($flightOffers[0]['itineraries'][0]['segments'][0])) {
                 $firstSegment = $flightOffers[0]['itineraries'][0]['segments'][0];
                 if (empty($this->searchParams['from'])) {
@@ -201,14 +154,14 @@ class FlightResult extends Component
                 }
             } else {
                 if (empty($this->searchParams['from'])) {
-                    $fromParts = explode('(', $flightSearch->from_city_name);
+                    $fromParts = explode('(', (string) $flightSearch->from_city_name);
                     if (count($fromParts) > 1) {
                         $this->searchParams['from'] = trim(str_replace(')', '', $fromParts[count($fromParts) - 1]));
                     }
                 }
 
                 if (empty($this->searchParams['to'])) {
-                    $toParts = explode('(', $flightSearch->to_city_name);
+                    $toParts = explode('(', (string) $flightSearch->to_city_name);
                     if (count($toParts) > 1) {
                         $this->searchParams['to'] = trim(str_replace(')', '', $toParts[count($toParts) - 1]));
                     }
@@ -216,179 +169,117 @@ class FlightResult extends Component
             }
         }
 
-        $this->filteredFlightOffers = [];
+        $this->resultsHydrated = true;
     }
 
-    public function mountold()
+    protected function readOffersFromStorage(?FlightSearch $search = null): array
     {
-        // Get search ID from URL parameter
-        $searchId = request()->get('id');
+        $search ??= $this->flightSearchRecord();
 
-        if ($searchId) {
-            $this->searchResultsId = $searchId;
-            try {
-                // Get data from database
-                $flightSearch = FlightSearch::where('search_id', $searchId)
-                    ->where('expires_at', '>', Carbon::now())
-                    ->first();
-
-                if (!$flightSearch) {
-                    session()->flash('error', 'Search data expired or not found.');
-                    return redirect()->route('landing');
-                }
-
-                // Handle flight offers as either JSON string or array
-                $flightOffers = $flightSearch->flight_offers;
-                if (is_string($flightOffers)) {
-                    $flightOffers = json_decode($flightOffers, true);
-                }
-
-                // Handle dictionaries as either JSON string or array
-                $dictionaries = $flightSearch->dictionaries;
-                if (is_string($dictionaries)) {
-                    $dictionaries = json_decode($dictionaries, true);
-                }
-
-                // Handle dictionaries as either JSON string or array
-                $cheapestFlight = $flightSearch->cheapest;
-                if (is_string($cheapestFlight)) {
-                    $cheapestFlight = json_decode($cheapestFlight, true);
-                }
-
-                // Process airlines from dictionaries
-                $this->processAirlines($dictionaries);
-
-                // $flightOffersArr = [];
-                // foreach($flightOffers as $flightOffer){
-                //     //if(){
-                //         $flightOffersArr[] = $this->filterTravelerPricingsByCabin($flightOffer);
-                //     //}
-                // }
-
-                // return dd($flightOffersArr);
-
-                // Transform the data back to the expected format
-                $this->searchResults = [
-                    'tripType' => $flightSearch->trip_type,
-                    'meta' => $flightSearch->meta,
-                    'flightOffers' => $flightOffers,
-                    'dictionaries' => $dictionaries,
-                    'cheapestFlight' => $cheapestFlight,
-                    'passengers' => $flightSearch->passengers,
-                    'cabinClass' => $flightSearch->cabinClass,
-                    'fromCityName' => $flightSearch->from_city_name,
-                    'toCityName' => $flightSearch->to_city_name,
-                    'departureDate' => $flightSearch->departure_date,
-                    'returnDate' => $flightSearch->return_date,
-                ];
-                // Extract search data for edit form
-                $this->searchParams = [
-                    'editMode' => true,
-                    'from' => $flightSearch->from_code,
-                    'to' => $flightSearch->to_code,
-                    'fromDisplayName' => $flightSearch->from_city_name,
-                    'toDisplayName' => $flightSearch->to_city_name,
-                    'departureDate' => $flightSearch->departure_date,
-                    'returnDate' => $flightSearch->return_date,
-                    'tripType' => $flightSearch->trip_type,
-                    'passengers' => $flightSearch->passengers,
-                    'cabinClass' => $flightSearch->cabinClass, // Default if not stored
-                ];
-
-                // If codes are missing, try to extract them from itineraries
-                if (empty($this->searchParams['from']) || empty($this->searchParams['to'])) {
-                    if (!empty($flightOffers) && isset($flightOffers[0]['itineraries'][0]['segments'][0])) {
-                        $firstSegment = $flightOffers[0]['itineraries'][0]['segments'][0];
-                        if (empty($this->searchParams['from'])) {
-                            $this->searchParams['from'] = $firstSegment['departure']['iataCode'] ?? '';
-                        }
-                        if (empty($this->searchParams['to'])) {
-                            $this->searchParams['to'] = $firstSegment['arrival']['iataCode'] ?? '';
-                        }
-                    } else {
-                        // If no flight offers, try to extract codes from city names
-                        if (empty($this->searchParams['from'])) {
-                            $fromParts = explode('(', $flightSearch->from_city_name);
-                            if (count($fromParts) > 1) {
-                                $this->searchParams['from'] = trim(str_replace(')', '', $fromParts[count($fromParts) - 1]));
-                            }
-                        }
-
-                        if (empty($this->searchParams['to'])) {
-                            $toParts = explode('(', $flightSearch->to_city_name);
-                            if (count($toParts) > 1) {
-                                $this->searchParams['to'] = trim(str_replace(')', '', $toParts[count($toParts) - 1]));
-                            }
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                session()->flash('error', 'Error retrieving search data: ' . $e->getMessage());
-                return redirect()->route('landing');
-            }
-        } else {
-            session()->flash('error', 'No search ID provided.');
-            return redirect()->route('landing');
-        }
-    }
-
-    protected function filterTravelerPricingsByCabin(array $flightOffer)
-    {
-        if (!isset($flightOffer['travelerPricings'])) {
-            return false;
+        if (!$search) {
+            return [];
         }
 
-        $filtered = [];
+        $meta = $search->meta ?? [];
+        $path = ($this->showAllResults || $this->allResultsLoaded)
+            ? ($meta['full_offers_path'] ?? null)
+            : $search->flight_offers_path;
 
-        foreach ($flightOffer['travelerPricings'] as $travelerPricing) {
-            if (!isset($travelerPricing['fareDetailsBySegment'])) {
-                continue;
-            }
-
-            $cabins = array_column($travelerPricing['fareDetailsBySegment'], 'cabin');
-            return $cabins;
-            // Check if all cabins are the same
-            if (count(array_unique($cabins)) === 1) {
-                // return dd($cabins);
-                return true;
+        if (empty($path) || !Storage::exists($path)) {
+            if (!empty($search->flight_offers_path) && Storage::exists($search->flight_offers_path)) {
+                $path = $search->flight_offers_path;
+            } else {
+                return [];
             }
         }
-        return false;
+
+        return json_decode(Storage::get($path), true) ?? [];
     }
 
-
-    protected function processAirlines($dictionaries)
+    protected function readDictionariesFromStorage(?FlightSearch $search = null): array
     {
-        if (isset($dictionaries['carriers']) && is_array($dictionaries['carriers'])) {
-            $this->airlinesWithNames = collect($dictionaries['carriers'])
-                ->map(function ($name, $code) {
-                    return [
-                        'code' => $code,
-                        'name' => $name
-                    ];
-                })
-                ->values()
-                ->all();
+        $search ??= $this->flightSearchRecord();
+
+        if (!$search) {
+            return [];
         }
+
+        $meta = $search->meta ?? [];
+        $path = ($this->showAllResults || $this->allResultsLoaded)
+            ? ($meta['full_dictionaries_path'] ?? null)
+            : $search->dictionaries_path;
+
+        if (empty($path) || !Storage::exists($path)) {
+            if (!empty($search->dictionaries_path) && Storage::exists($search->dictionaries_path)) {
+                $path = $search->dictionaries_path;
+            } else {
+                return [];
+            }
+        }
+
+        return json_decode(Storage::get($path), true) ?? [];
     }
 
-    public function updateresult()
+    protected function buildSearchResultsForView(): array
     {
-        $this->sortBy = 'cheapest';
+        if ($this->viewSearchResults !== null) {
+            return $this->viewSearchResults;
+        }
+
+        $search = $this->flightSearchRecord();
+
+        if (!$search) {
+            return [
+                'flightOffers' => [],
+                'dictionaries' => [],
+                'cheapestFlight' => [],
+            ];
+        }
+
+        $cheapestFlight = $search->cheapest;
+        if (is_string($cheapestFlight)) {
+            $cheapestFlight = json_decode($cheapestFlight, true);
+        }
+
+        $this->viewSearchResults = [
+            'tripType' => $search->trip_type,
+            'meta' => $search->meta,
+            'flightOffers' => $this->readOffersFromStorage($search),
+            'dictionaries' => $this->readDictionariesFromStorage($search),
+            'cheapestFlight' => is_array($cheapestFlight) ? $cheapestFlight : [],
+            'passengers' => $search->passengers,
+            'cabinClass' => $search->cabinClass,
+            'fromCityName' => $search->from_city_name,
+            'toCityName' => $search->to_city_name,
+            'departureDate' => $search->departure_date,
+            'returnDate' => $search->return_date,
+            'multiCityFlights' => $search->multicity ? json_decode($search->multicity, true) : [],
+        ];
+
+        return $this->viewSearchResults;
+    }
+
+    protected function buildAirlinesWithNames(array $dictionaries): array
+    {
+        if (!isset($dictionaries['carriers']) || !is_array($dictionaries['carriers'])) {
+            return [];
+        }
+
+        return collect($dictionaries['carriers'])
+            ->map(fn ($name, $code) => ['code' => $code, 'name' => $name])
+            ->values()
+            ->all();
     }
 
     public function selectFlight($flightId)
     {
-        // return dd($flightId);
-        // Find the selected flight using the ID
-        $selectedFlight = collect($this->searchResults['flightOffers'])->firstWhere('id', $flightId);
+        $selectedFlight = collect($this->readOffersFromStorage())->firstWhere('id', $flightId);
 
         if ($selectedFlight) {
-            // Store only the selected flight in session, not the entire search result
             session([
                 'selected_flight' => $selectedFlight,
                 'selected_includes' => implode(',', $this->selectedIncludes),
-                'searchResultsId' => $this->searchResultsId
+                'searchResultsId' => $this->searchResultsId,
             ]);
             session(['showToSource' => $this->showToSource]);
 
@@ -396,49 +287,14 @@ class FlightResult extends Component
         }
     }
 
-    #[On('filterAirlines')]
-    public function filterAirlines($data)
-    {
-        $this->selectedAirlines = $data['airlines'];
-        
-        if (empty($this->selectedAirlines)) {
-            // If no airlines selected, show all flights
-            $this->filteredFlightOffers = $this->searchResults['flightOffers'];
-        } else {
-            // Filter flights based on selected airlines
-            $this->filteredFlightOffers = collect($this->searchResults['flightOffers'])
-                ->filter(function ($offer) {
-                    // Check if any of the validating airline codes match the selected airlines
-                    $validatingAirlines = collect($offer['validatingAirlineCodes'] ?? []);
-                    if ($validatingAirlines->intersect($this->selectedAirlines)->isNotEmpty()) {
-                        return true;
-                    }
-                    
-                    // Also check all segments for matching airlines
-                    return collect($offer['itineraries'])->some(function ($itinerary) {
-                        return collect($itinerary['segments'])->some(function ($segment) {
-                            return in_array($segment['carrierCode'], $this->selectedAirlines);
-                        });
-                    });
-                })
-                ->values()
-                ->all();
-        }
-    }
-
     public function render()
     {
-        // If no filtering has been applied yet, use all flight offers
-        if (empty($this->filteredFlightOffers) && !empty($this->searchResults['flightOffers'])) {
-            $this->filteredFlightOffers = $this->searchResults['flightOffers'];
-        }
+        $searchResults = $this->buildSearchResultsForView();
 
         return view('livewire.page.flight-result', [
-            'searchResults' => $this->searchResults,
+            'searchResults' => $searchResults,
             'searchParams' => $this->searchParams,
-            'airlinesWithNames' => $this->airlinesWithNames,
-            'filteredFlightOffers' => $this->filteredFlightOffers,
-            'selectedAirlines' => $this->selectedAirlines,
+            'airlinesWithNames' => $this->buildAirlinesWithNames($searchResults['dictionaries'] ?? []),
             'showAllResults' => $this->showAllResults,
             'initialDisplayLimit' => $this->initialDisplayLimit,
             'moreResultsReady' => $this->moreResultsReady,

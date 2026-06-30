@@ -887,19 +887,17 @@
             @endif
 
             <div style="margin-top: 20px; margin-bottom: 20px">
-                {{--@if ($status === 'view' && $loadMore)
-                <button wire:target="loadMoreFlights" wire:click="loadMoreFlights" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
-                    <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
-                    <!-- Loading State: Spinner Animation -->
-                    <div wire:loading wire:target="loadMoreFlights" class="flex items-center justify-center w-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"
-                            style="width:40px; height:40px; fill:#fff; animation:spinvne 1s linear infinite;" class="">
-                            <path d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z" opacity=".25" />
-                            <path d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z" />
-                        </svg>
-                    </div>
-                </button>
-                @endif--}}
+                @if ($status === 'completed' && !$moreResultsReady && !$allResultsLoaded)
+                <div wire:poll.3000ms="checkStatus">
+                    <div style="color:#000; text-align:center;">Please wait!</div>
+                    <button
+                        class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
+                        disabled
+                        style="opacity:0.5; cursor:not-allowed;">
+                        🔄 searching for more flights..
+                    </button>
+                </div>
+                @endif
             </div>
 
             <div class=" space-y-4" id="flight-list">
@@ -1775,18 +1773,6 @@
     <span wire:loading wire:target="loadMoreFlights">Loading...</span>
 </button>
 @endif
-@if ($status === 'completed' && !$moreResultsReady && !$allResultsLoaded)
-<div style="color:#000; text-align:center;">Please wait!</div>
-<button
-    class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
-    disabled
-    style="opacity:0.5; cursor:not-allowed;">
-    🔄 searching for more flights..
-</button>
-{{-- Poll every 3 seconds while background job is running --}}
-<div wire:poll.3000ms="checkStatus"></div>
-
-@endif
 </div>
 </div>
 
@@ -1866,7 +1852,35 @@
 <script>
     let selectedAirlines = [];
     let selectedStops = [];
-    let sortBy = 'cheapest'; // 'cheapest' or 'fastest'
+    let sortBy = 'cheapest';
+    let cachedFlightElements = null;
+    let filterFlightsRaf = null;
+    let needsSort = false;
+
+    function getFlightElements() {
+        const flightList = document.getElementById('flight-list');
+        if (!flightList) {
+            return [];
+        }
+
+        if (!cachedFlightElements) {
+            cachedFlightElements = Array.from(flightList.getElementsByClassName('flight-offer'));
+            cachedFlightElements.forEach((flight) => {
+                if (!flight.dataset.carrierCodes) {
+                    const codes = Array.from(flight.querySelectorAll('[data-carrier-code]'))
+                        .map((segment) => segment.getAttribute('data-carrier-code'))
+                        .filter(Boolean);
+                    flight.dataset.carrierCodes = codes.join(',');
+                }
+            });
+        }
+
+        return cachedFlightElements;
+    }
+
+    function resetFlightCache() {
+        cachedFlightElements = null;
+    }
 
     function syncSidebarAirlineCheckboxes() {
         document.querySelectorAll('.airline-filter').forEach((checkbox) => {
@@ -1960,6 +1974,7 @@
     // Sort flights by cheapest or fastest
     function sortFlights(option) {
         sortBy = option;
+        needsSort = true;
         updateButtonClasses();
         filterFlights();
     }
@@ -1991,71 +2006,72 @@
 
     // Filter and sort flights
     function filterFlights() {
+        if (filterFlightsRaf) {
+            cancelAnimationFrame(filterFlightsRaf);
+        }
+
+        filterFlightsRaf = requestAnimationFrame(applyFlightFilters);
+    }
+
+    function applyFlightFilters() {
+        filterFlightsRaf = null;
         const flightList = document.getElementById('flight-list');
         if (!flightList) {
             return;
         }
 
-        const flights = Array.from(flightList.getElementsByClassName('flight-offer'));
+        const flights = getFlightElements();
 
-        // Apply filters
         flights.forEach((flight) => {
-            let hasMatchingAirline = false;
-            let hasMatchingStop = false;
+            let hasMatchingAirline = selectedAirlines.length === 0;
+            let hasMatchingStop = selectedStops.length === 0;
 
-            // Check airline filter
-            if (selectedAirlines.length === 0) {
-                hasMatchingAirline = true;
-            } else {
-                // Get all carrier codes from segments
-                const segments = flight.querySelectorAll('[data-carrier-code]');
-                const carrierCodes = Array.from(segments).map((segment) => segment.getAttribute('data-carrier-code'));
-
-                // Check if any of the selected airlines match either the validating airline or any carrier code
+            if (!hasMatchingAirline) {
                 const validatingAirlineCode = flight.getAttribute('data-airline');
+                const carrierCodes = (flight.dataset.carrierCodes || '').split(',').filter(Boolean);
                 hasMatchingAirline = selectedAirlines.some((code) =>
                     code === validatingAirlineCode || carrierCodes.includes(code)
                 );
             }
 
-            // Check stop filter
-            const totalStops = parseInt(flight.getAttribute('data-total-stops'), 10);
-            if (selectedStops.length === 0 || selectedStops.includes(totalStops)) {
-                hasMatchingStop = true;
+            if (!hasMatchingStop) {
+                const totalStops = parseInt(flight.getAttribute('data-total-stops'), 10);
+                hasMatchingStop = selectedStops.includes(totalStops);
             }
 
-            // Show/hide flight based on filters
-            flight.style.display = hasMatchingAirline && hasMatchingStop ? 'block' : 'none';
+            flight.style.display = hasMatchingAirline && hasMatchingStop ? '' : 'none';
         });
 
-        // Apply sorting
-        if (sortBy === 'cheapest') {
-            flights.sort((a, b) => parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price')));
-        } else if (sortBy === 'fastest') {
-            flights.sort((a, b) => parseFloat(a.getAttribute('data-duration')) - parseFloat(b.getAttribute('data-duration')));
-        }
+        if (needsSort) {
+            const visibleFlights = flights.filter((flight) => flight.style.display !== 'none');
 
-        // Re-append sorted flights to maintain order
-        flights.forEach((flight) => flightList.appendChild(flight));
+            visibleFlights.sort((a, b) => {
+                if (sortBy === 'fastest') {
+                    return parseFloat(a.getAttribute('data-duration')) - parseFloat(b.getAttribute('data-duration'));
+                }
+
+                return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
+            });
+
+            visibleFlights.forEach((flight) => flightList.appendChild(flight));
+            needsSort = false;
+        }
     }
 
     function initFlightFilters() {
+        resetFlightCache();
         updateButtonClasses();
         syncFilterUi();
         filterFlights();
     }
 
-    // Initialize the page
     document.addEventListener('DOMContentLoaded', initFlightFilters);
-
     document.addEventListener('livewire:navigated', initFlightFilters);
 
     document.addEventListener('livewire:init', () => {
-        Livewire.hook('morph.updated', ({ el }) => {
-            if (el.id === 'flight-list' || el.querySelector?.('#flight-offers-container')) {
-                syncFilterUi();
-                filterFlights();
-            }
+        Livewire.hook('morph.updated', () => {
+            syncFilterUi();
+            initLoadingMessages();
         });
     });
 </script>

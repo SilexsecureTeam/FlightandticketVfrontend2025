@@ -258,11 +258,9 @@ class ApiFlightSearchController extends Controller
         ], 450);
     }
 
-    public function getSearchResults($searchId)
+    public function getSearchResults(string $searchId)
     {
-        // Get search ID from URL parameter
-        $searchId = $searchId;
-        $flightSearch = FlightSearch::where('search_id', $searchId)->first();
+        $flightSearch = FlightSearch::query()->firstWhere('search_id', $searchId);
 
         if ($flightSearch) {
 
@@ -413,7 +411,8 @@ class ApiFlightSearchController extends Controller
     public function getUserSearches(Request $request)
     {
         $user = $request->user();
-        $searches = FlightSearch::where('user_id', $user->id)
+        $searches = FlightSearch::query()
+            ->where('user_id', '=', $user->id)
             ->latest()
             ->paginate($request->input('per_page', 15));
 
