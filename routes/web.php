@@ -51,11 +51,7 @@ Route::middleware('auth')->group(function () {
     // });
 });
 
-Route::middleware('auth')->group(function () {
-    // Route::get('/logout', function () {
-    //     auth()->logout();
-    //     return redirect('/');
-    // });
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/payment', Payment::class)->name('payment');
     Route::get('/customers', Customers::class)->name('customers');
