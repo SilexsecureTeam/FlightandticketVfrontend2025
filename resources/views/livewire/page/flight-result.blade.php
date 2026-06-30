@@ -1,4 +1,4 @@
-<div>
+<div id="flight-result-page">
     @if($showToSource == "admin")
     @include('components.adminHead')
     <script>
@@ -64,7 +64,7 @@
             }
         }
     </style>
-    @if ($status === 'processing')
+    @if ($status === 'process')
     <style>
         /* Shimmer effect */
         .skeleton {
@@ -283,52 +283,42 @@
     </div>
 
     <!-- Modal -->
-    <div class="modal-backdrop" wire:ignore>
-        <div class="modal-card">
-            <h6>Do not <span>leave</span> this page</h6>
-            <!-- Replace src with generated GIF -->
-            {{-- <div class="flight-image">
-                <img src="{{asset('images/plane-flying.png')}}" alt="Flying plane" width="200" height="200">
-        </div> --}}
-        <div id="modal-messages">
-            <div class="modal-message active">🔄 Searching for flights...</div>
-            <div class="modal-message">🔄 Checking availability...</div>
-            <div class="modal-message">🔄 searching for the best flights...</div>
-            <div class="modal-message">🔄 Verifying flight details...</div>
-            <div class="modal-message">🔄 Comparing ticket prices...</div>
-            <div class="modal-message">🔄 Checking seat availability...</div>
-            <div class="modal-message">🔄 Looking for the fastest routes...</div>
-            <div class="modal-message">🔄 Finding the most convenient options...</div>
-            <div class="modal-message">🔄 Matching your travel dates...</div>
-            <div class="modal-message">🔄 Optimizing for best value...</div>
-            <div class="modal-message">🔄 Confirming airline schedules...</div>
-            <div class="modal-message">🔄 Cross-checking with partners...</div>
-            <div class="modal-message">🔄 Preparing your flight results...</div>
-            <div class="modal-message">🔄 Almost done, please wait...</div>
-            <div class="modal-message">🔄 Finalizing your search...</div>
-            <div class="modal-message">🔄 Connection lost, retrying please wait...</div>
-        </div>
-
-        <div class="route">
-            <div>
-                {{$seachNow->from_city_name}} <br>
-                <small>{{\Carbon\Carbon::parse($seachNow->departure_date)->format('D, M d')}}</small>
-            </div>
-            <div>✈️</div>
-            <div>
-                {{$seachNow->to_city_name}} <br>
-                <small>{{\Carbon\Carbon::parse($seachNow->return_date)->format('D, M d')}}</small>
-            </div>
-        </div>
-
-        <p>
-            {{array_sum($seachNow->passengers)}} passenger,
-            <b style="text-transform: uppercase;">{{$seachNow->cabinClass}} class</b>
-        </p>
-
-        <a href="{{route('landing')}}"><button class="cancel-btn">Cancel Search</button></a>
-    </div>
-</div>
+{{--<div class="modal-backdrop" wire:ignore>
+	<div class="modal-card">
+		<h6>Do not <span>leave</span> this page</h6>
+		<!-- Replace src with generated GIF -->
+		<div class="flight-image"> <img src="{{asset('images/plane-flying.png')}}" alt="Flying plane" width="200" height="200"> </div> 
+		<div id="modal-messages">
+			<div class="modal-message active">🔄 Searching for flights...</div>
+			<div class="modal-message">🔄 Checking availability...</div>
+			<div class="modal-message">🔄 searching for the best flights...</div>
+			<div class="modal-message">🔄 Verifying flight details...</div>
+			<div class="modal-message">🔄 Comparing ticket prices...</div>
+			<div class="modal-message">🔄 Checking seat availability...</div>
+			<div class="modal-message">🔄 Looking for the fastest routes...</div>
+			<div class="modal-message">🔄 Finding the most convenient options...</div>
+			<div class="modal-message">🔄 Matching your travel dates...</div>
+			<div class="modal-message">🔄 Optimizing for best value...</div>
+			<div class="modal-message">🔄 Confirming airline schedules...</div>
+			<div class="modal-message">🔄 Cross-checking with partners...</div>
+			<div class="modal-message">🔄 Preparing your flight results...</div>
+			<div class="modal-message">🔄 Almost done, please wait...</div>
+			<div class="modal-message">🔄 Finalizing your search...</div>
+			<div class="modal-message">🔄 Connection lost, retrying please wait...</div>
+		</div>
+		<div class="route">
+			<div> {{$seachNow->from_city_name}}
+				<br> <small>{{\Carbon\Carbon::parse($seachNow->departure_date)->format('D, M d')}}</small> </div>
+			<div>✈️</div>
+			<div> {{$seachNow->to_city_name}}
+				<br> <small>{{\Carbon\Carbon::parse($seachNow->return_date)->format('D, M d')}}</small> </div>
+		</div>
+		<p> {{array_sum($seachNow->passengers)}} passenger, <b style="text-transform: uppercase;">{{$seachNow->cabinClass}} class</b> </p>
+		<a href="{{route('landing')}}">
+			<button class="cancel-btn">Cancel Search</button>
+		</a>
+	</div>
+</div> --}} 
 
 <script>
     // Populate skeleton cards
@@ -348,12 +338,13 @@
         messages1[current].classList.add("active");
     }, 3000);
 </script>
-{{-- Poll every 3 seconds --}}
-<div wire:poll.3000ms="checkStatus"></div>
 @else
 <div x-data="{
     showFilters: false
 }">
+    @if ($shouldPoll)
+    <div wire:poll.3000ms="checkStatus" class="hidden" aria-hidden="true"></div>
+    @endif
     <!-- Mobile Filter Modal -->
     <div x-cloak x-show="showFilters" class="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
@@ -887,8 +878,8 @@
             @endif
 
             <div style="margin-top: 20px; margin-bottom: 20px">
-                @if ($status === 'completed' && !$moreResultsReady && !$allResultsLoaded)
-                <div wire:poll.3000ms="checkStatus">
+                @if ($status === 'processing' && !$allResultsLoaded)
+                <div>
                     <div style="color:#000; text-align:center;">Please wait!</div>
                     <button
                         class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
@@ -901,42 +892,17 @@
             </div>
 
             <div class=" space-y-4" id="flight-list">
-                @if (isset($searchResults['flightOffers']) && count($searchResults['flightOffers']))
+                @if (!empty($paginatedFlightOffers))
                 <div id="flight-offers-container">
-                    @foreach ($searchResults['flightOffers'] as $index => $flight)
-                    @if ($showAllResults || $index < $initialDisplayLimit)
+                    @foreach ($paginatedFlightOffers as $index => $flight)
                     @php
-                    // Calculate total price
-                    $flight['totalPrice'] = floatval($flight['price']['grandTotal']);
-
-                    // Calculate total duration
-                    $totalDurationInSeconds = 0;
-                    $stopNm = 0;
-                    foreach ($flight['itineraries'] as $itinerary) {
-                    if($stopNm){
-                    $stopNm == 10 ? $stopNm = 0 : $stopNm;
-                    $stopNm = count($itinerary['segments'])-1 == $stopNm ? $stopNm : 700;
-                    }else{
-                    $stopNm = count($itinerary['segments'])-1 > 0 ? count($itinerary['segments'])-1 : 10;
-                    }
-                    foreach ($itinerary['segments'] as $segment) {
-                    $durationParts = explode('PT', $segment['duration']);
-                    if (isset($durationParts[1])) {
-                    $timeParts = explode('H', $durationParts[1]);
-                    $hours = isset($timeParts[0]) ? intval($timeParts[0]) : 0;
-                    $minutes = isset($timeParts[1])
-                    ? intval(str_replace('M', '', $timeParts[1]))
-                    : 0;
-                    $totalDurationInSeconds += $hours * 3600 + $minutes * 60;
-                    }
-                    }
-                    }
-                    $flight['totalDuration'] = $totalDurationInSeconds;
+                    $stopNm = $flight['totalStops'] ?? 0;
                     @endphp
-                    <div id="flightcard{{$index+1}}" data-airline="{{ $flight['validatingAirlineCodes'][0] }}"
-                        data-total-stops="{{$stopNm == 10 ? 0 : $stopNm}}"
-                        data-price="{{ $flight['totalPrice'] }}"
-                        data-duration="{{ $flight['totalDuration'] }}"
+                    <div id="flightcard{{ $flight['id'] ?? ($index + 1) }}" wire:key="flight-offer-{{ $flight['id'] ?? $index }}"
+                        data-airline="{{ $flight['validatingAirlineCodes'][0] }}"
+                        data-total-stops="{{ $stopNm }}"
+                        data-price="{{ $flight['totalPrice'] ?? floatval($flight['price']['grandTotal'] ?? $flight['price']['total'] ?? 0) }}"
+                        data-duration="{{ $flight['totalDuration'] ?? 0 }}"
                         class="flight-offer bg-white rounded-xl shadow-2xl border-b border-t border-dotted-2 mb-6 overflow-hidden  border-primary">
                         <div x-data="{ isOpen: false }">
 
@@ -1756,10 +1722,17 @@
 </div>
 
 </div>
-@endif
 @endforeach
 </div>
 </div>
+
+@if (($totalPages ?? 1) > 1)
+<div class="nav-buttons" style="margin-top: 20px; margin-bottom: 20px;">
+    <button type="button" class="btn" wire:click="previousFlightPage" @disabled(($currentPage ?? 1) <= 1)>⬅ Previous</button>
+    <span style="align-self: center;">Page {{ $currentPage ?? 1 }} of {{ $totalPages ?? 1 }}</span>
+    <button type="button" class="btn" wire:click="nextFlightPage" @disabled(($currentPage ?? 1) >= ($totalPages ?? 1))>Next ➡</button>
+</div>
+@endif
 
 <!-- Load More Button -->
 @else
@@ -1767,7 +1740,18 @@
 @endif
 
 </div>
-@if ($moreResultsReady && !$allResultsLoaded)
+@if ($status === 'processing' && !$allResultsLoaded)
+<div style="margin-top: 20px; margin-bottom: 20px">
+    <div style="color:#000; text-align:center;">Please wait!</div>
+    <button
+        class="loading-message block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4"
+        disabled
+        style="opacity:0.5; cursor:not-allowed;">
+        🔄 searching for more flights..
+    </button>
+</div>
+@endif
+@if ($status === 'completed' && !$allResultsLoaded)
 <button wire:click="loadMoreFlights" wire:loading.attr="disabled" id="load-more-btn" class="block mx-auto px-4 py-2 bg-primary text-white rounded-md mt-4 ">
     <b wire:loading.remove wire:target="loadMoreFlights">Load More</b>
     <span wire:loading wire:target="loadMoreFlights">Loading...</span>
@@ -1853,33 +1837,36 @@
     let selectedAirlines = [];
     let selectedStops = [];
     let sortBy = 'cheapest';
-    let cachedFlightElements = null;
-    let filterFlightsRaf = null;
-    let needsSort = false;
+    let flightResultWire = null;
 
-    function getFlightElements() {
-        const flightList = document.getElementById('flight-list');
-        if (!flightList) {
-            return [];
+    function resolveFlightResultWire() {
+        if (flightResultWire) {
+            return flightResultWire;
         }
 
-        if (!cachedFlightElements) {
-            cachedFlightElements = Array.from(flightList.getElementsByClassName('flight-offer'));
-            cachedFlightElements.forEach((flight) => {
-                if (!flight.dataset.carrierCodes) {
-                    const codes = Array.from(flight.querySelectorAll('[data-carrier-code]'))
-                        .map((segment) => segment.getAttribute('data-carrier-code'))
-                        .filter(Boolean);
-                    flight.dataset.carrierCodes = codes.join(',');
-                }
-            });
+        const root = document.getElementById('flight-result-page');
+        const wireId = root?.getAttribute('wire:id');
+
+        if (wireId && typeof Livewire !== 'undefined') {
+            flightResultWire = Livewire.find(wireId);
         }
 
-        return cachedFlightElements;
+        if (!flightResultWire && typeof Livewire !== 'undefined') {
+            flightResultWire = Livewire.all().find(
+                (component) => component.name === 'page.flight-result'
+            ) ?? null;
+        }
+
+        return flightResultWire;
     }
 
-    function resetFlightCache() {
-        cachedFlightElements = null;
+    function pushFiltersToLivewire() {
+        const component = resolveFlightResultWire();
+        if (!component) {
+            return;
+        }
+
+        component.call('updateFlightFilters', selectedAirlines, selectedStops);
     }
 
     function syncSidebarAirlineCheckboxes() {
@@ -1925,7 +1912,7 @@
         }
 
         syncTableColumnHighlight();
-        filterFlights();
+        pushFiltersToLivewire();
     }
 
     function toggleAirlineCheap(airlineCode) {
@@ -1938,7 +1925,7 @@
         selectedAirlines = airlineCode ? [airlineCode] : [];
 
         syncFilterUi();
-        filterFlights();
+        pushFiltersToLivewire();
     }
 
     function handleCellClick(cell, airlineCode) {
@@ -1952,7 +1939,7 @@
         selectedStops = [stopValue];
 
         syncFilterUi();
-        filterFlights();
+        pushFiltersToLivewire();
     }
 
     // Toggle stop filter
@@ -1968,15 +1955,18 @@
         }
 
         syncSidebarStopCheckboxes();
-        filterFlights();
+        pushFiltersToLivewire();
     }
 
     // Sort flights by cheapest or fastest
     function sortFlights(option) {
         sortBy = option;
-        needsSort = true;
         updateButtonClasses();
-        filterFlights();
+
+        const component = resolveFlightResultWire();
+        if (component) {
+            component.call('setFlightSort', option);
+        }
     }
 
     function updateButtonClasses() {
@@ -2004,72 +1994,20 @@
         }
     }
 
-    // Filter and sort flights
-    function filterFlights() {
-        if (filterFlightsRaf) {
-            cancelAnimationFrame(filterFlightsRaf);
-        }
-
-        filterFlightsRaf = requestAnimationFrame(applyFlightFilters);
-    }
-
-    function applyFlightFilters() {
-        filterFlightsRaf = null;
-        const flightList = document.getElementById('flight-list');
-        if (!flightList) {
-            return;
-        }
-
-        const flights = getFlightElements();
-
-        flights.forEach((flight) => {
-            let hasMatchingAirline = selectedAirlines.length === 0;
-            let hasMatchingStop = selectedStops.length === 0;
-
-            if (!hasMatchingAirline) {
-                const validatingAirlineCode = flight.getAttribute('data-airline');
-                const carrierCodes = (flight.dataset.carrierCodes || '').split(',').filter(Boolean);
-                hasMatchingAirline = selectedAirlines.some((code) =>
-                    code === validatingAirlineCode || carrierCodes.includes(code)
-                );
-            }
-
-            if (!hasMatchingStop) {
-                const totalStops = parseInt(flight.getAttribute('data-total-stops'), 10);
-                hasMatchingStop = selectedStops.includes(totalStops);
-            }
-
-            flight.style.display = hasMatchingAirline && hasMatchingStop ? '' : 'none';
-        });
-
-        if (needsSort) {
-            const visibleFlights = flights.filter((flight) => flight.style.display !== 'none');
-
-            visibleFlights.sort((a, b) => {
-                if (sortBy === 'fastest') {
-                    return parseFloat(a.getAttribute('data-duration')) - parseFloat(b.getAttribute('data-duration'));
-                }
-
-                return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price'));
-            });
-
-            visibleFlights.forEach((flight) => flightList.appendChild(flight));
-            needsSort = false;
-        }
-    }
-
     function initFlightFilters() {
-        resetFlightCache();
         updateButtonClasses();
         syncFilterUi();
-        filterFlights();
     }
 
     document.addEventListener('DOMContentLoaded', initFlightFilters);
     document.addEventListener('livewire:navigated', initFlightFilters);
 
     document.addEventListener('livewire:init', () => {
+        resolveFlightResultWire();
+
         Livewire.hook('morph.updated', () => {
+            flightResultWire = null;
+            resolveFlightResultWire();
             syncFilterUi();
             initLoadingMessages();
         });

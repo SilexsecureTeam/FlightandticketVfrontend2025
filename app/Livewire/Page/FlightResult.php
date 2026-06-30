@@ -33,11 +33,19 @@ class FlightResult extends Component
     public $moreResultsReady = false;
     public $allResultsLoaded = false;
     public $resultsHydrated = false;
+    public int $currentPage = 1;
+    public int $perPage = 20;
+    public array $filterAirlines = [];
+    public array $filterStops = [];
+    public string $sortBy = 'cheapest';
 
     protected ?FlightSearch $flightSearchRecord = null;
 
     /** @var array<string, mixed>|null */
     protected ?array $viewSearchResults = null;
+
+    /** @var array<int, array>|null */
+    protected ?array $filteredFlightOffersCache = null;
 
     public function mount(): void
     {
@@ -47,23 +55,42 @@ class FlightResult extends Component
             $this->showAllResults = true;
             $this->allResultsLoaded = true;
             $this->loadMore = 'loaded';
+            $this->currentPage = 1;
+            $this->filteredFlightOffersCache = null;
         }
 
-        $this->checkStatus();
+        $this->checkStatus(initialLoad: true);
         $this->showToSource = session('showToSource') ?? 'web';
     }
 
     public function loadMoreFlights()
     {
+        $search = $this->flightSearchRecord(fresh: true);
+
+        if ($search && $search->status === 'completed') {
+            $search->update(['status' => 'view']);
+            $this->status = 'view';
+            $this->flightSearchRecord = $search->fresh();
+        }
+
+        $this->allResultsLoaded = true;
+        $this->showAllResults = true;
+        $this->currentPage = 1;
+        $this->filteredFlightOffersCache = null;
+
         return $this->redirectRoute('search.results', [
             'id' => $this->searchId,
             'all' => 1,
         ]);
     }
 
-    public function checkStatus()
+    public function checkStatus(bool $initialLoad = false)
     {
-        $search = $this->flightSearchRecord();
+        if (!$initialLoad && !$this->shouldPollStatus()) {
+            return $this->skipRender();
+        }
+
+        $search = $this->flightSearchRecord(fresh: !$initialLoad);
 
         if (!$search) {
             session()->flash('error', 'No search ID provided.');
@@ -80,19 +107,20 @@ class FlightResult extends Component
             return redirect()->route('landing');
         }
 
-        $moreResultsReady = ($search->meta['more_results_ready'] ?? false) || $search->status === 'view';
+        $moreResultsReady = in_array($search->status, ['completed', 'view'], true)
+            || ($search->meta['more_results_ready'] ?? false);
 
         if ($this->resultsHydrated && !$this->showAllResults && !$this->allResultsLoaded) {
             $this->moreResultsReady = $moreResultsReady;
 
-            if ($previousStatus === $this->status && $previousMoreReady === $moreResultsReady) {
+            if (!$initialLoad && $previousStatus === $this->status && $previousMoreReady === $moreResultsReady) {
                 return $this->skipRender();
             }
 
             return;
         }
 
-        $shouldLoadResults = !in_array($search->status, ['processing', 'failed'], true)
+        $shouldLoadResults = $search->status !== 'failed'
             && !empty($search->flight_offers_path);
 
         if ($shouldLoadResults) {
@@ -107,10 +135,19 @@ class FlightResult extends Component
         }
     }
 
-    protected function flightSearchRecord(): ?FlightSearch
+    protected function shouldPollStatus(): bool
     {
+        return $this->status === 'processing' && !$this->allResultsLoaded;
+    }
+
+    protected function flightSearchRecord(bool $fresh = false): ?FlightSearch
+    {
+        if ($fresh) {
+            $this->flightSearchRecord = null;
+        }
+
         if ($this->flightSearchRecord === null && $this->searchId) {
-            $this->flightSearchRecord = FlightSearch::where('search_id', $this->searchId)->first();
+            $this->flightSearchRecord = FlightSearch::query()->firstWhere('search_id', $this->searchId);
         }
 
         return $this->flightSearchRecord;
@@ -271,6 +308,170 @@ class FlightResult extends Component
             ->all();
     }
 
+    public function updateFlightFilters(array $airlines, array $stops): void
+    {
+        $this->filterAirlines = array_values(array_filter($airlines));
+        $this->filterStops = array_values(array_map('intval', $stops));
+        $this->currentPage = 1;
+        $this->filteredFlightOffersCache = null;
+    }
+
+    public function setFlightSort(string $sort): void
+    {
+        if (!in_array($sort, ['cheapest', 'fastest'], true)) {
+            return;
+        }
+
+        $this->sortBy = $sort;
+        $this->currentPage = 1;
+        $this->filteredFlightOffersCache = null;
+    }
+
+    public function goToFlightPage(int $page): void
+    {
+        $totalPages = $this->getTotalPages();
+        $this->currentPage = max(1, min($page, $totalPages));
+    }
+
+    public function previousFlightPage(): void
+    {
+        $this->goToFlightPage($this->currentPage - 1);
+    }
+
+    public function nextFlightPage(): void
+    {
+        $this->goToFlightPage($this->currentPage + 1);
+    }
+
+    protected function enrichFlightOffer(array $flight): array
+    {
+        $flight['totalPrice'] = floatval($flight['price']['grandTotal'] ?? $flight['price']['total'] ?? 0);
+
+        $totalDurationInSeconds = 0;
+        $stopNm = 0;
+
+        foreach ($flight['itineraries'] as $itinerary) {
+            if ($stopNm) {
+                $stopNm = $stopNm == 10 ? 0 : $stopNm;
+                $stopNm = count($itinerary['segments']) - 1 == $stopNm ? $stopNm : 700;
+            } else {
+                $stopNm = count($itinerary['segments']) - 1 > 0 ? count($itinerary['segments']) - 1 : 10;
+            }
+
+            foreach ($itinerary['segments'] as $segment) {
+                $durationParts = explode('PT', $segment['duration'] ?? '');
+                if (isset($durationParts[1])) {
+                    $timeParts = explode('H', $durationParts[1]);
+                    $hours = isset($timeParts[0]) ? intval($timeParts[0]) : 0;
+                    $minutes = isset($timeParts[1]) ? intval(str_replace('M', '', $timeParts[1])) : 0;
+                    $totalDurationInSeconds += $hours * 3600 + $minutes * 60;
+                }
+            }
+        }
+
+        $flight['totalDuration'] = $totalDurationInSeconds;
+        $flight['totalStops'] = $stopNm == 10 ? 0 : $stopNm;
+
+        return $flight;
+    }
+
+    protected function flightMatchesCarrierFilters(array $flight): bool
+    {
+        if (empty($this->filterAirlines)) {
+            return true;
+        }
+
+        $validatingAirlineCode = $flight['validatingAirlineCodes'][0] ?? '';
+        $carrierCodes = $this->extractCarrierCodes($flight);
+
+        foreach ($this->filterAirlines as $code) {
+            if ($code === $validatingAirlineCode || in_array($code, $carrierCodes, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function flightMatchesStopFilters(array $flight): bool
+    {
+        if (empty($this->filterStops)) {
+            return true;
+        }
+
+        return in_array((int) ($flight['totalStops'] ?? 0), $this->filterStops, true);
+    }
+
+    protected function extractCarrierCodes(array $flight): array
+    {
+        $codes = [];
+
+        foreach ($flight['itineraries'] ?? [] as $itinerary) {
+            foreach ($itinerary['segments'] ?? [] as $segment) {
+                if (!empty($segment['carrierCode'])) {
+                    $codes[] = $segment['carrierCode'];
+                }
+            }
+        }
+
+        return array_values(array_unique($codes));
+    }
+
+    protected function getFilteredFlightOffers(): array
+    {
+        if ($this->filteredFlightOffersCache !== null) {
+            return $this->filteredFlightOffersCache;
+        }
+
+        $offers = array_map(
+            fn (array $flight) => $this->enrichFlightOffer($flight),
+            $this->readOffersFromStorage()
+        );
+
+        $offers = array_values(array_filter(
+            $offers,
+            fn (array $flight) => $this->flightMatchesCarrierFilters($flight)
+                && $this->flightMatchesStopFilters($flight)
+        ));
+
+        usort($offers, function (array $a, array $b) {
+            if ($this->sortBy === 'fastest') {
+                return ($a['totalDuration'] ?? 0) <=> ($b['totalDuration'] ?? 0);
+            }
+
+            return ($a['totalPrice'] ?? 0) <=> ($b['totalPrice'] ?? 0);
+        });
+
+        $this->filteredFlightOffersCache = $offers;
+
+        return $offers;
+    }
+
+    protected function getEffectivePage(): int
+    {
+        return min($this->currentPage, $this->getTotalPages());
+    }
+
+    protected function getPaginatedFlightOffers(): array
+    {
+        $filtered = $this->getFilteredFlightOffers();
+        $offset = ($this->getEffectivePage() - 1) * $this->perPage;
+
+        return array_slice($filtered, $offset, $this->perPage);
+    }
+
+    protected function getTotalFilteredCount(): int
+    {
+        return count($this->getFilteredFlightOffers());
+    }
+
+    protected function getTotalPages(): int
+    {
+        $total = $this->getTotalFilteredCount();
+
+        return max(1, (int) ceil($total / $this->perPage));
+    }
+
     public function selectFlight($flightId)
     {
         $selectedFlight = collect($this->readOffersFromStorage())->firstWhere('id', $flightId);
@@ -290,15 +491,23 @@ class FlightResult extends Component
     public function render()
     {
         $searchResults = $this->buildSearchResultsForView();
+        $totalFilteredCount = $this->getTotalFilteredCount();
+        $totalPages = $this->getTotalPages();
+        $currentPage = $this->getEffectivePage();
 
         return view('livewire.page.flight-result', [
             'searchResults' => $searchResults,
             'searchParams' => $this->searchParams,
             'airlinesWithNames' => $this->buildAirlinesWithNames($searchResults['dictionaries'] ?? []),
+            'paginatedFlightOffers' => $this->getPaginatedFlightOffers(),
+            'totalFilteredCount' => $totalFilteredCount,
+            'totalPages' => $totalPages,
+            'currentPage' => $currentPage,
             'showAllResults' => $this->showAllResults,
             'initialDisplayLimit' => $this->initialDisplayLimit,
             'moreResultsReady' => $this->moreResultsReady,
             'allResultsLoaded' => $this->allResultsLoaded,
+            'shouldPoll' => $this->shouldPollStatus(),
         ]);
     }
 }

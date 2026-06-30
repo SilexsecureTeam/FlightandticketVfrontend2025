@@ -265,6 +265,11 @@ class ApiFlightSearchController extends Controller
         if ($flightSearch) {
 
             try {
+                if ($flightSearch->status === 'completed') {
+                    $flightSearch->update(['status' => 'view']);
+                    $flightSearch->refresh();
+                }
+
                 // Get data from database
                 // $flightSearch = $search->where('expires_at', '>', Carbon::now());
 

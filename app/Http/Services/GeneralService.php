@@ -429,7 +429,7 @@ class GeneralService
             'flight_offers_path' => $flightOffersFile,
             'dictionaries_path' => $dictionariesFile,
             'expires_at' => now()->addHours(24),
-            'status' => 'completed',
+            //'status' => 'completed',
         ];
 
         // Store in database
