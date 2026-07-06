@@ -14,6 +14,7 @@ use App\Http\Controllers\FlightBooking\FlightSearchController;
 use App\Http\Controllers\FlightBooking\AirportSearchController;
 use App\Http\Controllers\FlightBooking\CreateFlightOrderController;
 use App\Http\Controllers\Authcontroller;
+use App\Http\Controllers\FlightSelectionAuthController;
 
 Route::post('register', [Authcontroller::class, 'register']);
 Route::post('login', [Authcontroller::class, 'login']);
@@ -36,6 +37,9 @@ Route::prefix('flights')->group(function () {
     Route::post('/searchAirports', [ApiFlightSearchController::class, 'searchAirports']);
     Route::post('/search', [ApiFlightSearchController::class, 'search']);
     Route::get('/search/{searchId}', [ApiFlightSearchController::class, 'getSearchResults']);
+    Route::post('/selection/send-otp', [FlightSelectionAuthController::class, 'sendOtp']);
+    Route::post('/selection/resend-otp', [FlightSelectionAuthController::class, 'resendOtp']);
+    Route::post('/selection/verify-otp', [FlightSelectionAuthController::class, 'verifyOtp']);
     Route::post('/book', [ApiFlightBookingController::class, 'book']);
     Route::post('/reserve', [ApiFlightBookingController::class, 'reserve']);
 });

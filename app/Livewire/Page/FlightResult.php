@@ -3,16 +3,11 @@
 namespace App\Livewire\Page;
 
 use App\Models\FlightSearch;
-use App\Models\User;
-use App\Mail\LoginOtp;
-use App\Mail\WelcomeOtp;
+use App\Http\Services\FlightSelectionAuthService;
 use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FlightResult extends Component
 {
@@ -553,41 +548,18 @@ class FlightResult extends Component
             'guestEmail' => 'required|email|max:255',
         ]);
 
-        $user = User::query()->where('email', $this->guestEmail)->first();
-        $otpCode = (string) random_int(100000, 999999);
+        try {
+            $result = app(FlightSelectionAuthService::class)->sendOtp(
+                $this->guestName,
+                $this->guestEmail
+            );
 
-        if (!$user) {
-            $user = User::create([
-                'name' => $this->guestName,
-                'email' => $this->guestEmail,
-                'password' => Hash::make(Str::random(32)),
-                'phone' => '',
-                'type' => 'user',
-                'status' => 'active',
-                'enable_otp' => 'no',
-                'otp' => $otpCode,
-                'otp_expires_at' => now()->addMinutes(10),
-            ]);
-
-            Mail::to($user->email)->send(new WelcomeOtp($otpCode, $user->name));
-        } else {
-            if ($user->status === 'block') {
-                $this->selectionAuthError = 'This account is blocked. Please contact support.';
-                return;
-            }
-
-            $user->update([
-                'name' => $this->guestName,
-                'otp' => $otpCode,
-                'otp_expires_at' => now()->addMinutes(10),
-            ]);
-
-            Mail::to($user->email)->send(new LoginOtp($otpCode));
+            $this->selectionOtpUserId = $result['user_id'];
+            $this->selectionAuthStep = 'otp';
+            $this->selectionAuthMessage = 'An OTP has been sent to your email address.';
+        } catch (\RuntimeException $e) {
+            $this->selectionAuthError = $e->getMessage();
         }
-
-        $this->selectionOtpUserId = $user->id;
-        $this->selectionAuthStep = 'otp';
-        $this->selectionAuthMessage = 'An OTP has been sent to your email address.';
     }
 
     public function resendSelectionOtp(): void
@@ -595,32 +567,21 @@ class FlightResult extends Component
         $this->selectionAuthError = '';
         $this->selectionAuthMessage = '';
 
-        $user = $this->selectionOtpUserId
-            ? User::query()->find($this->selectionOtpUserId)
-            : User::query()->where('email', $this->guestEmail)->first();
-
-        if (!$user) {
+        if (!$this->guestEmail) {
             $this->selectionAuthStep = 'details';
             $this->selectionAuthError = 'Please enter your name and email first.';
             return;
         }
 
-        if ($user->status === 'block') {
-            $this->selectionAuthError = 'This account is blocked. Please contact support.';
-            return;
+        try {
+            $result = app(FlightSelectionAuthService::class)->resendOtp($this->guestEmail);
+
+            $this->selectionOtpUserId = $result['user_id'];
+            $this->selectionAuthStep = 'otp';
+            $this->selectionAuthMessage = 'A new OTP has been sent to your email address.';
+        } catch (\RuntimeException $e) {
+            $this->selectionAuthError = $e->getMessage();
         }
-
-        $otpCode = (string) random_int(100000, 999999);
-        $user->update([
-            'otp' => $otpCode,
-            'otp_expires_at' => now()->addMinutes(10),
-        ]);
-
-        Mail::to($user->email)->send(new LoginOtp($otpCode));
-
-        $this->selectionOtpUserId = $user->id;
-        $this->selectionAuthStep = 'otp';
-        $this->selectionAuthMessage = 'A new OTP has been sent to your email address.';
     }
 
     public function verifySelectionOtp()
@@ -630,28 +591,21 @@ class FlightResult extends Component
 
         $this->validate([
             'guestOtp' => 'required|digits:6',
+            'guestEmail' => 'required|email|max:255',
         ]);
 
-        $user = User::query()->find($this->selectionOtpUserId);
+        try {
+            $result = app(FlightSelectionAuthService::class)->verifyOtp(
+                $this->guestEmail,
+                $this->guestOtp
+            );
 
-        if (
-            !$user
-            || (string) $user->otp !== (string) $this->guestOtp
-            || !$user->otp_expires_at
-            || now()->gte($user->otp_expires_at)
-        ) {
-            $this->selectionAuthError = 'Invalid or expired OTP. Please try again or resend a new code.';
+            Auth::login($result['user']);
+            session()->regenerate();
+        } catch (\RuntimeException $e) {
+            $this->selectionAuthError = $e->getMessage();
             return;
         }
-
-        $user->update([
-            'otp' => null,
-            'otp_expires_at' => null,
-            'email_verified_at' => $user->email_verified_at ?? now(),
-        ]);
-
-        Auth::login($user);
-        session()->regenerate();
 
         $flightId = $this->pendingFlightId;
         $this->closeSelectionAuthModal();
