@@ -139,6 +139,144 @@
                 max-width: calc(50% - 6px);
             }
         }
+
+        .flight-selection-auth-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .flight-selection-auth-modal {
+            width: 100%;
+            max-width: 460px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .flight-selection-auth-modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .flight-selection-auth-modal__title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .flight-selection-auth-modal__close {
+            border: none;
+            background: transparent;
+            font-size: 28px;
+            line-height: 1;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .flight-selection-auth-modal__body {
+            padding: 20px;
+        }
+
+        .flight-selection-auth-modal__hint {
+            margin: 0 0 16px;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .flight-selection-auth-modal__field {
+            margin-bottom: 14px;
+        }
+
+        .flight-selection-auth-modal__field label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .flight-selection-auth-modal__input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .flight-selection-auth-modal__input--otp {
+            letter-spacing: 0.35em;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .flight-selection-auth-modal__btn {
+            width: 100%;
+            margin-top: 8px;
+            background: #97050C;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .flight-selection-auth-modal__btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .flight-selection-auth-modal__link {
+            display: block;
+            width: 100%;
+            margin-top: 12px;
+            background: transparent;
+            border: none;
+            color: #97050C;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .flight-selection-auth-modal__message {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #ecfdf3;
+            color: #166534;
+            font-size: 13px;
+        }
+
+        .flight-selection-auth-modal__error {
+            margin-bottom: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 13px;
+        }
+
+        .flight-selection-auth-modal__field-error {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #b91c1c;
+        }
     </style>
     @if ($status === 'process')
     <style>
@@ -1180,13 +1318,13 @@
 
                                     <div>
                                         <button wire:loading.remove
-                                            wire:target='selectFlight({{ $flight['id'] }})'
+                                            wire:target='requestSelectFlight({{ $flight['id'] }})'
                                             class="px-4 md:px-6 py-2 text-xs md:text-sm bg-primary text-white rounded-lg hover:bg-red-700"
-                                            wire:click="selectFlight({{ $flight['id'] }})">
+                                            wire:click="requestSelectFlight({{ $flight['id'] }})">
                                             Select Flight
                                         </button>
                                         <div wire:loading
-                                            wire:target='selectFlight({{ $flight['id'] }})'>
+                                            wire:target='requestSelectFlight({{ $flight['id'] }})'>
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 24 24" aria-hidden="true"
                                                 class="size-5 fill-neutral-600 motion-safe:animate-spin dark:fill-neutral-300">
@@ -1766,12 +1904,12 @@
     <div class=" flex gap-3 justify-end items-end m-3">
         <div>
             <button wire:loading.remove
-                wire:target='selectFlight({{ $flight['id'] }})'
+                wire:target='requestSelectFlight({{ $flight['id'] }})'
                 class="px-6 py-2 md:text-base text-xs bg-primary text-white rounded-lg hover:bg-red-700"
-                wire:click="selectFlight({{ $flight['id'] }})">
-                Select Flight
+                wire:click="requestSelectFlight({{ $flight['id'] }})">
+                Select Flight 
             </button>
-            <div wire:loading wire:target='selectFlight({{ $flight['id'] }})'>
+            <div wire:loading wire:target='requestSelectFlight({{ $flight['id'] }})'>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                     aria-hidden="true"
                     class="size-5 fill-neutral-600 motion-safe:animate-spin dark:fill-neutral-300">
@@ -1862,6 +2000,8 @@
 @endif
 </div>
 </div>
+
+@include('livewire.page.partials.flight-selection-auth-modal')
 
 <script>
     // All your messages
