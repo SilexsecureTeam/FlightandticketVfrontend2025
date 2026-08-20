@@ -2,54 +2,197 @@
 
 namespace App\Livewire\Admin;
 
-use Livewire\Component;
 use App\Models\Page;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class ManagePages extends Component
 {
-    public $pages;
-    public $selectedPageId;
-    public $content;
-    public $title;
+    use WithPagination;
 
-    public function mount()
+    public string $mode = 'list';
+    public ?int $editingId = null;
+
+    public string $title = '';
+    public string $slug = '';
+    public string $content = '';
+    public string $status = 'published';
+    public string $menu_location = 'none';
+    public int $menu_order = 0;
+    public string $custom_url = '';
+    public string $meta_title = '';
+    public string $meta_description = '';
+    public string $meta_keywords = '';
+    public string $og_image = '';
+    public string $canonical_url = '';
+
+    public string $search = '';
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+    ];
+
+    public function updatingSearch(): void
     {
-        // Ensure default pages exist
-        Page::firstOrCreate(['slug' => 'about-us'], ['title' => 'About Us', 'content' => '']);
-        Page::firstOrCreate(['slug' => 'terms-and-conditions'], ['title' => 'Terms and Conditions', 'content' => '']);
-
-        $this->pages = Page::all();
-        if ($this->pages->count() > 0) {
-            $this->selectPage($this->pages->first()->id);
-        }
+        $this->resetPage();
     }
 
-    public function selectPage($id)
+    public function create(): void
     {
-        $this->selectedPageId = $id;
-        $page = Page::find($id);
+        $this->resetForm();
+        $this->mode = 'form';
+        $this->editingId = null;
+        $this->dispatch('contentChanged', content: '');
+    }
+
+    public function edit(int $id): void
+    {
+        $page = Page::findOrFail($id);
+
+        $this->editingId = $page->id;
         $this->title = $page->title;
-        $this->content = $page->content;
-        
-        // Dispatch event to update Quill editor
+        $this->slug = $page->slug;
+        $this->content = $this->normalizeContentImages((string) $page->content);
+        $this->status = $page->status ?: 'published';
+        $this->menu_location = $page->menu_location ?: 'none';
+        $this->menu_order = (int) $page->menu_order;
+        $this->custom_url = (string) ($page->custom_url ?? '');
+        $this->meta_title = (string) ($page->meta_title ?? '');
+        $this->meta_description = (string) ($page->meta_description ?? '');
+        $this->meta_keywords = (string) ($page->meta_keywords ?? '');
+        $this->og_image = (string) ($page->og_image ?? '');
+        $this->canonical_url = (string) ($page->canonical_url ?? '');
+        $this->mode = 'form';
+
         $this->dispatch('contentChanged', content: $this->content);
     }
 
-    public function save()
+    public function updatedTitle($value): void
     {
-        $page = Page::find($this->selectedPageId);
-        if ($page) {
-            $page->title = $this->title;
-            $page->content = $this->content;
-            $page->save();
-
-            session()->flash('message', 'Page updated successfully.');
-            return redirect('/admin/pages');
+        if ($this->editingId) {
+            return;
         }
+
+        $this->slug = Str::slug((string) $value);
+    }
+
+    public function save(): void
+    {
+        $validated = $this->validate([
+            'title' => 'required|string|max:255',
+            'slug' => [
+                'required',
+                'string',
+                'max:191',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                Rule::unique('pages', 'slug')->ignore($this->editingId),
+            ],
+            'content' => 'nullable|string',
+            'status' => 'required|in:draft,published',
+            'menu_location' => 'required|in:none,top,footer,both',
+            'menu_order' => 'nullable|integer|min:0|max:9999',
+            'custom_url' => 'nullable|string|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|string|max:500',
+        ]);
+
+        $payload = [
+            'title' => $validated['title'],
+            'slug' => $validated['slug'],
+            'content' => $validated['content'] ?? '',
+            'status' => $validated['status'],
+            'menu_location' => $validated['menu_location'],
+            'menu_order' => $validated['menu_order'] ?? 0,
+            'custom_url' => $validated['custom_url'] ?: null,
+            'meta_title' => $validated['meta_title'] ?: null,
+            'meta_description' => $validated['meta_description'] ?: null,
+            'meta_keywords' => $validated['meta_keywords'] ?: null,
+            'og_image' => $validated['og_image'] ?: null,
+            'canonical_url' => $validated['canonical_url'] ?: null,
+        ];
+
+        if ($this->editingId) {
+            $page = Page::findOrFail($this->editingId);
+            $page->update($payload);
+            session()->flash('message', 'Page updated successfully.');
+        } else {
+            Page::create($payload);
+            session()->flash('message', 'Page created successfully.');
+        }
+
+        $this->mode = 'list';
+        $this->resetForm();
+    }
+
+    public function delete(int $id): void
+    {
+        $page = Page::findOrFail($id);
+
+        if ($page->is_system) {
+            session()->flash('error', 'System pages cannot be deleted. You can unpublish or hide them from menus instead.');
+            return;
+        }
+
+        $page->delete();
+        session()->flash('message', 'Page deleted successfully.');
+
+        if ($this->editingId === $id) {
+            $this->mode = 'list';
+            $this->resetForm();
+        }
+    }
+
+    public function cancel(): void
+    {
+        $this->mode = 'list';
+        $this->resetForm();
+    }
+
+    protected function normalizeContentImages(string $content): string
+    {
+        $content = preg_replace('#https?://[^"\']+/storage/cms/#i', '/uploads/cms/', $content) ?? $content;
+
+        return str_replace('/storage/cms/', '/uploads/cms/', $content);
+    }
+
+    protected function resetForm(): void
+    {
+        $this->editingId = null;
+        $this->title = '';
+        $this->slug = '';
+        $this->content = '';
+        $this->status = 'published';
+        $this->menu_location = 'none';
+        $this->menu_order = 0;
+        $this->custom_url = '';
+        $this->meta_title = '';
+        $this->meta_description = '';
+        $this->meta_keywords = '';
+        $this->og_image = '';
+        $this->canonical_url = '';
+        $this->resetValidation();
     }
 
     public function render()
     {
-        return view('livewire.admin.manage-pages')->layout('components.layouts.admin');
+        $pages = Page::query()
+            ->when($this->search, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('title', 'like', '%' . $this->search . '%')
+                        ->orWhere('slug', 'like', '%' . $this->search . '%');
+                });
+            })
+            ->orderBy('menu_order')
+            ->orderBy('title')
+            ->paginate(15);
+
+        return view('livewire.admin.manage-pages', [
+            'pages' => $pages,
+        ])->layout('components.layouts.admin');
     }
 }

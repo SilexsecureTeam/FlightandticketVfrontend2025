@@ -1,2 +1,18 @@
 User-agent: *
-Disallow:
+Disallow: /admin/
+Disallow: /dashboard
+Disallow: /login
+Disallow: /logout
+Disallow: /customers
+Disallow: /settings
+Disallow: /settings/
+Disallow: /payment
+Disallow: /booking
+Disallow: /booking/
+Disallow: /search
+Disallow: /search/
+Disallow: /mail
+Disallow: /api/
+Disallow: /flight/
+
+Sitemap: https://flightandticketing.com/sitemap.xml

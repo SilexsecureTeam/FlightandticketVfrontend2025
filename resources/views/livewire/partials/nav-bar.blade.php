@@ -39,10 +39,12 @@ x-data="{
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
-            <a href="/" class="text-lg" @click="isOpen = false">Flights</a>
-            <a href="#" class="text-lg" @click="isOpen = false">Hotels</a>
-            <a href="#" class="text-lg" @click="isOpen = false">Travel Insurance</a>
-            <a href="#" class="text-lg" @click="isOpen = false">Bookings</a>
+            @forelse ($topPages as $page)
+                <a href="{{ $page->url }}" class="text-lg" @click="isOpen = false">{{ $page->title }}</a>
+            @empty
+                <a href="/" class="text-lg" @click="isOpen = false">Flights</a>
+            @endforelse
+            <a href="{{ route('blog.index') }}" class="text-lg" @click="isOpen = false">Blog</a>
             
             <!-- Phone Number Section -->
             <div class="pt-4">
@@ -88,16 +90,22 @@ x-data="{
 
     <!-- Desktop Navigation -->
     <nav class="hidden md:flex items-end gap-1.5 xl:gap-2.5">
-        <a href="/" class="navLink">Flights</a>
-        <a href="#" class="navLink">Hotels</a>
-        <a href="#" class="navLink">Travel Insurance</a>
+        @forelse ($topPages as $page)
+            <a href="{{ $page->url }}" class="navLink">{{ $page->title }}</a>
+        @empty
+            <a href="/" class="navLink">Flights</a>
+        @endforelse
+        <a href="{{ route('blog.index') }}" class="navLink">Blog</a>
     </nav>
 
     <!-- Medium to Large Screen Right Side Menu -->
     <div class="hidden md:flex lg:flex items-end gap-4 lg:gap-8 xl:gap-10 relative md:bottom-1 lg:bottom-2 xl:bottom-2.5">
         <!-- Medium Screen Compact Menu -->
         <div class="flex md:flex lg:hidden items-center gap-3 text-white">
-            <a href="#" class="text-sm whitespace-nowrap">Bookings</a>
+            @php
+                $bookingsPage = $topPages->firstWhere('slug', 'bookings');
+            @endphp
+            <a href="{{ $bookingsPage?->url ?? route('cms.page', 'bookings') }}" class="text-sm whitespace-nowrap">Bookings</a>
             
             <!-- Phone Icon -->
             <div x-data="{ showPopup: false, timeout: null }" 

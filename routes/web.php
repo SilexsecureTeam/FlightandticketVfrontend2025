@@ -22,8 +22,12 @@ use App\Livewire\Flight\OfflineSuccessPage;
 use App\Models\FlightSearch;
 
 Route::get('/', Landing::class)->name('landing');
-Route::get('/about-us', App\Livewire\Page\AboutUs::class)->name('about.us');
-Route::get('/terms-and-conditions', App\Livewire\Page\TermsAndConditions::class)->name('terms');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/about-us', fn () => redirect()->route('cms.page', 'about-us'))->name('about.us');
+Route::get('/terms-and-conditions', fn () => redirect()->route('cms.page', 'terms-and-conditions'))->name('terms');
+Route::get('/page/{slug}', \App\Livewire\Cms\ShowPage::class)->name('cms.page');
+Route::get('/blog', \App\Livewire\Cms\BlogIndex::class)->name('blog.index');
+Route::get('/blog/{slug}', \App\Livewire\Cms\BlogShow::class)->name('blog.show');
 
 // Route::middleware('guest')->group(function () {
     Route::get('/mail', MailTest::class);
@@ -73,6 +77,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/customers', Customers::class)->name('customers');
     Route::get('/settings', Settings::class)->name('settings');
     Route::get('/admin/pages', \App\Livewire\Admin\ManagePages::class)->name('admin.pages');
+    Route::get('/admin/blog', \App\Livewire\Admin\ManageBlogs::class)->name('admin.blog');
+    Route::post('/admin/cms/upload-image', [\App\Http\Controllers\CmsMediaController::class, 'upload'])->name('admin.cms.upload');
 
     Route::prefix('flight')->group(function () {
         Route::get('/search', SearchFlightPage::class)->name('flight.search');

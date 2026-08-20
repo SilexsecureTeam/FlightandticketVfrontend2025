@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title ?? 'Mymore - Dashboard' }}</title>
     <!-- Primary SEO -->
@@ -12,6 +13,94 @@
     <link rel="canonical" href="https://flightandticketing.com" />
     @vite(['resources/css/admin.css', 'resources/js/app.js'])
     @livewireStyles
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css" rel="stylesheet">
+    <style>
+        .ql-editor {
+            min-height: 320px;
+            color: #111;
+        }
+        .ql-toolbar.ql-snow,
+        .ql-container.ql-snow {
+            border-color: #d4d4d4;
+            background: #fff;
+        }
+        .ql-editor img {
+            max-width: 100%;
+            height: auto;
+            cursor: nwse-resize;
+            position: relative;
+        }
+        .ql-editor img:hover {
+            outline: 2px solid #97060B;
+            outline-offset: 2px;
+        }
+        .cms-crop-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.55);
+            padding: 1rem;
+        }
+        .cms-crop-modal.is-open {
+            display: flex;
+        }
+        .cms-crop-dialog {
+            width: min(920px, 100%);
+            max-height: 90vh;
+            overflow: auto;
+            background: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        }
+        .cms-crop-body {
+            padding: 1rem;
+        }
+        .cms-crop-stage {
+            max-height: 55vh;
+            background: #111;
+        }
+        .cms-crop-stage img {
+            display: block;
+            max-width: 100%;
+        }
+        .cms-crop-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-top: 1px solid #e5e5e5;
+        }
+        .cms-crop-actions .left,
+        .cms-crop-actions .right {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .cms-crop-btn {
+            border: 1px solid #d4d4d4;
+            background: #f5f5f5;
+            color: #111;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.85rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+        .cms-crop-btn.primary {
+            background: #97060B;
+            border-color: #97060B;
+            color: #fff;
+        }
+        .cms-crop-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 
 <body>
@@ -167,6 +256,14 @@
                     <span>Manage Pages</span>
                 </a>
 
+                <a href="/admin/blog" wire:navigate class=" {{ request()->is('admin/blog*') ? ' bg-primary text-white font-bold' : '' }} flex items-center rounded-md gap-2 px-2 py-1.5 text-sm font-medium text-neutral-600 underline-offset-2 focus-visible:underline focus:outline-none ">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 shrink-0" aria-hidden="true">
+                        <path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v10.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25V8.5a.75.75 0 0 0-1.5 0v6.75a.25.25 0 0 1-.25.25H3.75a.25.25 0 0 1-.25-.25V4.75a.25.25 0 0 1 .25-.25h7.75a.75.75 0 0 0 0-1.5H3.75Z" />
+                        <path d="M12.22 3.22a.75.75 0 0 1 1.06 0l3.25 3.25a.75.75 0 1 1-1.06 1.06L13 5.06v6.19a.75.75 0 0 1-1.5 0V5.06l-2.47 2.47a.75.75 0 0 1-1.06-1.06l3.25-3.25Z" />
+                    </svg>
+                    <span>Manage Blog</span>
+                </a>
+
 
 
 
@@ -188,6 +285,396 @@
     </div>
 
 
+    <div id="cms-crop-modal" class="cms-crop-modal" aria-hidden="true">
+        <div class="cms-crop-dialog">
+            <div class="cms-crop-body">
+                <h3 style="margin:0 0 0.75rem;font-size:1.125rem;font-weight:600;color:#111;">Crop &amp; resize image</h3>
+                <div class="cms-crop-stage">
+                    <img id="cms-crop-image" alt="Crop preview">
+                </div>
+            </div>
+            <div class="cms-crop-actions">
+                <div class="left">
+                    <button type="button" class="cms-crop-btn" data-crop-action="rotate-left">Rotate left</button>
+                    <button type="button" class="cms-crop-btn" data-crop-action="rotate-right">Rotate right</button>
+                    <button type="button" class="cms-crop-btn" data-crop-action="zoom-in">Zoom in</button>
+                    <button type="button" class="cms-crop-btn" data-crop-action="zoom-out">Zoom out</button>
+                    <button type="button" class="cms-crop-btn" data-crop-action="reset">Reset</button>
+                </div>
+                <div class="right">
+                    <button type="button" class="cms-crop-btn" data-crop-action="cancel">Cancel</button>
+                    <button type="button" class="cms-crop-btn primary" data-crop-action="apply" id="cms-crop-apply">Insert image</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+    <script>
+        (function () {
+            if (window.ImageResize) {
+                Quill.register('modules/imageResize', window.ImageResize.default || window.ImageResize);
+            }
+        })();
+
+        window.CmsImageCropper = {
+            cropper: null,
+            objectUrl: null,
+            resolve: null,
+            reject: null,
+
+            ensureModal() {
+                return document.getElementById('cms-crop-modal');
+            },
+
+            open(file) {
+                return new Promise((resolve, reject) => {
+                    const modal = this.ensureModal();
+                    const image = document.getElementById('cms-crop-image');
+                    if (!modal || !image || typeof Cropper === 'undefined') {
+                        reject(new Error('Cropper unavailable'));
+                        return;
+                    }
+
+                    this.close(false);
+                    this.resolve = resolve;
+                    this.reject = reject;
+                    this.objectUrl = URL.createObjectURL(file);
+                    image.src = this.objectUrl;
+                    modal.classList.add('is-open');
+                    modal.setAttribute('aria-hidden', 'false');
+
+                    image.onload = () => {
+                        this.cropper = new Cropper(image, {
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            responsive: true,
+                            background: false,
+                            movable: true,
+                            zoomable: true,
+                            rotatable: true,
+                            scalable: true,
+                        });
+                    };
+                });
+            },
+
+            apply() {
+                if (!this.cropper) return;
+
+                const applyBtn = document.getElementById('cms-crop-apply');
+                if (applyBtn) {
+                    applyBtn.disabled = true;
+                    applyBtn.textContent = 'Processing...';
+                }
+
+                this.cropper.getCroppedCanvas({
+                    maxWidth: 1920,
+                    maxHeight: 1920,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                }).toBlob((blob) => {
+                    if (applyBtn) {
+                        applyBtn.disabled = false;
+                        applyBtn.textContent = 'Insert image';
+                    }
+
+                    if (!blob) {
+                        if (this.reject) this.reject(new Error('Could not crop image'));
+                        this.close(false);
+                        return;
+                    }
+
+                    const file = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+                    if (this.resolve) this.resolve(file);
+                    this.close(false);
+                }, 'image/jpeg', 0.92);
+            },
+
+            close(shouldReject = true) {
+                const modal = this.ensureModal();
+                const image = document.getElementById('cms-crop-image');
+
+                if (this.cropper) {
+                    this.cropper.destroy();
+                    this.cropper = null;
+                }
+
+                if (this.objectUrl) {
+                    URL.revokeObjectURL(this.objectUrl);
+                    this.objectUrl = null;
+                }
+
+                if (image) {
+                    image.removeAttribute('src');
+                }
+
+                if (modal) {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                }
+
+                if (shouldReject && this.reject) {
+                    this.reject(new Error('cancelled'));
+                }
+
+                this.resolve = null;
+                this.reject = null;
+            },
+        };
+
+        document.addEventListener('click', (event) => {
+            const actionBtn = event.target.closest('[data-crop-action]');
+            if (!actionBtn || !window.CmsImageCropper) return;
+
+            const action = actionBtn.getAttribute('data-crop-action');
+            const cropper = window.CmsImageCropper.cropper;
+
+            if (action === 'cancel') {
+                window.CmsImageCropper.close(true);
+                return;
+            }
+
+            if (action === 'apply') {
+                window.CmsImageCropper.apply();
+                return;
+            }
+
+            if (!cropper) return;
+
+            if (action === 'rotate-left') cropper.rotate(-90);
+            if (action === 'rotate-right') cropper.rotate(90);
+            if (action === 'zoom-in') cropper.zoom(0.1);
+            if (action === 'zoom-out') cropper.zoom(-0.1);
+            if (action === 'reset') cropper.reset();
+        });
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('cmsQuillEditor', (config) => ({
+                content: config.content,
+                uploadUrl: config.uploadUrl,
+                csrf: config.csrf,
+                quill: null,
+
+                async init() {
+                    await this.$nextTick();
+
+                    let attempts = 0;
+                    while (typeof Quill === 'undefined' && attempts < 50) {
+                        await new Promise((resolve) => setTimeout(resolve, 50));
+                        attempts++;
+                    }
+
+                    if (typeof Quill === 'undefined' || !this.$refs.editor) {
+                        console.error('Quill editor could not be initialized');
+                        return;
+                    }
+
+                    if (this.$refs.editor.__quill) {
+                        this.quill = this.$refs.editor.__quill;
+                        return;
+                    }
+
+                    const modules = {
+                        toolbar: {
+                            container: this.$refs.toolbar,
+                            handlers: {
+                                image: () => this.pickImage(),
+                            },
+                        },
+                    };
+
+                    if (window.ImageResize || Quill.imports?.['modules/imageResize']) {
+                        modules.imageResize = {
+                            modules: ['Resize', 'DisplaySize', 'Toolbar'],
+                        };
+                    }
+
+                    this.quill = new Quill(this.$refs.editor, {
+                        theme: 'snow',
+                        modules,
+                    });
+
+                    this.$refs.editor.__quill = this.quill;
+                    this.quill.root.innerHTML = this.content || '';
+                    this.normalizeExistingImages();
+                    this.enableImageResize();
+
+                    this.quill.on('text-change', () => {
+                        this.content = this.quill.root.innerHTML;
+                    });
+
+                    this.$watch('content', (value) => {
+                        if (!this.quill) return;
+                        if (this.quill.root.innerHTML !== (value || '')) {
+                            this.quill.root.innerHTML = value || '';
+                            this.normalizeExistingImages();
+                            this.enableImageResize();
+                        }
+                    });
+                },
+
+                normalizeExistingImages() {
+                    if (!this.quill) return;
+
+                    this.quill.root.querySelectorAll('img').forEach((img) => {
+                        let src = img.getAttribute('src') || '';
+
+                        // Old broken absolute storage URLs -> public uploads
+                        src = src.replace(/^https?:\/\/[^/]+\/storage\/cms\//i, '/uploads/cms/');
+                        src = src.replace(/^\/storage\/cms\//i, '/uploads/cms/');
+                        img.setAttribute('src', src);
+
+                        if (!img.style.maxWidth) {
+                            img.style.maxWidth = '100%';
+                        }
+                        if (!img.style.height) {
+                            img.style.height = 'auto';
+                        }
+                        img.style.cursor = 'nwse-resize';
+                    });
+                },
+
+                enableImageResize() {
+                    if (!this.quill || this.quill.root.__cmsResizeBound) return;
+                    this.quill.root.__cmsResizeBound = true;
+
+                    let activeImg = null;
+                    let startX = 0;
+                    let startWidth = 0;
+
+                    const onMove = (event) => {
+                        if (!activeImg) return;
+                        const delta = event.clientX - startX;
+                        const nextWidth = Math.max(80, Math.min(this.quill.root.clientWidth, startWidth + delta));
+                        activeImg.style.width = `${nextWidth}px`;
+                        activeImg.style.height = 'auto';
+                        event.preventDefault();
+                    };
+
+                    const onUp = () => {
+                        if (!activeImg) return;
+                        activeImg = null;
+                        this.content = this.quill.root.innerHTML;
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                    };
+
+                    this.quill.root.addEventListener('mousedown', (event) => {
+                        const img = event.target.closest('img');
+                        if (!img || !this.quill.root.contains(img)) return;
+
+                        // Start resize when clicking near the bottom-right corner
+                        const rect = img.getBoundingClientRect();
+                        const nearCorner =
+                            event.clientX >= rect.right - 24 &&
+                            event.clientY >= rect.bottom - 24;
+
+                        if (!nearCorner) return;
+
+                        activeImg = img;
+                        startX = event.clientX;
+                        startWidth = img.getBoundingClientRect().width;
+                        document.addEventListener('mousemove', onMove);
+                        document.addEventListener('mouseup', onUp);
+                        event.preventDefault();
+                        event.stopPropagation();
+                    });
+
+                    // Double-click image to reopen crop/replace flow
+                    this.quill.root.addEventListener('dblclick', async (event) => {
+                        const img = event.target.closest('img');
+                        if (!img || !this.quill.root.contains(img)) return;
+                        event.preventDefault();
+
+                        const width = prompt('Set image width in pixels (or leave blank for 100%)', img.style.width?.replace('px', '') || '');
+                        if (width === null) return;
+
+                        if (!width.trim()) {
+                            img.style.width = '100%';
+                        } else {
+                            const parsed = parseInt(width, 10);
+                            if (!Number.isNaN(parsed) && parsed > 0) {
+                                img.style.width = `${parsed}px`;
+                            }
+                        }
+                        img.style.height = 'auto';
+                        this.content = this.quill.root.innerHTML;
+                    });
+                },
+
+                async pickImage() {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.click();
+
+                    input.onchange = async () => {
+                        const file = input.files?.[0];
+                        if (!file || !this.quill) return;
+
+                        try {
+                            let uploadFile = file;
+
+                            if (window.CmsImageCropper && typeof Cropper !== 'undefined') {
+                                try {
+                                    uploadFile = await window.CmsImageCropper.open(file);
+                                } catch (error) {
+                                    if (error?.message === 'cancelled') {
+                                        return;
+                                    }
+                                    // Fallback to original file if cropper fails
+                                    uploadFile = file;
+                                }
+                            }
+
+                            const formData = new FormData();
+                            formData.append('image', uploadFile);
+
+                            const response = await fetch(this.uploadUrl, {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': this.csrf,
+                                    'Accept': 'application/json',
+                                },
+                                body: formData,
+                            });
+
+                            if (!response.ok) {
+                                const errorBody = await response.text();
+                                throw new Error(errorBody || 'Upload failed');
+                            }
+
+                            const data = await response.json();
+                            if (!data.url) {
+                                throw new Error('Missing image URL');
+                            }
+
+                            const range = this.quill.getSelection(true) || { index: this.quill.getLength() };
+                            this.quill.insertEmbed(range.index, 'image', data.url, 'user');
+                            this.quill.setSelection(range.index + 1, 'user');
+
+                            // Make newly inserted image start at a sensible width
+                            await this.$nextTick();
+                            const imgs = this.quill.root.querySelectorAll('img');
+                            const lastImg = imgs[imgs.length - 1];
+                            if (lastImg && lastImg.getAttribute('src') === data.url) {
+                                lastImg.style.width = '100%';
+                                lastImg.style.height = 'auto';
+                            }
+
+                            this.content = this.quill.root.innerHTML;
+                        } catch (e) {
+                            console.error(e);
+                            alert('Image upload failed. Please try again.');
+                        }
+                    };
+                },
+            }));
+        });
+    </script>
     @livewireScripts
 
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>

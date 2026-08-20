@@ -1,20 +1,30 @@
 <?php
 
-use App\Traits\AmadeusApiTrait;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Testcontroller;
 use App\Http\Controllers\ApiFlightBookingController;
 use App\Http\Controllers\ApiFlightSearchController;
-use App\Http\Controllers\HotelBooking\HotelListController;
-use App\Http\Controllers\FlightBooking\GetPricingController;
-use App\Http\Controllers\HotelBooking\HotelSearchController;
-use App\Http\Controllers\HotelBooking\OfferSearchController;
-use App\Http\Controllers\HotelBooking\HotelBookingController;
-use App\Http\Controllers\FlightBooking\FlightSearchController;
+use App\Http\Controllers\Authcontroller;
 use App\Http\Controllers\FlightBooking\AirportSearchController;
 use App\Http\Controllers\FlightBooking\CreateFlightOrderController;
-use App\Http\Controllers\Authcontroller;
+use App\Http\Controllers\FlightBooking\FlightSearchController;
+use App\Http\Controllers\FlightBooking\GetPricingController;
 use App\Http\Controllers\FlightSelectionAuthController;
+use App\Http\Controllers\HotelBooking\HotelBookingController;
+use App\Http\Controllers\HotelBooking\HotelListController;
+use App\Http\Controllers\HotelBooking\HotelSearchController;
+use App\Http\Controllers\HotelBooking\OfferSearchController;
+use App\Http\Controllers\Testcontroller;
+use App\Traits\AmadeusApiTrait;
+use Illuminate\Support\Facades\Route;
+
+use App\Models\Page;
+Route::get('/pagetest', function () {
+    $page = Page::all();
+    return response()->json([
+        'success' => true,
+        'message' => 'API is working',
+        'data' => $page,
+    ]);
+});
 
 Route::post('register', [Authcontroller::class, 'register']);
 Route::post('login', [Authcontroller::class, 'login']);

@@ -6,11 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{--<title>{{ $title ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>--}}
-    <title>Flightandticketing - Mymore Travels Rc-1884387</title>
+    <title>{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>
     <!-- Primary SEO -->
-    <meta name="description" content="Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations. Fast search, secure payments, flexible cancellations." />
-    <meta name="keywords" content="cheap flights, flight booking, flight tickets, compare airfare, airline tickets, Flightandticketing, Mymore" />
-    <link rel="canonical" href="https://flightandticketing.com" />
+    <meta name="description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations. Fast search, secure payments, flexible cancellations.' }}" />
+    @if (!empty($seoKeywords))
+        <meta name="keywords" content="{{ $seoKeywords }}" />
+    @else
+        <meta name="keywords" content="cheap flights, flight booking, flight tickets, compare airfare, airline tickets, Flightandticketing, Mymore" />
+    @endif
+    <link rel="canonical" href="{{ $seoCanonical ?? url()->current() }}" />
+    @if (!empty($seoImage))
+        <meta property="og:image" content="{{ \Illuminate\Support\Str::startsWith($seoImage, ['http://', 'https://']) ? $seoImage : asset(ltrim($seoImage, '/')) }}" />
+    @endif
+    <meta property="og:title" content="{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}" />
+    <meta property="og:description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations.' }}" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}" />
+    <meta name="twitter:description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations.' }}" />
     <style>
         @keyframes spinvne {
             to {
@@ -480,6 +493,8 @@
     @livewire('partials.nav-bar')
 
     {{ $slot }}
+
+    @livewire('partials.site-footer')
     @livewireScripts
 
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
