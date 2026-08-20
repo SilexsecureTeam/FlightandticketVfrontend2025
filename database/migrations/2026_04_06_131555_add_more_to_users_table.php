@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('country')->nullable();
             $table->string('state')->nullable();
             $table->string('city')->nullable();
-            $table->string('city')->nullable();
             $table->enum('daily_report', ['yes', 'no'])->default('no');
             $table->enum('weekly_report', ['yes', 'no'])->default('no');
             $table->enum('monthly_report', ['yes', 'no'])->default('no');
