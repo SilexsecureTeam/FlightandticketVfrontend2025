@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     {{--<title>{{ $title ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>--}}
-    <title>{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>
+    <title>{{ $seoTitle ?? config('cms-seo.site.default_title') }}</title>
     <!-- Primary SEO -->
-    <meta name="description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations. Fast search, secure payments, flexible cancellations.' }}" />
+    <meta name="description" content="{{ $seoDescription ?? config('cms-seo.site.default_description') }}" />
     @if (!empty($seoKeywords))
         <meta name="keywords" content="{{ $seoKeywords }}" />
     @else
-        <meta name="keywords" content="cheap flights, flight booking, flight tickets, compare airfare, airline tickets, Flightandticketing, Mymore" />
+        <meta name="keywords" content="{{ config('cms-seo.site.default_keywords') }}" />
     @endif
     <link rel="canonical" href="{{ $seoCanonical ?? url()->current() }}" />
     @if (!empty($seoImage))

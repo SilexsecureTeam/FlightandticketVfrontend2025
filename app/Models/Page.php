@@ -32,6 +32,17 @@ class Page extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(static function () {
+            cache()->forget('sitemap.xml');
+        });
+
+        static::deleted(static function () {
+            cache()->forget('sitemap.xml');
+        });
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', 'published');

@@ -32,6 +32,17 @@ class BlogPost extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::saved(static function () {
+            cache()->forget('sitemap.xml');
+        });
+
+        static::deleted(static function () {
+            cache()->forget('sitemap.xml');
+        });
+    }
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

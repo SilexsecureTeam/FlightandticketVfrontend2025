@@ -20,10 +20,10 @@ class BlogIndex extends Component
         return view('livewire.cms.blog-index', [
             'posts' => $posts,
         ])->layout('components.layouts.app', [
-            'seoTitle' => 'Blog | Flightandticketing',
-            'seoDescription' => 'Travel tips, deals, and news from Flightandticketing by Mymore Travels.',
-            'seoKeywords' => 'travel blog, flight tips, travel deals',
-            'seoCanonical' => url('/blog'),
+            'seoTitle' => config('cms-seo.blog_index.meta_title'),
+            'seoDescription' => config('cms-seo.blog_index.meta_description'),
+            'seoKeywords' => config('cms-seo.blog_index.meta_keywords'),
+            'seoCanonical' => config('cms-seo.blog_index.canonical_url'),
         ]);
     }
 }
