@@ -216,13 +216,13 @@ class FlightBookingService
      * @return array
      * @throws \Exception
      */
-    public function initializePayment(FlightOrder $order, string $email, float $amount): array
+    public function initializePayment(FlightOrder $order, string $email, float $amount, string $source = 'web'): array
     {
         $paystackController = app(PaystackController::class);
         $alatpayController = app(\App\Http\Controllers\Payment\AlatPayController::class);
 
         $paystackResponse = $paystackController->initializePayment($order->id, $email, $amount, 'Flight');
-        $alatpayResponse = $alatpayController->initializePayment($order->id, $email, $amount, 'Flight');
+        $alatpayResponse = $alatpayController->initializePayment($order->id, $email, $amount, 'Flight', $source);
 
         $paystackData = json_decode($paystackResponse->getContent(), true);
         $alatpayData = json_decode($alatpayResponse->getContent(), true);
@@ -230,11 +230,13 @@ class FlightBookingService
         return [
             'paystack_url' => $paystackData['paystackURL'] ?? null,
             'alatpay_url' => $alatpayData['alatpayURL'] ?? null,
+            'alatpay_reference' => $alatpayData['reference'] ?? null,
+            'alatpay_widget' => $alatpayData['widget'] ?? null,
             'payment_ids' => [
                 'paystack' => $paystackData['payment_id'] ?? null,
                 'alatpay' => $alatpayData['payment_id'] ?? null,
             ],
-            'status' => 'success'
+            'status' => 'success',
         ];
     }
 

@@ -36,6 +36,14 @@ class Authcontroller extends Controller
                 return $this->error([], "Invalid credentials.", 401);
             }
 
+            if ($user->status === 'deleted') {
+                return $this->error([], "Your account does not exist. Please contact support.", 401);
+            }
+
+            if ($user->status === 'block') {
+                return $this->error([], "Your account is blocked. Please contact support.", 401);
+            }
+
             $newOtp = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
             $user->update([
                 'otp' => $newOtp,
@@ -341,7 +349,9 @@ class Authcontroller extends Controller
     {
         $user = User::find(Auth::id());
         $user->tokens()->delete();
-        $user->delete();
+        $user->update([
+            'status' => 'deleted',
+        ]);
         // $request->user()->currentAccessToken()->delete();
         return response()->json(['message' => 'Account deleted successfully'], 200);
     }
@@ -470,3 +480,5 @@ class Authcontroller extends Controller
         }
     }
 }
+
+

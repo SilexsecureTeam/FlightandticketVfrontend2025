@@ -311,7 +311,7 @@ class BookingPage extends Component
             $service = app(\App\Http\Services\FlightBookingService::class);
             $amount = $this->flight_offer_price['grandTotal'];
 
-            $paymentData = $service->initializePayment($order, $this->travelers[0]['contact']['emailAddress'], $amount);
+            $paymentData = $service->initializePayment($order, $this->travelers[0]['contact']['emailAddress'], $amount, 'web');
 
             // $this->paystackUrl = $paymentData['paystackURL'];
             $this->paystackUrl = $paymentData['paystack_url'];
@@ -320,6 +320,9 @@ class BookingPage extends Component
             session()->put('paystackUrl', $this->paystackUrl);
             session()->put('orderResponse', $order->id);
             session()->put('payment_information', $this->flight_offer_price);
+            session()->put('alatpay_payment_id', $paymentData['payment_ids']['alatpay'] ?? null);
+            session()->put('alatpay_reference', $paymentData['alatpay_reference'] ?? null);
+            session()->put('alatpay_widget', $paymentData['alatpay_widget'] ?? null);
             session(['showToSource' => $this->showToSource]);
 
             return redirect()->route('booking.payment');

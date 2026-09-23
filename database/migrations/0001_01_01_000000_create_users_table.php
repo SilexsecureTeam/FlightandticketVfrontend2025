@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('otp')->nullable();
             $table->string('otp_expires_at')->nullable();
             $table->enum('type',['user','admin'])->default('user');
-            $table->enum('status',['active','block'])->default('active');
+            $table->enum('status',['active','block', 'deleted'])->default('active');
             $table->rememberToken();
             $table->timestamps();
         });

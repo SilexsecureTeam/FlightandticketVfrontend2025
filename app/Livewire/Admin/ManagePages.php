@@ -3,14 +3,17 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Page;
+use App\Models\SiteSetting;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class ManagePages extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
     public string $mode = 'list';
     public ?int $editingId = null;
@@ -27,6 +30,12 @@ class ManagePages extends Component
     public string $meta_keywords = '';
     public string $og_image = '';
     public string $canonical_url = '';
+
+    public string $site_meta_title = '';
+    public string $site_meta_description = '';
+    public string $site_meta_keywords = '';
+    public $site_favicon = null;
+    public ?string $existing_favicon = null;
 
     public string $search = '';
 
@@ -45,6 +54,92 @@ class ManagePages extends Component
         $this->mode = 'form';
         $this->editingId = null;
         $this->dispatch('contentChanged', content: '');
+    }
+
+    public function editSiteMeta(): void
+    {
+        $settings = SiteSetting::current();
+
+        $this->site_meta_title = (string) ($settings->meta_title ?? '');
+        $this->site_meta_description = (string) ($settings->meta_description ?? '');
+        $this->site_meta_keywords = (string) ($settings->meta_keywords ?? '');
+        $this->existing_favicon = $settings->favicon;
+        $this->site_favicon = null;
+        $this->mode = 'site-meta';
+        $this->resetValidation();
+    }
+
+    public function saveSiteMeta(): void
+    {
+        $validated = $this->validate([
+            'site_meta_title' => 'required|string|max:255',
+            'site_meta_description' => 'required|string|max:500',
+            'site_meta_keywords' => 'nullable|string|max:500',
+            'site_favicon' => 'nullable|image|mimes:ico,png,jpg,jpeg,gif,webp,svg|max:2048',
+        ]);
+
+        $settings = SiteSetting::current();
+        $faviconPath = $settings->favicon;
+
+        if ($this->site_favicon) {
+            $extension = strtolower($this->site_favicon->getClientOriginalExtension() ?: 'png');
+            $filename = 'favicon-' . Str::uuid() . '.' . $extension;
+            $directory = public_path('uploads/site');
+
+            if (!is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $source = $this->site_favicon->getRealPath();
+            if ($source && is_file($source)) {
+                copy($source, $directory . DIRECTORY_SEPARATOR . $filename);
+                $faviconPath = 'uploads/site/' . $filename;
+
+                if ($this->existing_favicon && Str::startsWith($this->existing_favicon, 'uploads/site/')) {
+                    $old = public_path($this->existing_favicon);
+                    if (is_file($old)) {
+                        @unlink($old);
+                    }
+                }
+            }
+        }
+
+        $settings->update([
+            'meta_title' => $validated['site_meta_title'],
+            'meta_description' => $validated['site_meta_description'],
+            'meta_keywords' => $validated['site_meta_keywords'] ?: null,
+            'favicon' => $faviconPath,
+        ]);
+
+        $settings->refresh();
+        $settings->publishRootFavicon();
+        SiteSetting::clearCache();
+
+        session()->flash('message', 'Website meta head updated successfully.');
+        $this->mode = 'list';
+        $this->resetSiteMetaForm();
+    }
+
+    public function removeFavicon(): void
+    {
+        $settings = SiteSetting::current();
+
+        if ($settings->favicon && Str::startsWith($settings->favicon, 'uploads/site/')) {
+            $old = public_path($settings->favicon);
+            if (is_file($old)) {
+                @unlink($old);
+            }
+        }
+
+        $settings->update(['favicon' => null]);
+        $settings->refresh();
+        $settings->publishRootFavicon();
+        SiteSetting::clearCache();
+
+        $this->existing_favicon = null;
+        $this->site_favicon = null;
+
+        session()->flash('message', 'Website icon removed.');
     }
 
     public function edit(int $id): void
@@ -151,6 +246,7 @@ class ManagePages extends Component
     {
         $this->mode = 'list';
         $this->resetForm();
+        $this->resetSiteMetaForm();
     }
 
     protected function normalizeContentImages(string $content): string
@@ -178,6 +274,16 @@ class ManagePages extends Component
         $this->resetValidation();
     }
 
+    protected function resetSiteMetaForm(): void
+    {
+        $this->site_meta_title = '';
+        $this->site_meta_description = '';
+        $this->site_meta_keywords = '';
+        $this->site_favicon = null;
+        $this->existing_favicon = null;
+        $this->resetValidation();
+    }
+
     public function render()
     {
         $pages = Page::query()
@@ -193,6 +299,7 @@ class ManagePages extends Component
 
         return view('livewire.admin.manage-pages', [
             'pages' => $pages,
+            'siteSettings' => SiteSetting::current(),
         ])->layout('components.layouts.admin');
     }
 }

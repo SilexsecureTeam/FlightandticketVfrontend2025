@@ -4,26 +4,42 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{--<title>{{ $title ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}</title>--}}
-    <title>{{ $seoTitle ?? config('cms-seo.site.default_title') }}</title>
+    {{-- Site-wide meta defaults from admin Manage Pages > Update Meta Head --}}
+    @php
+        $siteSetting = \App\Models\SiteSetting::current();
+        $defaultTitle = $siteSetting->title();
+        $defaultDescription = $siteSetting->description();
+        $defaultKeywords = $siteSetting->keywords();
+        $faviconUrl = $siteSetting->faviconUrl();
+        $faviconMime = $faviconUrl ? $siteSetting->faviconMimeType() : null;
+        $faviconVersion = $siteSetting->updated_at?->timestamp ?? time();
+    @endphp
+    @if ($faviconUrl)
+        <link rel="icon" href="{{ $faviconUrl }}" type="{{ $faviconMime }}" />
+        <link rel="shortcut icon" href="{{ $faviconUrl }}" type="{{ $faviconMime }}" />
+        <link rel="icon" href="/favicon.ico?v={{ $faviconVersion }}" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="{{ $faviconUrl }}" />
+    @endif
+    <title>{{ $seoTitle ?? $defaultTitle }}</title>
     <!-- Primary SEO -->
-    <meta name="description" content="{{ $seoDescription ?? config('cms-seo.site.default_description') }}" />
+    <meta name="description" content="{{ $seoDescription ?? $defaultDescription }}" />
     @if (!empty($seoKeywords))
         <meta name="keywords" content="{{ $seoKeywords }}" />
     @else
-        <meta name="keywords" content="{{ config('cms-seo.site.default_keywords') }}" />
+        <meta name="keywords" content="{{ $defaultKeywords }}" />
     @endif
     <link rel="canonical" href="{{ $seoCanonical ?? url()->current() }}" />
     @if (!empty($seoImage))
         <meta property="og:image" content="{{ \Illuminate\Support\Str::startsWith($seoImage, ['http://', 'https://']) ? $seoImage : asset(ltrim($seoImage, '/')) }}" />
     @endif
-    <meta property="og:title" content="{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}" />
-    <meta property="og:description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations.' }}" />
+    <meta property="og:title" content="{{ $seoTitle ?? $defaultTitle }}" />
+    <meta property="og:description" content="{{ $seoDescription ?? $defaultDescription }}" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ $seoTitle ?? 'Flightandticketing - Mymore Travels Rc-1884387' }}" />
-    <meta name="twitter:description" content="{{ $seoDescription ?? 'Flightandticketing by Mymore — Find cheap flights, compare fares, book instantly, and manage reservations.' }}" />
+    <meta name="twitter:title" content="{{ $seoTitle ?? $defaultTitle }}" />
+    <meta name="twitter:description" content="{{ $seoDescription ?? $defaultDescription }}" />
     <style>
         @keyframes spinvne {
             to {

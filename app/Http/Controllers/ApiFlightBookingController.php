@@ -50,7 +50,7 @@ class ApiFlightBookingController extends Controller
 
         try {
             // Step 7: Initialize payments
-            $paymentData = $this->bookingService->initializePayment($order, $email, $grandTotal);
+            $paymentData = $this->bookingService->initializePayment($order, $email, $grandTotal, 'api');
 
             $travelersCount = count($orderResponse['data']['travelers'] ?? []);
             $commission = $this->resolveMarkupCommission($pricedOffer, $travelersCount);
@@ -85,6 +85,8 @@ class ApiFlightBookingController extends Controller
                     'pnr' => $pnr,
                     'paystack_url' => $paymentData['paystack_url'],
                     'alatpay_url' => $paymentData['alatpay_url'],
+                    'alatpay_reference' => $paymentData['alatpay_reference'],
+                    'alatpay_widget' => $paymentData['alatpay_widget'],
                     'payment_ids' => $paymentData['payment_ids'],
                     'priced_offer' => $pricedOffer,
                     'bookingData' => $bookingData,

@@ -28,6 +28,8 @@ class PaymentBooking extends Component
     public $showToSource = 'web';
     public $data = [];
     public $orderResponse;
+    public $alatpayWidget = [];
+    public $alatpayReference = '';
 
 
     public function mount()
@@ -37,6 +39,8 @@ class PaymentBooking extends Component
         $this->paystackUrl = session('paystackUrl', "");
         $this->orderResponse = session('orderResponse', "");
         $this->price = session('payment_information', []);
+        $this->alatpayWidget = session('alatpay_widget', []);
+        $this->alatpayReference = session('alatpay_reference', '');
 
         // Retrieve booking details from session
         $bookingDetails = session('booking_details');
@@ -208,6 +212,43 @@ class PaymentBooking extends Component
     public function render()
     {
         $price = $this->price['grandTotal'] + ($this->price['commission'] ?? 0);
+        $alatPayService = app(\App\Http\Services\AlatPayPaymentService::class);
+
+        $widget = $this->alatpayWidget;
+        if (empty($widget) && $this->alatpayReference) {
+            $payment = Payment::query()
+                ->where('provider', 'alatpay')
+                ->where('reference', $this->alatpayReference)
+                ->first();
+            if ($payment) {
+                $widget = $alatPayService->widgetConfig($payment, [
+                    'email' => $this->data['email'] ?? $payment->email,
+                    'phone' => $this->data['phone'] ?? '',
+                    'firstName' => $this->data['firstName'] ?? '',
+                    'lastName' => $this->data['lastName'] ?? '',
+                    'currency' => $this->price['currency'] ?? 'NGN',
+                ]);
+            }
+        }
+
+        if (empty($widget)) {
+            $payment = Payment::query()
+                ->where('provider', 'alatpay')
+                ->where('flight_order_id', $this->orderResponse)
+                ->latest('id')
+                ->first();
+            if ($payment) {
+                $widget = $alatPayService->widgetConfig($payment, [
+                    'email' => $this->data['email'] ?? $payment->email,
+                    'phone' => $this->data['phone'] ?? '',
+                    'firstName' => $this->data['firstName'] ?? '',
+                    'lastName' => $this->data['lastName'] ?? '',
+                    'currency' => $this->price['currency'] ?? 'NGN',
+                ]);
+                $this->alatpayReference = $payment->reference;
+            }
+        }
+
         return view('livewire.booking.payment-booking', [
             'totalamount' => $price ?? 0,
             'currency' => $this->price['currency'] ?? 'NGN',
@@ -216,6 +257,9 @@ class PaymentBooking extends Component
             'middleName' => $this->data['middleName'] ?? '',
             'lastName' => $this->data['lastName'] ?? '',
             'phone' => $this->data['phone'] ?? '',
+            'alatpayWidget' => $widget,
+            'alatpayReference' => $this->alatpayReference,
+            'alatpayClientCallbackUrl' => url('/payment/alatpay/client-callback'),
         ]);
     }
 }

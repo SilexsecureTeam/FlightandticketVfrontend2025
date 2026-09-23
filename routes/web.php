@@ -4,6 +4,9 @@ use App\Livewire\Landing;
 use App\Livewire\MailTest;
 use App\Livewire\Auth\Login;
 use App\Livewire\Page\Payment;
+use App\Livewire\Admin\ManageAlatPayPayments;
+use App\Http\Controllers\Payment\AlatPayCallbackController;
+use App\Http\Controllers\Payment\AlatPayWebhookController;
 use App\Livewire\Page\Settings;
 use App\Livewire\Page\AboutPage;
 use App\Livewire\Page\Customers;
@@ -55,7 +58,11 @@ Route::get('/blog/{slug}', \App\Livewire\Cms\BlogShow::class)->name('blog.show')
 
     Route::prefix('payment')->group(function () {
         Route::get('/offline/{orderResponse}', OfflineSuccessPage::class)->name('payment.offline');
+        Route::get('/alatpay/callback', [AlatPayCallbackController::class, 'show'])->name('payment.alatpay.callback');
+        Route::post('/alatpay/client-callback', [AlatPayCallbackController::class, 'client'])->name('payment.alatpay.client');
     });
+
+    Route::post('/webhooks/alatpay', AlatPayWebhookController::class)->name('webhooks.alatpay');
     
     // Route::get('/login', LoginPage::class)->name('login')->name('login');
 // });
@@ -74,6 +81,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
     Route::get('/payment', Payment::class)->name('payment');
+    Route::get('/admin/alatpay-payments', ManageAlatPayPayments::class)->name('admin.alatpay.payments');
     Route::get('/customers', Customers::class)->name('customers');
     Route::get('/settings', Settings::class)->name('settings');
     Route::get('/admin/pages', \App\Livewire\Admin\ManagePages::class)->name('admin.pages');

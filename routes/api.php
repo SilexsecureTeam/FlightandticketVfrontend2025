@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('profile', [Authcontroller::class, 'getProfile']);
     Route::post('profile/update', [Authcontroller::class, 'updateProfile']);
     Route::post('password/change', [Authcontroller::class, 'changePassword']);
+    Route::post('deleteAccount', [Authcontroller::class, 'deleteAccount']);
 
     // User Flight History
     Route::get('flights/orders', [ApiFlightBookingController::class, 'getUserOrders']);

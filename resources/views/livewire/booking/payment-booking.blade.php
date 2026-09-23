@@ -432,33 +432,78 @@
 </main>
 
 <!-- AlatPay Script -->
-<script src="https://web.alatpay.ng/js/alatpay.js"></script>
+<script src="{{ $alatpayWidget['jsUrl'] ?? config('services.alatpay.js_url') }}"></script>
 <script>
-    // Initialize AlatPay with dynamic data
-    let popup = Alatpay.setup({
-        apiKey: "3e0c19b031fe4e5bb9b51a200cb86440", // Replace with your AlatPay API key
-        businessId: "99fe948e-bafe-4bd3-92be-08dcabf3e16e", // Replace with your AlatPay Business ID
-        email: "<?= $email ?>", // Customer email
-        phone: "<?= $phone ?>", // Customer phone number
-        firstName: "<?= $firstName ?>", // Customer first name
-        lastName: "<?= $lastName ?>", // Customer last name
-        metaData: null, // Optional metadata
-        currency: "<?= $currency ?>", // Currency (e.g., NGN)
-        amount: <?= $totalamount ?>,
-        onTransaction: function(response) {
-            console.log("API response is ", response);
-            // Handle transaction success or failure here
-            window.location.href = '/payment/success'; // Redirect to success page
-        },
-        onClose: function() {
-            console.log("Payment gateway is closed");
-        }
-    });
+    (function () {
+        const widget = @json($alatpayWidget ?? []);
+        const clientCallbackUrl = @json($alatpayClientCallbackUrl);
+        const reference = @json($alatpayReference ?: ($alatpayWidget['reference'] ?? ''));
 
-    // Function to show the AlatPay payment modal
-    function showPayment() {
-        popup.show();
-    }
+        if (!widget || !widget.apiKey || !widget.businessId) {
+            console.warn('ALATPay widget config missing');
+            window.showPayment = function () {
+                alert('ALATPay is not configured. Please contact support.');
+            };
+            return;
+        }
+
+        let popup = Alatpay.setup({
+            apiKey: widget.apiKey,
+            businessId: widget.businessId,
+            email: widget.email || @json($email),
+            phone: widget.phone || @json($phone),
+            firstName: widget.firstName || @json($firstName),
+            lastName: widget.lastName || @json($lastName),
+            metadata: widget.metadata || {
+                paymentReference: reference,
+                source: 'web'
+            },
+            currency: widget.currency || @json($currency),
+            amount: Number(widget.amount || @json($totalamount)),
+            onTransaction: function (response) {
+                console.log('ALATPay response', response);
+
+                const body = Object.assign({}, response || {}, {
+                    reference: reference,
+                    source: 'web',
+                });
+
+                fetch(clientCallbackUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    },
+                    body: JSON.stringify(body),
+                })
+                    .then(function (res) { return res.json().catch(function () { return {}; }); })
+                    .then(function (data) {
+                        const redirectUrl = (data && data.redirect)
+                            ? data.redirect
+                            : ((widget.callbackUrl || '/payment/alatpay/callback') + (String(widget.callbackUrl || '').indexOf('?') >= 0 ? '&' : '?') + 'reference=' + encodeURIComponent(reference));
+
+                        if (response && (response.status === true || response.Status === 'completed' || response.status === 'completed')) {
+                            window.location.href = redirectUrl;
+                        } else {
+                            window.location.href = redirectUrl;
+                        }
+                    })
+                    .catch(function () {
+                        window.location.href = (widget.callbackUrl || '/payment/alatpay/callback') +
+                            (String(widget.callbackUrl || '').indexOf('?') >= 0 ? '&' : '?') +
+                            'reference=' + encodeURIComponent(reference);
+                    });
+            },
+            onClose: function () {
+                console.log('Payment gateway is closed');
+            },
+        });
+
+        window.showPayment = function () {
+            popup.show();
+        };
+    })();
 </script>
 </div>
 

@@ -38,8 +38,14 @@ return [
         'secret_key' => env('PAYSTACK_SECRET_KEY'),
     ],
     'alatpay' => [
-        'api_key' => env('ALATPAY_API_KEY', '3e0c19b031fe4e5bb9b51a200cb86440'),
-        'business_id' => env('ALATPAY_BUSINESS_ID', '99fe948e-bafe-4bd3-92be-08dcabf3e16e'),
+        'api_key' => env('ALATPAY_API_KEY'),
+        'business_id' => env('ALATPAY_BUSINESS_ID'),
+        'webhook_secret' => env('ALATPAY_WEBHOOK_SECRET'),
+        'callback_url' => env('ALATPAY_CALLBACK_URL'),
+        'webhook_url' => env('ALATPAY_WEBHOOK_URL'),
+        'js_url' => env('ALATPAY_JS_URL', 'https://web.alatpay.ng/js/alatpay.js'),
+        'whitelist_ips' => array_values(array_filter(array_map('trim', explode(',', (string) env('ALATPAY_WHITELIST_IPS', '74.178.162.156'))))),
+        'notify_email' => env('ALATPAY_NOTIFY_EMAIL', 'mymoretravels@gmail.com'),
     ],
     'amadeus' => [
         'base_url' => env('AMADEUS_BASE_URL', 'https://test.travel.api.amadeus.com'),

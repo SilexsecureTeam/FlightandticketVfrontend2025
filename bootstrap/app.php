@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
+
+        $middleware->validateCsrfTokens(except: [
+            'webhooks/alatpay',
+            'payment/alatpay/client-callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

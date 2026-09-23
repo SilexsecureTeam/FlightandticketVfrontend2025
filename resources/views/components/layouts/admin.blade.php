@@ -156,11 +156,18 @@
                     <span>Flight Search</span>
                     <span class="sr-only">active</span>
                 </a>
-                <a href="/payment" wire:navigate class=" {{ request()->is('payment*') ? ' bg-primary text-white   font-bold' : '' }}  flex items-center rounded-md gap-2 px-2 py-1.5 text-sm font-medium text-neutral-600 underline-offset-2 focus-visible:underline focus:outline-none ">
+                <a href="/payment" wire:navigate class=" {{ request()->is('payment') ? ' bg-primary text-white   font-bold' : '' }}  flex items-center rounded-md gap-2 px-2 py-1.5 text-sm font-medium text-neutral-600 underline-offset-2 focus-visible:underline focus:outline-none ">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 shrink-0" aria-hidden="true">
                         <path fill-rule="evenodd" d="M1 2.75A.75.75 0 0 1 1.75 2h16.5a.75.75 0 0 1 0 1.5H18v8.75A2.75 2.75 0 0 1 15.25 15h-1.072l.798 3.06a.75.75 0 0 1-1.452.38L13.41 18H6.59l-.114.44a.75.75 0 0 1-1.452-.38L5.823 15H4.75A2.75 2.75 0 0 1 2 12.25V3.5h-.25A.75.75 0 0 1 1 2.75ZM7.373 15l-.391 1.5h6.037l-.392-1.5H7.373Zm7.49-8.931a.75.75 0 0 1-.175 1.046 19.326 19.326 0 0 0-3.398 3.098.75.75 0 0 1-1.097.04L8.5 8.561l-2.22 2.22A.75.75 0 1 1 5.22 9.72l2.75-2.75a.75.75 0 0 1 1.06 0l1.664 1.663a20.786 20.786 0 0 1 3.122-2.74.75.75 0 0 1 1.046.176Z" clip-rule="evenodd" />
                     </svg>
                     <span>Payments</span>
+                </a>
+                <a href="/admin/alatpay-payments" wire:navigate class=" {{ request()->is('admin/alatpay-payments*') ? ' bg-primary text-white   font-bold' : '' }}  flex items-center rounded-md gap-2 px-2 py-1.5 text-sm font-medium text-neutral-600 underline-offset-2 focus-visible:underline focus:outline-none ">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 shrink-0" aria-hidden="true">
+                        <path d="M10.75 10.818v2.614A3.13 3.13 0 0 0 11.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 0 0-1.138-.432ZM8.33 8.62c.053.055.115.11.186.164.208.157.46.28.736.363V6.603a2.45 2.45 0 0 0-.35.13c-.14.065-.27.143-.386.233ZM6.25 10c0-.227.13-.56.612-.875A3.13 3.13 0 0 1 8 8.693V6.603a2.45 2.45 0 0 0-.35-.13 4.033 4.033 0 0 0-.386-.233A2.001 2.001 0 0 0 6.25 8v2ZM8 12.25a.75.75 0 0 0-.75.75v.5a.75.75 0 0 0 1.5 0v-.5A.75.75 0 0 0 8 12.25Z" />
+                        <path fill-rule="evenodd" d="M10 1.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17ZM2.5 10a7.5 7.5 0 1 1 15 0 7.5 7.5 0 0 1-15 0Z" clip-rule="evenodd" />
+                    </svg>
+                    <span>ALATPay</span>
                 </a>
 
                 <!-- collapsible item  -->
