@@ -435,7 +435,17 @@ class FlightResult extends Component
             return true;
         }
 
-        return in_array((int) ($flight['totalStops'] ?? 0), $this->filterStops, true);
+        // Match per itinerary, the same way the cheapest-by-airline table and the
+        // stop options are built, so a clicked table cell always has results.
+        $filterStops = array_map('intval', $this->filterStops);
+        foreach ($flight['itineraries'] ?? [] as $itinerary) {
+            $stops = max(count($itinerary['segments'] ?? []) - 1, 0);
+            if (in_array($stops, $filterStops, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function extractCarrierCodes(array $flight): array

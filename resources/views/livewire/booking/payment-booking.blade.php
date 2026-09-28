@@ -391,9 +391,7 @@
                     </div>
                     <div class="h-1 w-20 bg-blue-500 mb-6 rounded-full"></div>
                     <p class="text-gray-700 mb-4 text-lg leading-relaxed">
-                        By selecting this option, you agree to complete the payment within <span
-                            class="font-bold text-blue-600">24 hours</span>.
-                        Failure to pay within the specified timeframe may result in the cancellation of your
+                        By selecting this option, you agree to complete payment timely, to confirm your
                         reservation.
                     </p>
                     <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r">
@@ -404,7 +402,8 @@
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            Please note that prices are subject to change after the reservation period.
+                            Please note that seat availability and fares are subject to change until payment is
+                            completed.
                         </p>
                     </div>
 

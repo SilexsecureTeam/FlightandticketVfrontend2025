@@ -3,6 +3,7 @@
 namespace App\Http\Services;
 
 use App\Http\Controllers\Payment\PaystackController;
+use App\Jobs\SendFlightBookingEmailsJob;
 use App\Models\Airline;
 use App\Models\Airport;
 use App\Models\Flight\FlightOrder;
@@ -52,9 +53,12 @@ class FlightBookingService
     /**
      * Find a flight offer from stored search results.
      */
-    public function findFlightOffer(string $searchId, string $offerId): ?array
+    public function findFlightOffer(string $searchId, string $offerId, ?string $offerSource = null): ?array
     {
-        $filePath = 'flight_searches/' . $searchId . '_offers.json';
+        // Offer ids restart at 1 in each file, so the source list must be respected.
+        $filePath = $offerSource === 'full'
+            ? 'flight_searches/' . $searchId . '_offers_full.json'
+            : 'flight_searches/' . $searchId . '_offers.json';
         if (!Storage::exists($filePath)) {
             return null;
         }
@@ -283,6 +287,16 @@ class FlightBookingService
         Mail::to($email)->send(new FlightBookingMail($bookingData));
         Mail::to("reservation@mymoretravel.com")->send(new FlightBookingMail($bookingData));
         Mail::to("csmymoretravels@gmail.com")->send(new FlightBookingMail($bookingData));
+    }
+
+    /**
+     * Queue booking confirmation emails after the payment window, so customers
+     * who pick "Reserve and Pay Later" only receive the offline emails.
+     */
+    public function queueConfirmationEmails(array $bookingData, string $email, FlightOrder $order, int $delayMinutes = 6)
+    {
+        SendFlightBookingEmailsJob::dispatch($bookingData, $email, $order->id)
+            ->delay(now()->addMinutes($delayMinutes));
     }
 
     /**

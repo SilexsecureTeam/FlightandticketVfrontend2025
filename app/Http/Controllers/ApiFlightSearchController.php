@@ -9,6 +9,7 @@ use App\Jobs\FetchFlightsJob;
 use App\Livewire\Components\Search;
 use App\Http\Controllers\Controller;
 use App\Http\Services\GeneralService;
+use Illuminate\Support\Facades\Storage;
 
 class ApiFlightSearchController extends Controller
 {
@@ -281,16 +282,39 @@ class ApiFlightSearchController extends Controller
                     ], 400);
                 }
 
-                // Handle flight offers as either JSON string or array
-                $flightOffers = $flightSearch->flight_offers;
-                if (is_string($flightOffers)) {
-                    $flightOffers = json_decode($flightOffers, true);
+                // Once the background job has stored the full result set, serve it instead of the
+                // initial 50 offers; otherwise flights (e.g. direct ones) listed in the cheapest
+                // table on the website never reach the app.
+                $meta = $flightSearch->meta ?? [];
+                $fullOffersPath = $meta['full_offers_path'] ?? null;
+                $useFullOffers = $flightSearch->status === 'view'
+                    && !empty($fullOffersPath)
+                    && Storage::exists($fullOffersPath);
+
+                if ($useFullOffers) {
+                    $flightOffers = json_decode(Storage::get($fullOffersPath), true) ?? [];
+                } else {
+                    $flightOffers = $flightSearch->flight_offers;
+                    if (is_string($flightOffers)) {
+                        $flightOffers = json_decode($flightOffers, true);
+                    }
                 }
 
+                $offerSource = $useFullOffers ? 'full' : 'initial';
+                $flightOffers = array_map(function ($offer) use ($offerSource) {
+                    $offer['offerSource'] = $offerSource;
+                    return $offer;
+                }, $flightOffers ?? []);
+
                 // Handle dictionaries as either JSON string or array
-                $dictionaries = $flightSearch->dictionaries;
-                if (is_string($dictionaries)) {
-                    $dictionaries = json_decode($dictionaries, true);
+                $fullDictionariesPath = $meta['full_dictionaries_path'] ?? null;
+                if ($useFullOffers && !empty($fullDictionariesPath) && Storage::exists($fullDictionariesPath)) {
+                    $dictionaries = json_decode(Storage::get($fullDictionariesPath), true) ?? [];
+                } else {
+                    $dictionaries = $flightSearch->dictionaries;
+                    if (is_string($dictionaries)) {
+                        $dictionaries = json_decode($dictionaries, true);
+                    }
                 }
 
                 // Handle dictionaries as either JSON string or array

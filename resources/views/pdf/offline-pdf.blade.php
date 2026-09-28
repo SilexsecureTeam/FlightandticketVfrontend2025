@@ -87,7 +87,7 @@
                                 
                                 <!-- Warning -->
                                 <div style="margin-top: 16px; padding: 12px; background-color: #fee2e2; border-radius: 8px; border: 1px solid #fecaca;">
-                                    <p style="font-weight: 600; color: #dc2626; margin: 0;">⚠️ If payment is not confirmed within 48 hours, your flight reservation will be cancelled.</p>
+                                    <p style="font-weight: 600; color: #dc2626; margin: 0;">⚠️ Your reservation is subject to availability until payment is confirmed.</p>
                                 </div>
                             </div>
                         </div>

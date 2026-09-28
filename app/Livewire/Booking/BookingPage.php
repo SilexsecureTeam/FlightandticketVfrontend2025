@@ -280,7 +280,7 @@ class BookingPage extends Component
                     'amount' => $bookingData['price']['grandTotal'] + $bookingData['commission'],
                 ]);
 
-            $service->sendConfirmationEmails($bookingData, $email);
+            $service->queueConfirmationEmails($bookingData, $email, $order, 10);
 
             $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $this->searchResultsId);
 

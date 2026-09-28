@@ -72,7 +72,7 @@ class ApiFlightBookingController extends Controller
                     'amount' => $bookingData['price']['total'] + $bookingData['commission'],
                 ]);
 
-            $this->bookingService->sendConfirmationEmails($bookingData, $email);
+            $this->bookingService->queueConfirmationEmails($bookingData, $email, $order);
 
             // Link booking to user account (create if not exists)
             $this->handleUserAccount($email, $orderResponse['data']['travelers'][0], $order, $request->search_id);
@@ -226,7 +226,11 @@ class ApiFlightBookingController extends Controller
             $clientRef = $flightSearch->clientRef ?? 'API-' . uniqid();
 
             // Step 1: Find full flight offer
-            $fullOffer = $this->bookingService->findFlightOffer($request->search_id, $offerId);
+            $fullOffer = $this->bookingService->findFlightOffer(
+                $request->search_id,
+                $offerId,
+                $request->input('offer_source')
+            );
             if (!$fullOffer) {
                 return response()->json([
                     'status' => 'error',

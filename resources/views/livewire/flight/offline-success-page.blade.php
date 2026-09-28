@@ -75,7 +75,7 @@
                                     </div>
 
                                     <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
-                                        <p class="font-semibold text-red-600">⚠️ If payment is not confirmed within 48 hours, your flight reservation will be cancelled.</p>
+                                        <p class="font-semibold text-red-600">⚠️ Your reservation is subject to availability until payment is confirmed.</p>
                                     </div>
                                 </div>
                             </div>
