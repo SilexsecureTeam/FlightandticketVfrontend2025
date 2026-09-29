@@ -39,6 +39,70 @@ class AlatPayCallbackController extends Controller
     }
 
     /**
+     * Mobile app report of the Alatpay.onTransaction response.
+     * The payment status is only changed by the verified webhook, since this endpoint
+     * is public and the client payload cannot be trusted.
+     */
+    public function mobile(Request $request)
+    {
+        $request->validate([
+            'reference' => 'required|string',
+        ]);
+
+        $payload = $request->all();
+        $extracted = $this->alatPay->extractData($payload);
+
+        $payment = Payment::query()
+            ->where('provider', 'alatpay')
+            ->where('reference', $request->input('reference'))
+            ->first();
+
+        $this->alatPay->recordEvent(
+            $payment,
+            'client',
+            $payload,
+            $extracted['normalized_status'] ?? null,
+            $request->input('reference'),
+            $extracted['alatpay_order_id'] ?? null,
+            'api',
+            $request->ip(),
+            null,
+        );
+
+        if (!$payment) {
+            Log::warning('ALATPay mobile callback payment not found', ['reference' => $request->input('reference')]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Payment not found',
+            ], 404);
+        }
+
+        $updates = array_filter([
+            'transaction_id' => $payment->transaction_id ?: ($extracted['transaction_id'] ?? null),
+            'alatpay_order_id' => $payment->alatpay_order_id ?: ($extracted['alatpay_order_id'] ?? null),
+            'channel' => $payment->channel ?: ($extracted['channel'] ?? null),
+        ]);
+        if (!empty($updates)) {
+            $payment->update($updates);
+        }
+
+        $payment->loadMissing('flightOrder');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Payment response received',
+            'data' => [
+                'reference' => $payment->reference,
+                'payment_status' => $payment->payment_status,
+                'amount' => (float) $payment->amount,
+                'pnr' => $payment->flightOrder?->pnr,
+                'order_id' => $payment->flight_order_id,
+            ],
+        ]);
+    }
+
+    /**
      * Client-side callback from Alatpay.onTransaction (web + mobile/API apps).
      * Captures payment response even before the official webhook arrives.
      */

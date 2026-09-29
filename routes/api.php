@@ -8,6 +8,7 @@ use App\Http\Controllers\FlightBooking\CreateFlightOrderController;
 use App\Http\Controllers\FlightBooking\FlightSearchController;
 use App\Http\Controllers\FlightBooking\GetPricingController;
 use App\Http\Controllers\FlightSelectionAuthController;
+use App\Http\Controllers\Payment\AlatPayCallbackController;
 use App\Http\Controllers\HotelBooking\HotelBookingController;
 use App\Http\Controllers\HotelBooking\HotelListController;
 use App\Http\Controllers\HotelBooking\HotelSearchController;
@@ -53,6 +54,7 @@ Route::prefix('flights')->group(function () {
     Route::post('/selection/verify-otp', [FlightSelectionAuthController::class, 'verifyOtp']);
     Route::post('/book', [ApiFlightBookingController::class, 'book']);
     Route::post('/reserve', [ApiFlightBookingController::class, 'reserve']);
+    Route::post('/payments/alatpay/confirm', [AlatPayCallbackController::class, 'mobile']);
 });
 
 Route::prefix('hotel')->group(function () {
