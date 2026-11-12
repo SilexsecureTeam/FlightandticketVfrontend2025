@@ -4,7 +4,7 @@
         <p class="text-gray-600">Search for the best deals on flights worldwide </p>
         {{-- DefComm Secure DB Widget — resources/views/layouts/app.blade.php --}}
         {{-- @push('scripts') --}}
-        <script src="{{ config('app.url') }}/secure-db/widget/embed.js"
+        <script src="https://dgateway.defcommsystem.cloud/secure-db/widget/embed.js"
             data-widget-key="{{ 'wdg_hcQrRrbVycqBrCqcOY55g6gWPdssben2' }}"
             async></script>
         {{-- @endpush --}}
